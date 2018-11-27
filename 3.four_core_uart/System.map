@@ -1,0 +1,80 @@
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+
+.text.boot      0x0000000000000000       0x48
+ *(.text.boot)
+ .text.boot     0x0000000000000000       0x48 objects/boot_s.o
+                0x0000000000000000                _start
+
+.text           0x0000000000000048      0x2b4
+ *(.text)
+ .text          0x0000000000000048      0x1f8 objects/mini_uart_c.o
+                0x0000000000000048                uart_send
+                0x0000000000000094                uart_recv
+                0x00000000000000d4                uart_send_string
+                0x000000000000012c                uart_init
+ .text          0x0000000000000240       0x90 objects/kernel_c.o
+                0x0000000000000240                kernel
+ .text          0x00000000000002d0       0x1c objects/utils_s.o
+                0x00000000000002d0                put32
+                0x00000000000002d8                get32
+                0x00000000000002e0                delay
+ .text          0x00000000000002ec       0x10 objects/mm_s.o
+                0x00000000000002ec                memzero
+ .text          0x00000000000002fc        0x0 objects/boot_s.o
+
+.iplt           0x00000000000002fc        0x0
+ .iplt          0x00000000000002fc        0x0 objects/mini_uart_c.o
+
+.rodata         0x0000000000000300       0x1b
+ *(.rodata)
+ .rodata        0x0000000000000300       0x1b objects/kernel_c.o
+
+.rela.dyn       0x0000000000000320        0x0
+ .rela.iplt     0x0000000000000320        0x0 objects/mini_uart_c.o
+
+.data           0x000000000000031b        0x0
+ *(.data)
+ .data          0x000000000000031b        0x0 objects/mini_uart_c.o
+ .data          0x000000000000031b        0x0 objects/kernel_c.o
+ .data          0x000000000000031b        0x0 objects/utils_s.o
+ .data          0x000000000000031b        0x0 objects/mm_s.o
+ .data          0x000000000000031b        0x0 objects/boot_s.o
+
+.igot.plt       0x0000000000000320        0x0
+ .igot.plt      0x0000000000000320        0x0 objects/mini_uart_c.o
+                0x0000000000000320                . = ALIGN (0x8)
+                0x0000000000000320                bss_begin = .
+
+.bss            0x0000000000000320        0x0
+ *(.bss*)
+ .bss           0x0000000000000320        0x0 objects/mini_uart_c.o
+ .bss           0x0000000000000320        0x0 objects/kernel_c.o
+ .bss           0x0000000000000320        0x0 objects/utils_s.o
+ .bss           0x0000000000000320        0x0 objects/mm_s.o
+ .bss           0x0000000000000320        0x0 objects/boot_s.o
+                0x0000000000000320                bss_end = .
+LOAD objects/mini_uart_c.o
+LOAD objects/kernel_c.o
+LOAD objects/utils_s.o
+LOAD objects/mm_s.o
+LOAD objects/boot_s.o
+OUTPUT(objects/kernel8.elf elf64-littleaarch64)
+
+.comment        0x0000000000000000       0x3b
+ .comment       0x0000000000000000       0x3b objects/mini_uart_c.o
+                                         0x3c (size before relaxing)
+ .comment       0x000000000000003b       0x3c objects/kernel_c.o
+
+.note.GNU-stack
+                0x0000000000000000        0x0
+ .note.GNU-stack
+                0x0000000000000000        0x0 objects/mini_uart_c.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objects/kernel_c.o
