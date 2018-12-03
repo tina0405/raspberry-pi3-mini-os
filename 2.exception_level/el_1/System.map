@@ -1,0 +1,93 @@
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+
+.text.boot      0x0000000000000000       0x80
+ *(.text.boot)
+ .text.boot     0x0000000000000000       0x80 objects/boot_s.o
+                0x0000000000000000                _start
+
+.text           0x0000000000000080      0xbec
+ *(.text)
+ .text          0x0000000000000080      0x1f4 objects/uart_c.o
+                0x0000000000000080                uart_send
+                0x00000000000000c8                uart_recv
+                0x0000000000000104                uart_send_string
+                0x000000000000015c                uart_init
+                0x0000000000000250                putc
+ .text          0x0000000000000274      0x978 objects/printf_c.o
+                0x0000000000000600                tfp_format
+                0x0000000000000a48                init_printf
+                0x0000000000000a80                tfp_printf
+                0x0000000000000b54                tfp_sprintf
+ .text          0x0000000000000bec       0x48 objects/kernel_c.o
+                0x0000000000000bec                kernel
+ .text          0x0000000000000c34       0x28 objects/utils_s.o
+                0x0000000000000c34                get_el
+                0x0000000000000c40                put32
+                0x0000000000000c48                get32
+                0x0000000000000c50                delay
+ .text          0x0000000000000c5c       0x10 objects/mm_s.o
+                0x0000000000000c5c                memzero
+ .text          0x0000000000000c6c        0x0 objects/boot_s.o
+
+.iplt           0x0000000000000c6c        0x0
+ .iplt          0x0000000000000c6c        0x0 objects/uart_c.o
+
+.rodata         0x0000000000000c70       0x17
+ *(.rodata)
+ .rodata        0x0000000000000c70       0x17 objects/kernel_c.o
+
+.rela.dyn       0x0000000000000c88        0x0
+ .rela.iplt     0x0000000000000c88        0x0 objects/uart_c.o
+
+.data           0x0000000000000c87        0x0
+ *(.data)
+ .data          0x0000000000000c87        0x0 objects/uart_c.o
+ .data          0x0000000000000c87        0x0 objects/printf_c.o
+ .data          0x0000000000000c87        0x0 objects/kernel_c.o
+ .data          0x0000000000000c87        0x0 objects/utils_s.o
+ .data          0x0000000000000c87        0x0 objects/mm_s.o
+ .data          0x0000000000000c87        0x0 objects/boot_s.o
+
+.igot.plt       0x0000000000000c88        0x0
+ .igot.plt      0x0000000000000c88        0x0 objects/uart_c.o
+                0x0000000000000c88                . = ALIGN (0x8)
+                0x0000000000000c88                bss_begin = .
+
+.bss            0x0000000000000c88       0x10
+ *(.bss*)
+ .bss           0x0000000000000c88        0x0 objects/uart_c.o
+ .bss           0x0000000000000c88       0x10 objects/printf_c.o
+ .bss           0x0000000000000c98        0x0 objects/kernel_c.o
+ .bss           0x0000000000000c98        0x0 objects/utils_s.o
+ .bss           0x0000000000000c98        0x0 objects/mm_s.o
+ .bss           0x0000000000000c98        0x0 objects/boot_s.o
+                0x0000000000000c98                bss_end = .
+LOAD objects/uart_c.o
+LOAD objects/printf_c.o
+LOAD objects/kernel_c.o
+LOAD objects/utils_s.o
+LOAD objects/mm_s.o
+LOAD objects/boot_s.o
+OUTPUT(objects/kernel8.elf elf64-littleaarch64)
+
+.comment        0x0000000000000000       0x3b
+ .comment       0x0000000000000000       0x3b objects/uart_c.o
+                                         0x3c (size before relaxing)
+ .comment       0x000000000000003b       0x3c objects/printf_c.o
+ .comment       0x000000000000003b       0x3c objects/kernel_c.o
+
+.note.GNU-stack
+                0x0000000000000000        0x0
+ .note.GNU-stack
+                0x0000000000000000        0x0 objects/uart_c.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objects/printf_c.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objects/kernel_c.o
