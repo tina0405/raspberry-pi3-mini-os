@@ -1,0 +1,138 @@
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+
+.text.boot      0x0000000000000000       0x80
+ *(.text.boot)
+ .text.boot     0x0000000000000000       0x80 objects/boot_s.o
+                0x0000000000000000                _start
+
+.text           0x0000000000000800     0x1d50
+ *(.text)
+ .text          0x0000000000000800       0xd4 objects/kernel_c.o
+                0x0000000000000800                kernel_main
+ .text          0x00000000000008d4      0x118 objects/irq_c.o
+                0x00000000000008d4                enable_interrupt_controller
+                0x000000000000094c                show_invalid_entry_message
+                0x0000000000000990                handle_irq
+ .text          0x00000000000009ec      0x21c objects/mini_uart_c.o
+                0x00000000000009ec                uart_send
+                0x0000000000000a38                uart_recv
+                0x0000000000000a78                uart_send_string
+                0x0000000000000ad0                uart_init
+                0x0000000000000be4                putc
+ .text          0x0000000000000c08      0x978 objects/printf_c.o
+                0x0000000000000f94                tfp_format
+                0x00000000000013dc                init_printf
+                0x0000000000001414                tfp_printf
+                0x00000000000014e8                tfp_sprintf
+ .text          0x0000000000001580      0x1c0 objects/timer_c.o
+                0x0000000000001580                timer_init
+                0x00000000000015f0                timer_init_3
+                0x0000000000001660                handle_timer_irq
+                0x00000000000016d0                handle_timer_irq_3
+ .text          0x0000000000001740       0x28 objects/utils_s.o
+                0x0000000000001740                get_el
+                0x000000000000174c                put32
+                0x0000000000001754                get32
+                0x000000000000175c                delay
+ .text          0x0000000000001768       0x1c objects/irq_s.o
+                0x0000000000001768                irq_vector_init
+                0x0000000000001774                enable_irq
+                0x000000000000177c                disable_irq
+ *fill*         0x0000000000001784       0x7c 
+ .text          0x0000000000001800      0xd40 objects/entry_s.o
+                0x0000000000001800                vectors
+                0x000000000000253c                err_hang
+ .text          0x0000000000002540       0x10 objects/mm_s.o
+                0x0000000000002540                memzero
+ .text          0x0000000000002550        0x0 objects/boot_s.o
+
+.iplt           0x0000000000002550        0x0
+ .iplt          0x0000000000002550        0x0 objects/kernel_c.o
+
+.rodata         0x0000000000002550      0x2a5
+ *(.rodata)
+ .rodata        0x0000000000002550       0x86 objects/kernel_c.o
+ *fill*         0x00000000000025d6        0x2 
+ .rodata        0x00000000000025d8      0x1d2 objects/irq_c.o
+ *fill*         0x00000000000027aa        0x6 
+ .rodata        0x00000000000027b0       0x45 objects/timer_c.o
+                0x00000000000027b0                interval
+
+.rela.dyn       0x00000000000027f8        0x0
+ .rela.iplt     0x00000000000027f8        0x0 objects/kernel_c.o
+
+.data           0x00000000000027f8       0x88
+ *(.data)
+ .data          0x00000000000027f8        0x1 objects/kernel_c.o
+                0x00000000000027f8                choose
+ *fill*         0x00000000000027f9        0x7 
+ .data          0x0000000000002800       0x80 objects/irq_c.o
+                0x0000000000002800                entry_error_messages
+ .data          0x0000000000002880        0x0 objects/mini_uart_c.o
+ .data          0x0000000000002880        0x0 objects/printf_c.o
+ .data          0x0000000000002880        0x0 objects/timer_c.o
+ .data          0x0000000000002880        0x0 objects/utils_s.o
+ .data          0x0000000000002880        0x0 objects/irq_s.o
+ .data          0x0000000000002880        0x0 objects/entry_s.o
+ .data          0x0000000000002880        0x0 objects/mm_s.o
+ .data          0x0000000000002880        0x0 objects/boot_s.o
+
+.igot.plt       0x0000000000002880        0x0
+ .igot.plt      0x0000000000002880        0x0 objects/kernel_c.o
+                0x0000000000002880                . = ALIGN (0x8)
+                0x0000000000002880                bss_begin = .
+
+.bss            0x0000000000002880       0x18
+ *(.bss*)
+ .bss           0x0000000000002880        0x0 objects/kernel_c.o
+ .bss           0x0000000000002880        0x0 objects/irq_c.o
+ .bss           0x0000000000002880        0x0 objects/mini_uart_c.o
+ .bss           0x0000000000002880       0x10 objects/printf_c.o
+ .bss           0x0000000000002890        0x8 objects/timer_c.o
+                0x0000000000002890                curVal
+                0x0000000000002894                curVal_3
+ .bss           0x0000000000002898        0x0 objects/utils_s.o
+ .bss           0x0000000000002898        0x0 objects/irq_s.o
+ .bss           0x0000000000002898        0x0 objects/entry_s.o
+ .bss           0x0000000000002898        0x0 objects/mm_s.o
+ .bss           0x0000000000002898        0x0 objects/boot_s.o
+                0x0000000000002898                bss_end = .
+LOAD objects/kernel_c.o
+LOAD objects/irq_c.o
+LOAD objects/mini_uart_c.o
+LOAD objects/printf_c.o
+LOAD objects/timer_c.o
+LOAD objects/utils_s.o
+LOAD objects/irq_s.o
+LOAD objects/entry_s.o
+LOAD objects/mm_s.o
+LOAD objects/boot_s.o
+OUTPUT(objects/kernel8.elf elf64-littleaarch64)
+
+.comment        0x0000000000000000       0x3b
+ .comment       0x0000000000000000       0x3b objects/kernel_c.o
+                                         0x3c (size before relaxing)
+ .comment       0x000000000000003b       0x3c objects/irq_c.o
+ .comment       0x000000000000003b       0x3c objects/mini_uart_c.o
+ .comment       0x000000000000003b       0x3c objects/printf_c.o
+ .comment       0x000000000000003b       0x3c objects/timer_c.o
+
+.note.GNU-stack
+                0x0000000000000000        0x0
+ .note.GNU-stack
+                0x0000000000000000        0x0 objects/kernel_c.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objects/irq_c.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objects/mini_uart_c.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objects/printf_c.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objects/timer_c.o
