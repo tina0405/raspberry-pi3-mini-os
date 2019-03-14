@@ -22,10 +22,7 @@ extern struct pcb_struct *current;
 extern struct task_struct *next_real;
 extern struct pcb_struct *task[NR_TASKS];
 extern int nr_tasks;
-extern unsigned long  page_next;
-extern unsigned long  page_prev;
-extern struct task_struct *prev_real;
-extern struct task_struct *next_real;
+
 
 struct cpu_context {
 	unsigned long x19;

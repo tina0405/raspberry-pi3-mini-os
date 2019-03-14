@@ -101,7 +101,10 @@ struct pt_regs *prev_childregs;
 struct pt_regs *prev_real_regs;
 struct pt_regs *next_childregs;
 struct pt_regs *next_real_regs;
-
+unsigned long  page_next;
+unsigned long  page_prev;
+struct task_struct *prev_real;
+struct task_struct *next_real;
 struct pcb_struct *prev;
 void switch_to(struct pcb_struct * next) 
 {	
@@ -110,35 +113,50 @@ void switch_to(struct pcb_struct * next)
 	if (current == next) 
 		return;
 	
+
 	if(flag ==0){
+		page_prev = allocate_kernel_page();
+		page_next = allocate_kernel_page();
+		prev_real = (struct task_struct *)page_prev;
+		next_real =(struct task_struct *) page_next;
 		flag = 1;
 	}
 	else{
 		/*save old data*/
-		printf("prev_real-> cpu_context.sp:%x\n\r",prev_real-> cpu_context.sp);
+		printf("prev:%x\n\r",prev);
+		printf("prev_real-> cpu_context.pc:%x\n\r",prev_real-> cpu_context.sp);
 		prev_real-> cpu_context = *(prev -> cpu_context);
+/*
+		if(!((unsigned long)(&(prev->cpu_context->x19)) == &init_cpu)){
+			prev_childregs = task_pt_regs(prev_real);
+			prev_real_regs = task_pt_regs(&(prev->cpu_context->x19));
+			*prev_childregs = *prev_real_regs;
+		}
+
+*/
 	}
 
 	prev = current;
 	current = next;
-		
 	set_pgd(next->mm->pgd);
+	/*next_real-> cpu_context = *(next -> cpu_context);*/ 
 	*(next -> cpu_context) = next_real-> cpu_context;
 
-		
-	if((unsigned long)(&(next->cpu_context->x19)) == &init_cpu){}
-	else
+/*		
+	if(!((unsigned long)(&(next->cpu_context->x19)) == &init_cpu))
 	{
 		next_childregs = task_pt_regs(next_real);
 		next_real_regs = task_pt_regs(&(next->cpu_context->x19));
 		*next_real_regs = *next_childregs;
 	}
-
+*/
 	/*test*/
 
-	printf("next_real:%x\n\r",next_real);
-	printf("next_real-> cpu_context.sp:%x\n\r",next_real-> cpu_context.sp);
+	printf("prev:%x\n\r",prev);
+	printf("next_real-> cpu_context.pc:%x\n\r",next_real-> cpu_context.sp);
 	cpu_switch_to(prev_real, next_real);
+	printf("back_prev:%x\n\r",prev_real-> cpu_context.sp);
+	
 }
 
 void schedule_tail(void) {

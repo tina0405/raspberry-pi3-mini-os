@@ -26,19 +26,10 @@ int copy_process(unsigned long clone_flags, unsigned long fn,unsigned long arg)
 	p = (struct task_struct *) page;
 	pcb = (struct pcb_struct *) page_1;
 
-	static int flag = 0;
-	if(flag ==0)
-	{
-		page_prev = allocate_kernel_page();
-		page_next = allocate_kernel_page();
-		prev_real = (struct task_struct *)page_prev;
-		next_real =(struct task_struct *) page_next;
-		flag = 1;
-	}
+
 
 	struct pt_regs *childregs = task_pt_regs(p);
-	struct pt_regs * cur_regs = task_pt_regs(next_real);
-	printf("next_real:%x\n\r",next_real);
+
 	if (!p)
 		return -1;
 
@@ -46,7 +37,7 @@ int copy_process(unsigned long clone_flags, unsigned long fn,unsigned long arg)
 		p->cpu_context.x19 = fn;
 		p->cpu_context.x20 = arg;
 	} else if(clone_flags==0){
-		struct pt_regs * cur_regs = task_pt_regs(next_real);
+		struct pt_regs * cur_regs = task_pt_regs(&(current->cpu_context->x19));
 		*cur_regs = *childregs;
 		childregs->regs[0] = 0;
 		copy_virt_memory(p);
@@ -57,7 +48,7 @@ int copy_process(unsigned long clone_flags, unsigned long fn,unsigned long arg)
 	p->counter = p->priority;
 	p->preempt_count = 1; //disable preemtion until schedule_tail
 	p->cpu_context.pc = (unsigned long)ret_from_fork;
-	p->cpu_context.sp = (unsigned long)cur_regs;
+	p->cpu_context.sp = (unsigned long)childregs;
 	
 	int pid = nr_tasks++;
 	/* interface */
@@ -72,7 +63,8 @@ int copy_process(unsigned long clone_flags, unsigned long fn,unsigned long arg)
 	/* interface */
 	task[pid] = pcb;
 	
-	printf("pid:%d\n\r",pid);
+	printf("pid:%x\n\r",pid);
+	printf("pcb:%x\n\r",pcb);
 	preempt_enable();
 	return pid;
 }
@@ -90,19 +82,20 @@ int add_thread(void * (*addr)(void *),void* arg){
 unsigned long move_to_user_mode(unsigned long start, unsigned long size, unsigned long pc)
 {
 
-	struct pt_regs *regs = task_pt_regs(next_real);
+	struct pt_regs *regs = task_pt_regs(&(current->cpu_context->x19));
 
 	regs->pstate = PSR_MODE_EL0t;
 	regs->pc = pc;
 	regs->sp = 2 *  PAGE_SIZE; 
 
-	unsigned long code_page = allocate_user_page(next_real, 0);
+	unsigned long code_page = allocate_user_page(&(current->cpu_context->x19), 0);
 	if (code_page == 0)	{
 		return -1;
 	}
 	printf("page_user:%x\n\r",code_page);
 	memcpy(start, code_page, size);
-	set_pgd(next_real->mm.pgd);
+	struct task_struct *now = &(current->cpu_context->x19);
+	set_pgd(now->mm.pgd);
 
 	return code_page;
 }
