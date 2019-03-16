@@ -72,17 +72,17 @@ void kernel_main()
 	/*list root directory*/
 	fat_listdirectory(&_end+(t-(unsigned int)&_end));
 #endif	
-	printf("copy\n\r");
+
 	int res = copy_process(PF_KTHREAD, (unsigned long)&kernel_process, 0);
 	
 	if (res < 0) {
 		printf("error while starting kernel process");
 		return;
 	}
-	printf("sched\n\r");
+
 	while (1){
 
-                printf("kernel while schedule\n\r");
+
 		schedule();
 	}	
 	

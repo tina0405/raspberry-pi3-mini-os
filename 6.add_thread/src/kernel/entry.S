@@ -209,15 +209,6 @@ ret_to_user:
 	bl disable_irq				
 	kernel_exit 0 
 
-.globl jump_thread
-jump_thread:
-	mov x2, x0
-	mov x0, x1
-	mov x5, x30
-	blr x2
-	mov x30,x5
-	ret
-
 
 .globl err_hang
 err_hang: b err_hang

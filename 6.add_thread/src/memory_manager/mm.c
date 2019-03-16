@@ -111,13 +111,17 @@ void map_page(struct task_struct *task, unsigned long va, unsigned long page){
 
 int copy_virt_memory(struct task_struct *dst) {
 	struct task_struct* src = &(current->cpu_context->x19);
+	printf("dst:%x\n\r",dst);	
+	printf("src->mm.user_pages_count:%x\n\r",src->mm.user_pages_count);
 	for (int i = 0; i < src->mm.user_pages_count; i++) {
+		printf("src->mm.user_pages[i].virt_addr:%x\n\r",src->mm.user_pages[i].virt_addr);
 		unsigned long kernel_va = allocate_user_page(dst, src->mm.user_pages[i].virt_addr);
 		if( kernel_va == 0) {
 			return -1;
 		}
-		memcpy(src->mm.user_pages[i].virt_addr, kernel_va, PAGE_SIZE);
+		memcpy(src->mm.user_pages[i].virt_addr, kernel_va, PAGE_SIZE);/*LD X0, ST X1*/
 	}
+	
 	return 0;
 }
 

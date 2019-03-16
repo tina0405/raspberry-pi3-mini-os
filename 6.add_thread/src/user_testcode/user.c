@@ -14,23 +14,20 @@ void loop(char* str)
 		for (int i = 0; i < 5; i++){
 			buf[0] = str[i];
 			call_sys_write(buf);
+			call_sys_write_int(t);
 			user_delay(1000000);
 		}
 	}
 }
-void add_1(int* a)
+
+void add(void)
 {
-   *a = *a + 1;
-   
+   call_sys_write("I'm a thread\n\r");
+   t = t + 1;
+   call_sys_write("Finish to add 1!\n\r");
+
 }
 
-void add(int* a)
-{
-   call_sys_write("OwO\n\r");
-   *a = *a + 1;
-   add_1(a);
-   
-}
 void user_process() 
 {	
 	call_sys_write("User start\n\r");
@@ -53,9 +50,9 @@ void user_process()
 #endif
 	call_sys_write_int(t);
 	thread_t thread;
+	call_sys_write("Create Thread\n\r");
 	//const struct thread_attr_t* attr = NULL;
-	//create_thread(&thread, NULL, &add, &t) ;
-	//add(&t);
+	create_thread(&thread, NULL, &add, &t) ;
 	call_sys_write_int(t);
         //call_sys_led();
 	call_sys_write("Fork\n\r");

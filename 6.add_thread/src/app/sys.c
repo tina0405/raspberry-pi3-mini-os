@@ -10,6 +10,7 @@
 #include "sys.h"
 #include "entry.h"
 extern unsigned long user_page_start;
+extern unsigned long hi;
 void sys_write(char * buf){	
 	printf(buf);
 }
@@ -34,71 +35,69 @@ char sys_read(void){
 	return uart_recv();
 }
 
-#define	EAGAIN 11	/* No more processes */
-#define	ENOMEM 12	/* Not enough core */
+void thread_end(void)
+{
+   call_sys_write("this thread have ended!\n\r");
+   while(1){}
+}
+
 int sys_create_thread(thread_t *thread, const struct thread_attr_t *attr,void * (*start_routine)(void *),void* arg){
 	
-	int err;
-	struct task_struct *new_thread;//struct __pthread *pthread;
-	err = __thread_create_internal (&new_thread, attr, start_routine, arg);
-	if (!err)
-		*thread = new_thread->thread_id;
-	else if (err == ENOMEM)
-		err = EAGAIN;
-	return err;
-
+	preempt_disable();
+	struct pcb_struct *pcb; /*interface*/
+	struct task_struct *p; /*new space, just need pt_regs*/
+	struct task_struct *now = &(current->cpu_context->x19);	/*now task*/
 	
-}
+	unsigned long page = allocate_kernel_page();
+	unsigned long page_1 = allocate_kernel_page();
+	unsigned long page_2 = allocate_kernel_page();
+	
+	p = (struct task_struct *) page;
+	pcb = (struct pcb_struct *) page_1;
 
-int __thread_create_internal (struct task_struct **thread, const struct thread_attr_t * attr, void *(*start_routine) (void *), void *arg)
-{
+	/*new space for childregs*/
+	struct pt_regs *childregs = task_pt_regs(p);
 
-	int err;
-	static int tid;
-  	struct task_struct *pthread;
+	if (!p)
+		return -1;
 
- 	/* Allocate a new thread structure. */
-
-  	unsigned long page = allocate_kernel_page();
-	//pthread = (struct task_struct *)page;
-	printf("current:%d\n\r",current);
-	pthread = current;
-        struct pt_regs *childregs = task_pt_regs(pthread);
-
-	/* Use the default attributes if ATTR is NULL.  */
-/*
-        pthread -> state = TASK_RUNNING;
-	pthread -> counter = current -> priority;
-	pthread -> priority = current -> priority;
-	pthread -> preempt_count = 1;
-	pthread -> flags = 0;
-	pthread -> mm = current -> mm;
-	pthread -> thread_id = tid++;
-
-
-	struct pt_regs * cur_regs = task_pt_regs(current);
-        *cur_regs = *childregs;
-	printf("childreg.pc:%d\n\r",childregs->pc); 
+	/*copy*/
+	struct pt_regs * cur_regs = task_pt_regs(&(current->cpu_context->x19));
+	//*cur_regs = *childregs;
 	childregs->regs[0] = 0;
-*/	
-
-
-	childregs->pstate = PSR_MODE_EL0t;
-	childregs->pc = (unsigned long)start_routine + user_page_start;
-  
-	pthread->cpu_context.pc = (unsigned long)ret_from_fork;
-	pthread->cpu_context.sp = (unsigned long)childregs;
-
+	childregs->regs[30] = (unsigned long)&thread_end;
+	childregs->pc =	start_routine;
+	childregs->sp = PAGE_SIZE*2;
+	childregs->pstate = cur_regs->pstate;
 	
-
-	int ppid = nr_tasks++;
-	task[ppid] = pthread;	
-	printf("ppid:%d\n\r",ppid); 
-	*thread = pthread;
-
-	return ppid;
-
+	copy_virt_memory(p);/*here*/
 	
+	p->flags = 0;
+	p->priority = 2;
+	p->state = TASK_RUNNING;
+	p->counter = p->priority;
+	p->preempt_count = 1; //disable preemtion until schedule_tail
+	p->cpu_context.pc = (unsigned long)ret_from_fork;
+	p->cpu_context.sp = (unsigned long)childregs;
+	int pid = nr_tasks++;
+
+	/* interface */
+	pcb -> cpu_context = &(p->cpu_context);
+	pcb -> state = &(p->state);
+	pcb -> counter = &(p->counter);
+	pcb -> priority = &(p->priority);
+	pcb -> preempt_count = &(p->preempt_count);
+	pcb -> flags = &(p->flags);
+	pcb -> mm = &(now->mm);
+	//pcb -> thread_id = &(p->thread_id);
+	/* interface */
+	task[pid] = pcb;
+	
+	printf("pid:%x\n\r",pid);
+	printf("pcb:%x\n\r",pcb);
+	preempt_enable();
+	return pid;
 }
+
 
 void * const sys_call_table[] = {sys_write, sys_fork, sys_exit, sys_led, sys_read, sys_write_int,  sys_create_thread};

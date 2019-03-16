@@ -12,6 +12,7 @@ unsigned long  page_next;
 unsigned long  page_prev;
 struct task_struct *prev_real;
 struct task_struct *next_real;
+
 int copy_process(unsigned long clone_flags, unsigned long fn,unsigned long arg)
 {
 	
@@ -67,16 +68,6 @@ int copy_process(unsigned long clone_flags, unsigned long fn,unsigned long arg)
 	printf("pcb:%x\n\r",pcb);
 	preempt_enable();
 	return pid;
-}
-
-
-int add_thread(void * (*addr)(void *),void* arg){
-	
-	/*improve*/        
-
-	/*improve*/ 
-	jump_thread((unsigned long)addr+user_page_start,arg);
-        return 1; 
 }
 
 unsigned long move_to_user_mode(unsigned long start, unsigned long size, unsigned long pc)

@@ -3,9 +3,8 @@
 
 //void user_process1(char *array);
 void user_process();
-void add_1(int* a);
 extern unsigned long user_begin;
 extern unsigned long user_end;
-void add(int* a);
+void add(void);
 
 #endif  /*_USER_H */
