@@ -79,8 +79,7 @@ int add_thread(thread_t *thread, const struct thread_attr_t *attr,void * (*start
 }
 
 /* Return the thread ID of the calling thread.  */
-thread_t thread_id_self ( void ){
-	printf("tid:%x\n\r",current -> tid);	
+thread_t thread_id_self ( void ){	
 	return current -> tid;	/*now task*/
 }
 
@@ -93,7 +92,5 @@ void pthread_exit (void *value_ptr){
 }
 
 
-int pthread_equal ( thread_t t1, thread_t t2 ){
 
-}
 

@@ -63,3 +63,16 @@ thread_self:
 	mov w8, #SYS_THREAD_SELF
 	svc #0
 	ret
+/* Return true if T1 and T2 both name the same thread.  Otherwise, false.  */
+.globl thread_equal
+thread_equal:
+	cmp x0, x1
+	beq eq
+	mov x0, #0
+	b neq
+eq:     
+	mov x0, #1
+neq:	
+	ret
+
+

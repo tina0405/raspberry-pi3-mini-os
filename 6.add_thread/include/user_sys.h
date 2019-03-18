@@ -1,13 +1,14 @@
 #ifndef	_USER_SYS_H
 #define	_USER_SYS_H
-
+#include<sys.h>
 void call_sys_write(char * buf);
 int call_sys_fork();
 void call_sys_exit();
 void call_sys_led(void);
 char call_sys_read(void);
 void sys_write_int(int a);
-int thread_create(struct task_struct *thread, const struct thread_attr_t *attr,void * (*start_routine)(void *),void* b);
+int thread_create(thread_t *thread, const struct thread_attr_t *attr,void * (*start_routine)(void *),void* b);
+int thread_equal (thread_t t1, thread_t t2);
 
 struct thread_attr_t {
 	int a;

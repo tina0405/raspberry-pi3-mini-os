@@ -22,10 +22,10 @@ void loop(char* str)
 
 void add(int a)
 {
-   call_sys_write("I'm a thread, ID is\n\r");
+   call_sys_write("I'm a thread, ID is ");
    call_sys_write_int(thread_self());
+   call_sys_write("\n\r");
    t = t + a;
-
    call_sys_write("Finish to add 1!\n\r");
 
 }
@@ -37,7 +37,7 @@ void user_process()
 	char command[2] = {""};
 	call_sys_write("Shell start\n\r");
 	call_sys_write("tkernel@user_name:$");
-
+	
 	while(1){
 	
 		command[0] = call_sys_read();
@@ -51,11 +51,12 @@ void user_process()
 	}
 #endif
 	call_sys_write_int(t);
-	thread_t thread;
 	call_sys_write("Create Thread\n\r");
+	thread_t thread;
+	thread_t thread_2;
 	//const struct thread_attr_t* attr = NULL;
 	thread_create(&thread, NULL, &add, 5) ;
-	call_sys_write_int(t);
+
         //call_sys_led();
 	call_sys_write("Fork\n\r");
         int pid = call_sys_fork();
@@ -65,20 +66,25 @@ void user_process()
 		call_sys_exit();
 		return;
 	}
-        int a = 0;
+
 		
-	
 	if (pid == 0){
-		a++;
-		//call_sys_write_int(a);	
-		thread_create(&thread, NULL, &add, 2) ;		
+
+		thread_create(&thread_2, NULL, &add, 2) ;
+		
+		if(thread_equal(thread_2,thread)){
+			call_sys_write("Equel!\n\r");
+  		} else {
+			call_sys_write("Not equel!\n\r");
+   		}		
+		
 		loop("abcde");
 		
 	} else {
-		a++;
-		//call_sys_write_int(a);
+
 		loop("12345");
 	}
 	
 	
 }
+
