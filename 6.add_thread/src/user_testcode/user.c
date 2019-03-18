@@ -20,10 +20,12 @@ void loop(char* str)
 	}
 }
 
-void add(void)
+void add(int a)
 {
-   call_sys_write("I'm a thread\n\r");
-   t = t + 1;
+   call_sys_write("I'm a thread, ID is\n\r");
+   call_sys_write_int(thread_self());
+   t = t + a;
+
    call_sys_write("Finish to add 1!\n\r");
 
 }
@@ -52,7 +54,7 @@ void user_process()
 	thread_t thread;
 	call_sys_write("Create Thread\n\r");
 	//const struct thread_attr_t* attr = NULL;
-	create_thread(&thread, NULL, &add, &t) ;
+	thread_create(&thread, NULL, &add, 5) ;
 	call_sys_write_int(t);
         //call_sys_led();
 	call_sys_write("Fork\n\r");
@@ -69,6 +71,7 @@ void user_process()
 	if (pid == 0){
 		a++;
 		//call_sys_write_int(a);	
+		thread_create(&thread, NULL, &add, 2) ;		
 		loop("abcde");
 		
 	} else {

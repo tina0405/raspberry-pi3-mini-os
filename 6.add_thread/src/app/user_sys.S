@@ -7,6 +7,9 @@
 .set SYS_READ_NUMBER, 4	
 .set SYS_WRITE_INT_NUMBER, 5 
 .set SYS_CREATE_THREAD, 6
+.set SYS_THREAD_SELF, 7
+
+
 .globl user_delay
 user_delay:
 	subs x0, x0, #1
@@ -49,8 +52,14 @@ call_sys_read:
 	svc #0
 	ret
 
-.globl create_thread
-create_thread:
+.globl thread_create
+thread_create:
 	mov w8, #SYS_CREATE_THREAD
+	svc #0
+	ret
+
+.globl thread_self
+thread_self:
+	mov w8, #SYS_THREAD_SELF
 	svc #0
 	ret

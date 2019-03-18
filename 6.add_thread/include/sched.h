@@ -66,7 +66,6 @@ struct task_struct {
 	int *thread_id;
 	//struct task_struct *thread;
 	/* thread_set */
-	/* thread_id */
 };
 
 struct pcb_struct {
@@ -77,7 +76,8 @@ struct pcb_struct {
 	long *preempt_count;
 	unsigned long *flags;
 	struct mm_struct *mm;
-	//int *thread_id;
+	int pid;/*process_id*/	
+	int tid;/*thread_id*/
 	//struct task_struct *thread;
 	/* thread_set */
 	/* thread_id */

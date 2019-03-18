@@ -2,7 +2,7 @@
 #define _FORK_H
 
 #include "sched.h"
-
+#include "sys.h"
 /*
  * PSR bits
  */
@@ -15,7 +15,6 @@
 #define PSR_MODE_EL3h	0x0000000d
 
 int copy_process(unsigned long clone_flags, unsigned long fn,unsigned long arg);
-int add_thread(void * (*addr)(void *),void* b);
 unsigned long move_to_user_mode(unsigned long start, unsigned long size, unsigned long pc);
 struct pt_regs * task_pt_regs(struct task_struct *tsk);
 
