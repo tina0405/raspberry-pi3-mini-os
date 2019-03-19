@@ -43,4 +43,12 @@ thread_t sys_thread_self(void){
 	return thread_id_self();
 }
 
-void * const sys_call_table[] = {sys_write, sys_fork, sys_exit, sys_led, sys_read, sys_write_int,  sys_create_thread, sys_thread_self};
+int sys_thread_join (thread_t thread, void **value_ptr ){
+	_thread_join(thread,value_ptr);
+	return 0;
+}
+
+void sys_pthread_exit (void *value_ptr){
+
+}
+void * const sys_call_table[] = {sys_write, sys_fork, sys_exit, sys_led, sys_read, sys_write_int,  sys_create_thread, sys_thread_self,sys_thread_join,sys_pthread_exit};

@@ -35,37 +35,38 @@ Linker script and memory map
                 0xffff000000001000                . = ALIGN (0x1000)
                 0xffff000000001000                user_begin = .
 
-.text.user      0xffff000000001000      0x25c
+.text.user      0xffff000000001000      0x2cc
  build/user*(.text)
- .text          0xffff000000001000      0x1d8 build/user_testcode/user_c.o
+ .text          0xffff000000001000      0x23c build/user_testcode/user_c.o
                 0xffff000000001000                loop
                 0xffff000000001078                add
-                0xffff0000000010dc                user_process
- .text.user     0xffff0000000011d8       0x84 build/app/user_sys_s.o
-                0xffff0000000011d8                user_delay
-                0xffff0000000011e4                call_sys_write
-                0xffff0000000011f0                call_sys_write_int
-                0xffff0000000011fc                call_sys_exit
-                0xffff000000001208                call_sys_fork
-                0xffff000000001214                call_sys_led
-                0xffff000000001220                call_sys_read
-                0xffff00000000122c                thread_create
-                0xffff000000001238                thread_self
-                0xffff000000001244                thread_equal
+                0xffff000000001128                user_process
+ .text.user     0xffff00000000123c       0x90 build/app/user_sys_s.o
+                0xffff00000000123c                user_delay
+                0xffff000000001248                call_sys_write
+                0xffff000000001254                call_sys_write_int
+                0xffff000000001260                call_sys_exit
+                0xffff00000000126c                call_sys_fork
+                0xffff000000001278                call_sys_led
+                0xffff000000001284                call_sys_read
+                0xffff000000001290                thread_create
+                0xffff00000000129c                thread_self
+                0xffff0000000012a8                thread_join
+                0xffff0000000012b4                thread_equal
 
-.rodata.user    0xffff000000001260       0xae
+.rodata.user    0xffff0000000012d0       0xb6
  build/user*(.rodata)
- .rodata        0xffff000000001260       0xae build/user_testcode/user_c.o
+ .rodata        0xffff0000000012d0       0xb6 build/user_testcode/user_c.o
 
-.data.user      0xffff00000000130e        0x0
+.data.user      0xffff000000001386        0x0
  build/user*(.data)
- .data          0xffff00000000130e        0x0 build/user_testcode/user_c.o
+ .data          0xffff000000001386        0x0 build/user_testcode/user_c.o
 
-.bss.user       0xffff000000001310        0x4
+.bss.user       0xffff000000001388        0x4
  build/user*(.bss)
- .bss           0xffff000000001310        0x4 build/user_testcode/user_c.o
-                0xffff000000001310                t
-                0xffff000000001314                user_end = .
+ .bss           0xffff000000001388        0x4 build/user_testcode/user_c.o
+                0xffff000000001388                t
+                0xffff00000000138c                user_end = .
 
 .text           0xffff000000001800     0x5988
  *(.text)
@@ -78,94 +79,99 @@ Linker script and memory map
                 0xffff000000002298                enable_interrupt_controller
                 0xffff0000000022c0                show_invalid_entry_message
                 0xffff000000002304                handle_irq
- .text          0xffff000000002350      0x4b0 build/proc_manager/sched_c.o
+ .text          0xffff000000002350      0x4d4 build/proc_manager/sched_c.o
                 0xffff000000002350                preempt_disable
                 0xffff000000002384                preempt_enable
                 0xffff0000000023b8                _schedule
-                0xffff000000002514                schedule
-                0xffff000000002540                switch_to
-                0xffff0000000026d0                schedule_tail
-                0xffff0000000026e8                timer_tick
-                0xffff000000002774                timer3_tick
-                0xffff00000000277c                exit_process
- .text          0xffff000000002800       0xe8 build/proc_manager/timer_c.o
-                0xffff000000002800                timer_init
-                0xffff000000002878                handle_timer_irq
- .text          0xffff0000000028e8      0x724 build/memory_manager/mm_c.o
-                0xffff0000000028e8                allocate_kernel_page
-                0xffff000000002920                allocate_pcb_space
-                0xffff0000000029e4                allocate_user_page
-                0xffff000000002a34                get_free_page
-                0xffff000000002acc                free_page
-                0xffff000000002af8                map_table_entry
-                0xffff000000002b54                map_table
-                0xffff000000002c10                map_page
-                0xffff000000002e44                copy_virt_memory
-                0xffff000000002f4c                do_mem_abort
- .text          0xffff00000000300c      0x978 build/kernel/printf_c.o
-                0xffff000000003398                tfp_format
-                0xffff0000000037e0                init_printf
-                0xffff000000003818                tfp_printf
-                0xffff0000000038ec                tfp_sprintf
- .text          0xffff000000003984       0xfc build/kernel/kernel_c.o
-                0xffff000000003984                kernel_process
-                0xffff000000003a08                kernel_main
- .text          0xffff000000003a80      0x638 build/device/mini_uart_c.o
-                0xffff000000003a80                uart_send
-                0xffff000000003ad4                uart_recv
-                0xffff000000003b1c                uart_send_string
-                0xffff000000003b74                uart_init
-                0xffff000000003cb8                set_gpio
-                0xffff000000003d34                uart_puts
-                0xffff000000003d8c                uart_hex
-                0xffff000000003e0c                uart_dump
-                0xffff000000003fb8                putc
-                0xffff000000003fdc                pr_int
-                0xffff00000000409c                pr_T
- .text          0xffff0000000040b8      0x190 build/device/delays_c.o
-                0xffff0000000040b8                wait_cycles
-                0xffff0000000040f4                wait_msec
-                0xffff00000000416c                get_system_timer
-                0xffff0000000041fc                wait_msec_st
- .text          0xffff000000004248       0x64 build/device/led_blink_c.o
-                0xffff000000004248                led_blink
- .text          0xffff0000000042ac     0x1414 build/device/sd_c.o
-                0xffff0000000042ac                sd_status
-                0xffff00000000436c                sd_int
-                0xffff000000004488                sd_cmd
-                0xffff0000000047f8                sd_readblock
-                0xffff000000004ae8                sd_clk
-                0xffff000000004e40                sd_init
- .text          0xffff0000000056c0       0xf0 build/app/sys_c.o
-                0xffff0000000056c0                sys_write
-                0xffff0000000056e0                sys_write_int
-                0xffff000000005700                sys_fork
-                0xffff000000005720                sys_exit
-                0xffff000000005738                sys_led
-                0xffff000000005750                sys_read
-                0xffff000000005768                sys_create_thread
-                0xffff00000000579c                sys_thread_self
- .text          0xffff0000000057b0      0x2f4 build/app/fork_c.o
-                0xffff0000000057b0                copy_process
-                0xffff0000000059bc                move_to_user_mode
-                0xffff000000005a84                task_pt_regs
- .text          0xffff000000005aa4      0x2a0 build/app/thread_c.o
-                0xffff000000005aa4                thread_end
-                0xffff000000005abc                add_thread
-                0xffff000000005d04                thread_id_self
-                0xffff000000005d18                pthread_join
-                0xffff000000005d30                pthread_exit
- .text          0xffff000000005d44       0x1c build/proc_manager/irq_s.o
-                0xffff000000005d44                irq_vector_init
-                0xffff000000005d50                enable_irq
-                0xffff000000005d58                disable_irq
- .text          0xffff000000005d60       0x50 build/proc_manager/sched_s.o
-                0xffff000000005d60                cpu_switch_to
- .text          0xffff000000005db0       0x4c build/memory_manager/mm_s.o
-                0xffff000000005db0                memcpy
-                0xffff000000005dc4                memcmp
-                0xffff000000005dec                memzero
- *fill*         0xffff000000005dfc      0x204 
+                0xffff000000002538                schedule
+                0xffff000000002564                switch_to
+                0xffff0000000026f4                schedule_tail
+                0xffff00000000270c                timer_tick
+                0xffff000000002798                timer3_tick
+                0xffff0000000027a0                exit_process
+ .text          0xffff000000002824       0xe8 build/proc_manager/timer_c.o
+                0xffff000000002824                timer_init
+                0xffff00000000289c                handle_timer_irq
+ .text          0xffff00000000290c      0x724 build/memory_manager/mm_c.o
+                0xffff00000000290c                allocate_kernel_page
+                0xffff000000002944                allocate_pcb_space
+                0xffff000000002a08                allocate_user_page
+                0xffff000000002a58                get_free_page
+                0xffff000000002af0                free_page
+                0xffff000000002b1c                map_table_entry
+                0xffff000000002b78                map_table
+                0xffff000000002c34                map_page
+                0xffff000000002e68                copy_virt_memory
+                0xffff000000002f70                do_mem_abort
+ .text          0xffff000000003030      0x978 build/kernel/printf_c.o
+                0xffff0000000033bc                tfp_format
+                0xffff000000003804                init_printf
+                0xffff00000000383c                tfp_printf
+                0xffff000000003910                tfp_sprintf
+ .text          0xffff0000000039a8       0xfc build/kernel/kernel_c.o
+                0xffff0000000039a8                kernel_process
+                0xffff000000003a2c                kernel_main
+ .text          0xffff000000003aa4      0x638 build/device/mini_uart_c.o
+                0xffff000000003aa4                uart_send
+                0xffff000000003af8                uart_recv
+                0xffff000000003b40                uart_send_string
+                0xffff000000003b98                uart_init
+                0xffff000000003cdc                set_gpio
+                0xffff000000003d58                uart_puts
+                0xffff000000003db0                uart_hex
+                0xffff000000003e30                uart_dump
+                0xffff000000003fdc                putc
+                0xffff000000004000                pr_int
+                0xffff0000000040c0                pr_T
+ .text          0xffff0000000040dc      0x190 build/device/delays_c.o
+                0xffff0000000040dc                wait_cycles
+                0xffff000000004118                wait_msec
+                0xffff000000004190                get_system_timer
+                0xffff000000004220                wait_msec_st
+ .text          0xffff00000000426c       0x64 build/device/led_blink_c.o
+                0xffff00000000426c                led_blink
+ .text          0xffff0000000042d0     0x1414 build/device/sd_c.o
+                0xffff0000000042d0                sd_status
+                0xffff000000004390                sd_int
+                0xffff0000000044ac                sd_cmd
+                0xffff00000000481c                sd_readblock
+                0xffff000000004b0c                sd_clk
+                0xffff000000004e64                sd_init
+ .text          0xffff0000000056e4      0x12c build/app/sys_c.o
+                0xffff0000000056e4                sys_write
+                0xffff000000005704                sys_write_int
+                0xffff000000005724                sys_fork
+                0xffff000000005744                sys_exit
+                0xffff00000000575c                sys_led
+                0xffff000000005774                sys_read
+                0xffff00000000578c                sys_create_thread
+                0xffff0000000057c0                sys_thread_self
+                0xffff0000000057d4                sys_thread_join
+                0xffff0000000057fc                sys_pthread_exit
+ .text          0xffff000000005810      0x2f4 build/app/fork_c.o
+                0xffff000000005810                copy_process
+                0xffff000000005a1c                move_to_user_mode
+                0xffff000000005ae4                task_pt_regs
+ .text          0xffff000000005b04      0x3f4 build/app/thread_c.o
+                0xffff000000005b04                thread_end
+                0xffff000000005b24                pthread_exit
+                0xffff000000005b38                error
+                0xffff000000005b68                add_thread
+                0xffff000000005dd0                thread_id_self
+                0xffff000000005de4                recieve
+                0xffff000000005df4                send
+                0xffff000000005e0c                _thread_join
+ .text          0xffff000000005ef8       0x1c build/proc_manager/irq_s.o
+                0xffff000000005ef8                irq_vector_init
+                0xffff000000005f04                enable_irq
+                0xffff000000005f0c                disable_irq
+ .text          0xffff000000005f14       0x50 build/proc_manager/sched_s.o
+                0xffff000000005f14                cpu_switch_to
+ .text          0xffff000000005f64       0x4c build/memory_manager/mm_s.o
+                0xffff000000005f64                memcpy
+                0xffff000000005f78                memcmp
+                0xffff000000005fa0                memzero
+ *fill*         0xffff000000005fb0       0x50 
  .text          0xffff000000006000     0x1134 build/kernel/entry_s.o
                 0xffff000000006000                vectors
                 0xffff0000000070c4                ret_from_fork
@@ -183,7 +189,7 @@ Linker script and memory map
 .iplt           0xffff000000007188        0x0
  .iplt          0xffff000000007188        0x0 build/file_system/fat_c.o
 
-.rodata         0xffff000000007188      0x7e9
+.rodata         0xffff000000007188      0x81b
  *(.rodata)
  .rodata        0xffff000000007188      0x210 build/file_system/fat_c.o
  .rodata        0xffff000000007398      0x1da build/proc_manager/irq_c.o
@@ -200,109 +206,112 @@ Linker script and memory map
  *fill*         0xffff000000007653        0x5 
  .rodata        0xffff000000007658      0x25c build/device/sd_c.o
  *fill*         0xffff0000000078b4        0x4 
- .rodata        0xffff0000000078b8       0x40 build/app/sys_c.o
+ .rodata        0xffff0000000078b8       0x50 build/app/sys_c.o
                 0xffff0000000078b8                sys_call_table
- .rodata        0xffff0000000078f8       0x2f build/app/fork_c.o
- *fill*         0xffff000000007927        0x1 
- .rodata        0xffff000000007928       0x49 build/app/thread_c.o
+ .rodata        0xffff000000007908       0x2f build/app/fork_c.o
+ *fill*         0xffff000000007937        0x1 
+ .rodata        0xffff000000007938       0x6b build/app/thread_c.o
 
-.rela.dyn       0xffff000000007978        0x0
- .rela.iplt     0xffff000000007978        0x0 build/file_system/fat_c.o
+.rela.dyn       0xffff0000000079a8        0x0
+ .rela.iplt     0xffff0000000079a8        0x0 build/file_system/fat_c.o
 
-.data           0xffff000000007978      0x2f0
+.data           0xffff0000000079a8     0x42f8
  *(.data)
- .data          0xffff000000007978        0x0 build/file_system/fat_c.o
- .data          0xffff000000007978       0x90 build/proc_manager/irq_c.o
-                0xffff000000007978                entry_error_messages
- .data          0xffff000000007a08      0x25c build/proc_manager/sched_c.o
-                0xffff000000007a08                init_priority
-                0xffff000000007a10                init_flags
-                0xffff000000007a18                init_task
-                0xffff000000007a58                current
-                0xffff000000007a60                task
-                0xffff000000007c60                nr_tasks
- .data          0xffff000000007c64        0x0 build/proc_manager/timer_c.o
- .data          0xffff000000007c64        0x4 build/memory_manager/mm_c.o
- .data          0xffff000000007c68        0x0 build/kernel/printf_c.o
- .data          0xffff000000007c68        0x0 build/kernel/kernel_c.o
- .data          0xffff000000007c68        0x0 build/device/mini_uart_c.o
- .data          0xffff000000007c68        0x0 build/device/delays_c.o
- .data          0xffff000000007c68        0x0 build/device/led_blink_c.o
- .data          0xffff000000007c68        0x0 build/device/sd_c.o
- .data          0xffff000000007c68        0x0 build/app/sys_c.o
- .data          0xffff000000007c68        0x0 build/app/fork_c.o
- .data          0xffff000000007c68        0x0 build/app/thread_c.o
- .data          0xffff000000007c68        0x0 build/proc_manager/irq_s.o
- .data          0xffff000000007c68        0x0 build/proc_manager/sched_s.o
- .data          0xffff000000007c68        0x0 build/memory_manager/mm_s.o
- .data          0xffff000000007c68        0x0 build/kernel/entry_s.o
- .data          0xffff000000007c68        0x0 build/kernel/boot_s.o
- .data          0xffff000000007c68        0x0 build/device/utils_s.o
- .data          0xffff000000007c68        0x0 build/app/user_sys_s.o
+ .data          0xffff0000000079a8        0x0 build/file_system/fat_c.o
+ .data          0xffff0000000079a8       0x90 build/proc_manager/irq_c.o
+                0xffff0000000079a8                entry_error_messages
+ .data          0xffff000000007a38      0x264 build/proc_manager/sched_c.o
+                0xffff000000007a38                init_priority
+                0xffff000000007a40                init_flags
+                0xffff000000007a48                init_task
+                0xffff000000007a90                current
+                0xffff000000007a98                task
+                0xffff000000007c98                nr_tasks
+ .data          0xffff000000007c9c        0x0 build/proc_manager/timer_c.o
+ .data          0xffff000000007c9c        0x4 build/memory_manager/mm_c.o
+ .data          0xffff000000007ca0        0x0 build/kernel/printf_c.o
+ .data          0xffff000000007ca0        0x0 build/kernel/kernel_c.o
+ .data          0xffff000000007ca0        0x0 build/device/mini_uart_c.o
+ .data          0xffff000000007ca0        0x0 build/device/delays_c.o
+ .data          0xffff000000007ca0        0x0 build/device/led_blink_c.o
+ .data          0xffff000000007ca0        0x0 build/device/sd_c.o
+ .data          0xffff000000007ca0        0x0 build/app/sys_c.o
+ .data          0xffff000000007ca0        0x0 build/app/fork_c.o
+ .data          0xffff000000007ca0     0x4000 build/app/thread_c.o
+                0xffff000000007ca0                thread_id_table
+ .data          0xffff00000000bca0        0x0 build/proc_manager/irq_s.o
+ .data          0xffff00000000bca0        0x0 build/proc_manager/sched_s.o
+ .data          0xffff00000000bca0        0x0 build/memory_manager/mm_s.o
+ .data          0xffff00000000bca0        0x0 build/kernel/entry_s.o
+ .data          0xffff00000000bca0        0x0 build/kernel/boot_s.o
+ .data          0xffff00000000bca0        0x0 build/device/utils_s.o
+ .data          0xffff00000000bca0        0x0 build/app/user_sys_s.o
 
-.igot.plt       0xffff000000007c68        0x0
- .igot.plt      0xffff000000007c68        0x0 build/file_system/fat_c.o
-                0xffff000000007c68                . = ALIGN (0x8)
-                0xffff000000007c68                bss_begin = .
+.igot.plt       0xffff00000000bca0        0x0
+ .igot.plt      0xffff00000000bca0        0x0 build/file_system/fat_c.o
+                0xffff00000000bca0                . = ALIGN (0x8)
+                0xffff00000000bca0                bss_begin = .
 
-.bss            0xffff000000007c68    0x7dad0
+.bss            0xffff00000000bca0    0x7dad8
  *(.bss*)
- .bss           0xffff000000007c68        0x4 build/file_system/fat_c.o
- .bss           0xffff000000007c6c        0x0 build/proc_manager/irq_c.o
- *fill*         0xffff000000007c6c        0x4 
- .bss           0xffff000000007c70      0x21c build/proc_manager/sched_c.o
-                0xffff000000007c70                init_cpu
-                0xffff000000007cd8                init_state
-                0xffff000000007ce0                init_counter
-                0xffff000000007ce8                init_preempt_count
-                0xffff000000007cf0                init_mm
- .bss           0xffff000000007e8c        0x4 build/proc_manager/timer_c.o
-                0xffff000000007e8c                curVal
- .bss           0xffff000000007e90    0x7d808 build/memory_manager/mm_c.o
- .bss           0xffff000000085698       0x10 build/kernel/printf_c.o
- .bss           0xffff0000000856a8        0x0 build/kernel/kernel_c.o
- .bss           0xffff0000000856a8        0x0 build/device/mini_uart_c.o
- .bss           0xffff0000000856a8        0x0 build/device/delays_c.o
- .bss           0xffff0000000856a8        0x0 build/device/led_blink_c.o
- .bss           0xffff0000000856a8        0x0 build/device/sd_c.o
- .bss           0xffff0000000856a8        0x0 build/app/sys_c.o
- .bss           0xffff0000000856a8        0x0 build/app/fork_c.o
- .bss           0xffff0000000856a8        0x4 build/app/thread_c.o
- .bss           0xffff0000000856ac        0x0 build/proc_manager/irq_s.o
- .bss           0xffff0000000856ac        0x0 build/proc_manager/sched_s.o
- .bss           0xffff0000000856ac        0x0 build/memory_manager/mm_s.o
- .bss           0xffff0000000856ac        0x0 build/kernel/entry_s.o
- .bss           0xffff0000000856ac        0x0 build/kernel/boot_s.o
- .bss           0xffff0000000856ac        0x0 build/device/utils_s.o
- .bss           0xffff0000000856ac        0x0 build/app/user_sys_s.o
- *fill*         0xffff0000000856ac        0x4 
- COMMON         0xffff0000000856b0       0x50 build/proc_manager/sched_c.o
-                0xffff0000000856b0                prev_childregs
-                0xffff0000000856b8                page_prev
-                0xffff0000000856c0                prev_real_regs
-                0xffff0000000856c8                page_next
-                0xffff0000000856d0                next_real_regs
-                0xffff0000000856d8                prev_real
-                0xffff0000000856e0                next_real
-                0xffff0000000856e8                prev
-                0xffff0000000856f0                init_page
-                0xffff0000000856f8                next_childregs
- COMMON         0xffff000000085700        0x8 build/kernel/kernel_c.o
-                0xffff000000085700                user_page_start
- COMMON         0xffff000000085708       0x30 build/device/sd_c.o
-                0xffff000000085708                sd_ocr
-                0xffff000000085710                sd_err
-                0xffff000000085718                sd_rca
-                0xffff000000085720                sd_scr
-                0xffff000000085730                sd_hv
-                0xffff000000085738                bss_end = .
-                0xffff000000086000                . = ALIGN (0x1000)
-                0xffff000000086000                pg_dir = .
+ .bss           0xffff00000000bca0        0x4 build/file_system/fat_c.o
+ .bss           0xffff00000000bca4        0x0 build/proc_manager/irq_c.o
+ *fill*         0xffff00000000bca4        0x4 
+ .bss           0xffff00000000bca8      0x220 build/proc_manager/sched_c.o
+                0xffff00000000bca8                init_cpu
+                0xffff00000000bd10                init_state
+                0xffff00000000bd18                init_counter
+                0xffff00000000bd20                init_preempt_count
+                0xffff00000000bd28                init_mm
+                0xffff00000000bec0                next
+ .bss           0xffff00000000bec8        0x4 build/proc_manager/timer_c.o
+                0xffff00000000bec8                curVal
+ *fill*         0xffff00000000becc        0x4 
+ .bss           0xffff00000000bed0    0x7d808 build/memory_manager/mm_c.o
+ .bss           0xffff0000000896d8       0x10 build/kernel/printf_c.o
+ .bss           0xffff0000000896e8        0x0 build/kernel/kernel_c.o
+ .bss           0xffff0000000896e8        0x0 build/device/mini_uart_c.o
+ .bss           0xffff0000000896e8        0x0 build/device/delays_c.o
+ .bss           0xffff0000000896e8        0x0 build/device/led_blink_c.o
+ .bss           0xffff0000000896e8        0x0 build/device/sd_c.o
+ .bss           0xffff0000000896e8        0x0 build/app/sys_c.o
+ .bss           0xffff0000000896e8        0x0 build/app/fork_c.o
+ .bss           0xffff0000000896e8        0x4 build/app/thread_c.o
+ .bss           0xffff0000000896ec        0x0 build/proc_manager/irq_s.o
+ .bss           0xffff0000000896ec        0x0 build/proc_manager/sched_s.o
+ .bss           0xffff0000000896ec        0x0 build/memory_manager/mm_s.o
+ .bss           0xffff0000000896ec        0x0 build/kernel/entry_s.o
+ .bss           0xffff0000000896ec        0x0 build/kernel/boot_s.o
+ .bss           0xffff0000000896ec        0x0 build/device/utils_s.o
+ .bss           0xffff0000000896ec        0x0 build/app/user_sys_s.o
+ *fill*         0xffff0000000896ec        0x4 
+ COMMON         0xffff0000000896f0       0x50 build/proc_manager/sched_c.o
+                0xffff0000000896f0                prev_childregs
+                0xffff0000000896f8                page_prev
+                0xffff000000089700                prev_real_regs
+                0xffff000000089708                page_next
+                0xffff000000089710                next_real_regs
+                0xffff000000089718                prev_real
+                0xffff000000089720                next_real
+                0xffff000000089728                prev
+                0xffff000000089730                init_page
+                0xffff000000089738                next_childregs
+ COMMON         0xffff000000089740        0x8 build/kernel/kernel_c.o
+                0xffff000000089740                user_page_start
+ COMMON         0xffff000000089748       0x30 build/device/sd_c.o
+                0xffff000000089748                sd_ocr
+                0xffff000000089750                sd_err
+                0xffff000000089758                sd_rca
+                0xffff000000089760                sd_scr
+                0xffff000000089770                sd_hv
+                0xffff000000089778                bss_end = .
+                0xffff00000008a000                . = ALIGN (0x1000)
+                0xffff00000008a000                pg_dir = .
 
-.data.pgd       0xffff000000086000     0x3000
-                0xffff000000089000                . = (. + 0x3000)
- *fill*         0xffff000000086000     0x3000 
-                0xffff000000089000                _end = .
+.data.pgd       0xffff00000008a000     0x3000
+                0xffff00000008d000                . = (. + 0x3000)
+ *fill*         0xffff00000008a000     0x3000 
+                0xffff00000008d000                _end = .
 LOAD build/file_system/fat_c.o
 LOAD build/user_testcode/user_c.o
 LOAD build/proc_manager/irq_c.o

@@ -14,6 +14,11 @@
 
 #define TASK_RUNNING				0
 #define TASK_ZOMBIE				1
+#define THREAD_JOINABLE 			2 /* The thread is running and joinable.  */
+#define THREAD_DETACHED			3 /* The thread is running and detached.  */
+#define THREAD_EXITED				4 /* A joinable thread exited and its return code is available.  */
+#define THREAD_TERMINATED			5 /* The thread structure is unallocated and available for reuse.  */
+
 
 #define PF_KTHREAD				0x00000002	
 
@@ -78,6 +83,7 @@ struct pcb_struct {
 	struct mm_struct *mm;
 	int pid;/*process_id*/	
 	int tid;/*thread_id*/
+	void* status;/*exit status*/	
 	//struct task_struct *thread;
 	/* thread_set */
 	/* thread_id */

@@ -8,7 +8,7 @@
 .set SYS_WRITE_INT_NUMBER, 5 
 .set SYS_CREATE_THREAD, 6
 .set SYS_THREAD_SELF, 7
-
+.set SYS_THREAD_JOIN, 8
 
 .globl user_delay
 user_delay:
@@ -63,6 +63,14 @@ thread_self:
 	mov w8, #SYS_THREAD_SELF
 	svc #0
 	ret
+
+
+.globl thread_join
+thread_join:
+	mov w8, #SYS_THREAD_JOIN
+	svc #0
+	ret
+
 /* Return true if T1 and T2 both name the same thread.  Otherwise, false.  */
 .globl thread_equal
 thread_equal:

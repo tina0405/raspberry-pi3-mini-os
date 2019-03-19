@@ -52,11 +52,11 @@ struct pcb_struct {
 
 };
 */
-
+int next = 0;
 void _schedule(void)
 {
 	preempt_disable();
-	int next,c;
+	int c;
 	struct pcb_struct* pcb;
 	//struct pcb_struct pcb;
 	printf("scheduler\n\r");

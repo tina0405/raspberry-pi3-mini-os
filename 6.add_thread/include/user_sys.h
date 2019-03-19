@@ -9,6 +9,7 @@ char call_sys_read(void);
 void sys_write_int(int a);
 int thread_create(thread_t *thread, const struct thread_attr_t *attr,void * (*start_routine)(void *),void* b);
 int thread_equal (thread_t t1, thread_t t2);
+int thread_join ( thread_t thread, void **value_ptr);
 
 struct thread_attr_t {
 	int a;

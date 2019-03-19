@@ -11,6 +11,7 @@ void loop(char* str)
 {
 	char buf[2] = {""};
 	while (1){
+
 		for (int i = 0; i < 5; i++){
 			buf[0] = str[i];
 			call_sys_write(buf);
@@ -27,7 +28,13 @@ void add(int a)
    call_sys_write("\n\r");
    t = t + a;
    call_sys_write("Finish to add 1!\n\r");
-
+   char buff[2] = {""};
+   for (int tt = 0; tt < 10; tt++){
+	buff[0] = 'T';
+	call_sys_write(buff);
+	user_delay(1000000);
+   }
+	
 }
 
 void user_process() 
@@ -71,6 +78,8 @@ void user_process()
 	if (pid == 0){
 
 		thread_create(&thread_2, NULL, &add, 2) ;
+		call_sys_write("JOIN!\n\r");
+		thread_join(&thread_2,5);
 		
 		if(thread_equal(thread_2,thread)){
 			call_sys_write("Equel!\n\r");
