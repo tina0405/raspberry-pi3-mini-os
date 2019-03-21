@@ -79,7 +79,7 @@ void user_process()
 
 		thread_create(&thread_2, NULL, &add, 2) ;
 		call_sys_write("JOIN!\n\r");
-		thread_join(&thread_2,5);
+		thread_join(thread_2,5);
 		
 		if(thread_equal(thread_2,thread)){
 			call_sys_write("Equel!\n\r");

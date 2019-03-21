@@ -51,31 +51,3 @@ void wait_msec(unsigned int n)
     do{asm volatile ("mrs %0, cntpct_el0" : "=r"(r));}while(r<t);
 }
 
-/**
- * Get System Timer's counter
- */
-unsigned long get_system_timer()
-{
-    unsigned int h=-1, l;
-    // we must read MMIO area as two separate 32 bit reads
-    h=*SYSTMR_HI;
-    l=*SYSTMR_LO;
-    // we have to repeat it if high word changed during read
-    if(h!=*SYSTMR_HI) {
-        h=*SYSTMR_HI;
-        l=*SYSTMR_LO;
-    }
-    // compose long int value
-    return ((unsigned long) h << 32) | l;
-}
-
-/**
- * Wait N microsec (with BCM System Timer)
- */
-void wait_msec_st(unsigned int n)
-{
-    unsigned long t=get_system_timer();
-    // we must check if it's non-zero, because qemu does not emulate
-    // system timer, and returning constant zero would mean infinite loop
-    if(t) while(get_system_timer() < t+n);
-}

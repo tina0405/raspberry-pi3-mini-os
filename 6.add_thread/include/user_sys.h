@@ -16,6 +16,19 @@ struct thread_attr_t {
 	int b;
 };
 
+
+
+/*
+struct __pthread_condattr
+{
+  enum __pthread_process_shared __pshared;
+  __clockid_t __clock;
+};
+
+*/
+
+
+
 extern void user_delay ( unsigned long);
 //extern unsigned long get_sp ( void );
 //extern unsigned long get_pc ( void );

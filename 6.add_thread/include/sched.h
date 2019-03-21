@@ -22,11 +22,12 @@
 
 #define PF_KTHREAD				0x00000002	
 
-
+ 
 extern struct pcb_struct *current;
 extern struct task_struct *next_real;
 extern struct pcb_struct *task[NR_TASKS];
 extern int nr_tasks;
+
 
 
 struct cpu_context {
@@ -72,6 +73,41 @@ struct task_struct {
 	//struct task_struct *thread;
 	/* thread_set */
 };
+struct mailbox {
+	struct pcb_struct *from_where;
+	int time;
+	int status;
+};
+
+/* The type of a spin lock object.  */
+typedef volatile int __thread_spinlock_t;
+
+struct thread_cond
+{
+  __thread_spinlock_t __lock;
+  struct pcb *__queue;
+  //struct __pthread_condattr *__attr;
+  //struct __pthread_condimpl *__impl;
+  void *__data;
+};
+
+
+struct thread_mutex
+{
+  __thread_spinlock_t __held;
+  __thread_spinlock_t __lock;
+  /* In cthreads, mutex_init does not initialized thre third
+     pointer, as such, we cannot rely on its value for anything.  */
+  char *__cthreadscompat1;
+  struct pcb *__queue;
+  //struct __pthread_mutexattr *__attr;
+  void *__data;
+  /*  Up to this point, we are completely compatible with cthreads
+     and what libc expects.  */
+  void *__owner;
+  unsigned __locks;
+  /* If NULL then the default attributes apply.  */
+};
 
 struct pcb_struct {
 	struct cpu_context *cpu_context;
@@ -83,11 +119,18 @@ struct pcb_struct {
 	struct mm_struct *mm;
 	int pid;/*process_id*/	
 	int tid;/*thread_id*/
-	void* status;/*exit status*/	
+	void* status;/*exit status*/
+	struct mailbox mail[15];
+	struct thread_mutex state_lock;
+	struct thread_cond state_cond;	
 	//struct task_struct *thread;
 	/* thread_set */
 	/* thread_id */
 };
+
+
+
+
 
 extern void schedule(void);
 extern void timer_tick(void);

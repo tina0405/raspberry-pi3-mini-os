@@ -15,7 +15,16 @@ unsigned long init_flags = PF_KTHREAD;
 struct mm_struct init_mm = { 0, 0, {{0}}, 0, {0}};
 struct pcb_struct init_task = {&init_cpu,&init_state,&init_counter,&init_priority,&init_preempt_count,&init_flags,&init_mm};
 struct pcb_struct *current = &(init_task);
-struct pcb_struct *task[NR_TASKS]={&init_task,};
+
+
+struct pcb_struct *task_IO[NR_TASKS]={&init_task,}; /*Hardware*/
+struct pcb_struct *task_SERVER[NR_TASKS]={&init_task,}; /*Server*/
+struct pcb_struct *task_Change[NR_TASKS]={&init_task,}; /*change task*/
+struct pcb_struct *task[NR_TASKS]={&init_task,}; /*user*/ 
+
+struct pcb_struct **Task_Priority[4]={&task_IO[0],&task_SERVER[0],&task_Change[0],&task[0]};
+
+
 int nr_tasks = 1;
 
 void preempt_disable(void)
@@ -75,6 +84,8 @@ void _schedule(void)
 		if (c) {
 			break;
 		}
+
+/*add bill*/
 		for (int i = 0; i < NR_TASKS; i++) {
 			pcb = task[i];
 			if (pcb) {
