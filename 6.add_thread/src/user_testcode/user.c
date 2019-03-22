@@ -7,6 +7,8 @@
 #include "sys.h"
 #include <stddef.h>
 int t=0;
+thread_t thread=0;
+thread_t thread_2=0;
 void loop(char* str)
 {
 	char buf[2] = {""};
@@ -28,6 +30,11 @@ void add(int a)
    call_sys_write("\n\r");
    t = t + a;
    call_sys_write("Finish to add 1!\n\r");
+
+   if(a==2){   
+	thread_signal(3);
+   }
+
    char buff[2] = {""};
    for (int tt = 0; tt < 10; tt++){
 	buff[0] = 'T';
@@ -59,8 +66,7 @@ void user_process()
 #endif
 	call_sys_write_int(t);
 	call_sys_write("Create Thread\n\r");
-	thread_t thread;
-	thread_t thread_2;
+	
 	//const struct thread_attr_t* attr = NULL;
 	thread_create(&thread, NULL, &add, 5) ;
 

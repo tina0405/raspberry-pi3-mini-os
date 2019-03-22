@@ -1,15 +1,22 @@
-#include <stddef.h>
+
 #include "fork.h"
 #include "printf.h"
 #include "utils.h"
 #include "sched.h"
 #include "mm.h"
-#include "led_blink.h"
 #include "mini_uart.h"
+#include "led_blink.h"
 #include "user_sys.h"
 #include "sys.h"
-#include "entry.h"
+
+int add_thread(thread_t *thread, const struct thread_attr_t *attr,void * (*start_routine)(void *),void* arg);
+thread_t thread_id_self(void);
+int _thread_join (thread_t thread, void **status);
+void signal(thread_t thread);
+
+
 extern unsigned long user_page_start;
+
 
 void sys_write(char * buf){	
 	printf(buf);
@@ -48,7 +55,12 @@ int sys_thread_join (thread_t thread, void **value_ptr ){
 	return 0;
 }
 
-void sys_pthread_exit (void *value_ptr){
-
+void sys_thread_exit (thread_t thread){
+	
 }
-void * const sys_call_table[] = {sys_write, sys_fork, sys_exit, sys_led, sys_read, sys_write_int,  sys_create_thread, sys_thread_self,sys_thread_join,sys_pthread_exit};
+
+void sys_thread_signal(thread_t thread){
+	signal(thread);
+}
+void * const sys_call_table[] = {sys_write, sys_fork, sys_exit, sys_led, sys_read, sys_write_int, /*0-5*/ 
+				 sys_create_thread, sys_thread_self,sys_thread_join,sys_thread_exit,sys_thread_signal};/*6-10*/

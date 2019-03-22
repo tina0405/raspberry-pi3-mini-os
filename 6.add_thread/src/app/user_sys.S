@@ -9,6 +9,8 @@
 .set SYS_CREATE_THREAD, 6
 .set SYS_THREAD_SELF, 7
 .set SYS_THREAD_JOIN, 8
+.set SYS_THREAD_EXIT, 9
+.set SYS_THREAD_SIGNAL, 10
 
 .globl user_delay
 user_delay:
@@ -68,6 +70,12 @@ thread_self:
 .globl thread_join
 thread_join:
 	mov w8, #SYS_THREAD_JOIN
+	svc #0
+	ret
+
+.globl thread_signal
+thread_signal:
+	mov w8, #SYS_THREAD_SIGNAL
 	svc #0
 	ret
 

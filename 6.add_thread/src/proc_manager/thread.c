@@ -8,10 +8,9 @@
 #include "user_sys.h"
 #include "sys.h"
 #include "entry.h"
-
+#include "threadtype.h"
 int thread_id_table[4096] ={-1};/*tid and pid map*/
 extern int next;
-
 
 
 void thread_end(void) /*Normal end*/
@@ -141,13 +140,43 @@ void recieve(struct pcb_struct *src,int* msg){
 void send(struct pcb_struct *dst,int* msg){
 	
 }
+void hi(void){
+   printf("hihihihi\n\r");
+}
+
+void signal(thread_t thread){
+	
+	struct pcb_struct *pcb_thread; /*interface*/	
+/*	int pid_map;
+	printf("t");
+	if(thread_id_table[thread]>=0){
+		printf("i");
+		pid_map = thread_id_table[thread];/*wait for which thread*/
+//	}else{
+
+//		error();
+//	}
+	
+	pcb_thread = task[3];
+	//printf("%x\n\r",pcb_thread);
+        if (pcb_thread == NULL)
+		error();
+
+	//pcb_thread->cpu_context->pc = (unsigned long)ret_from_fork;
+	
+	//unsigned int *addr = (pcb_thread->cpu_context->sp+8);
+	//*addr = &hi;
+	*(pcb_thread -> state) = TASK_RUNNING;
+}
+
 
 
 int _thread_join (thread_t thread, void **status){
 		
 	
 	struct pcb_struct *pcb_thread; /*interface*/	
-	int *msg,pid_map;
+	int *msg;
+	int pid_map;
 
 	if(thread_id_table[thread]>=0){
 		pid_map = thread_id_table[thread];/*wait for which thread*/
@@ -162,13 +191,13 @@ int _thread_join (thread_t thread, void **status){
 	/*mutex*/
 
 	/*__pthread_cond_wait*/
-	while (pcb_thread->state == THREAD_JOINABLE)
+	while (*(pcb_thread->state) == THREAD_JOINABLE)
     		thread_cond_wait (&pcb_thread->state_cond, &pcb_thread->state_lock);
 
 	
 		
 	*(current -> state) = TASK_ZOMBIE;
-	
+	while(1){}/*tmp*/
 	
 	
 
@@ -200,132 +229,94 @@ int _thread_join (thread_t thread, void **status){
 
 
 
-int thread_cond_timedwait_internal (struct thread_cond *cond,struct thread_mutex *mutex,const struct timespec *abstime)
-{
 
-	if(abstime==0){
-	      thread_block();/*wait for signal*/
-	}else{
-		wait_msec_st(*abstime);/*wait for abstime*/
-	}
-
-}
 
 /* Lock MUTEX, block if we can't get it.  */
-int __pthread_mutex_lock (struct __pthread_mutex *mutex)
+int __pthread_mutex_lock (struct thread_mutex *mutex)
 {
-  return __pthread_mutex_timedlock_internal (mutex, 0);
-}
-
-int __pthread_mutex_timedlock_internal (struct __pthread_mutex *mutex, const struct timespec *abstime)
-{
-  error_t err;
+  int err;
   int drain;
   struct  pcb_struct *self;
   const struct __pthread_mutexattr *attr = mutex->__attr;
 
-  if (attr == __PTHREAD_ERRORCHECK_MUTEXATTR)
+  if (attr == &__pthread_errorcheck_mutexattr)
     attr = &__pthread_errorcheck_mutexattr;
-  if (attr == __PTHREAD_RECURSIVE_MUTEXATTR)
+  if (attr == &__pthread_recursive_mutexattr)
     attr = &__pthread_recursive_mutexattr;
-
-  __pthread_spin_lock (&mutex->__lock);
-  if (__pthread_spin_trylock (&mutex->__held) == 0)
-    /* Successfully acquired the lock.  */
+  //__pthread_spin_lock (&mutex->__lock);
+  
+/*
+   if (__pthread_spin_trylock (&mutex->__held) == 0)
+    //Successfully acquired the lock.
     {
-#ifdef ALWAYS_TRACK_MUTEX_OWNER
-# ifndef NDEBUG
-      self = thread_self ();
-      if (self != NULL)
-	/* The main thread may take a lock before the library is fully
-	   initialized, in particular, before the main thread has a
-	   TCB.  */
-	{
-	  assert (mutex->__owner == NULL);
-	  mutex->__owner = thread_self ();
-	}
-# endif
-#endif
 
       if (attr != NULL)
 	switch (attr->__mutex_type)
-	  {
-	  case PTHREAD_MUTEX_NORMAL:
+	{
+	  case __PTHREAD_MUTEX_NORMAL:
 	    break;
 
-	  case PTHREAD_MUTEX_RECURSIVE:
+	  case __PTHREAD_MUTEX_RECURSIVE:
 	    mutex->__locks = 1;
-	  case PTHREAD_MUTEX_ERRORCHECK:
+	  case __PTHREAD_MUTEX_ERRORCHECK:
 	    mutex->__owner = thread_self ();
 	    break;
 
 	  default:
-	    LOSE;
-	  }
+	    error();
+	}
 
-      __pthread_spin_unlock (&mutex->__lock);
+      //__pthread_spin_unlock (&mutex->__lock);
       return 0;
     }
-
+*/
   /* The lock is busy.  */
 
   self = thread_self ();
-  assert (self);
+  //assert (self);
 
-  if (attr == NULL || attr->__mutex_type == PTHREAD_MUTEX_NORMAL)
-    {
-#if defined(ALWAYS_TRACK_MUTEX_OWNER)
-      assert (mutex->__owner != self);
-#endif
-    }
+  if (attr == NULL || attr->__mutex_type == __PTHREAD_MUTEX_NORMAL){}
   else
-    {
+  {
       switch (attr->__mutex_type)
-	{
-	case PTHREAD_MUTEX_ERRORCHECK:
+      {
+	case __PTHREAD_MUTEX_ERRORCHECK:
 	  if (mutex->__owner == self)
 	    {
-	      __pthread_spin_unlock (&mutex->__lock);
-	      return EDEADLK;
+	      //__pthread_spin_unlock (&mutex->__lock);
+	      error();
 	    }
 	  break;
 
-	case PTHREAD_MUTEX_RECURSIVE:
+	case __PTHREAD_MUTEX_RECURSIVE:
 	  if (mutex->__owner == self)
 	    {
 	      mutex->__locks++;
-	      __pthread_spin_unlock (&mutex->__lock);
+	      //__pthread_spin_unlock (&mutex->__lock);
 	      return 0;
 	    }
 	  break;
 
 	default:
-	  LOSE;
+	  error();
 	}
     }
 
-#if !defined(ALWAYS_TRACK_MUTEX_OWNER)
-  if (attr != NULL && attr->__mutex_type != PTHREAD_MUTEX_NORMAL)
-#endif
-    assert (mutex->__owner);
 
-  if (abstime != NULL && (abstime->tv_nsec < 0 || abstime->tv_nsec >= 1000000000))
-    return EINVAL;
+    //assert (mutex->__owner);
+
+
 
   /* Add ourselves to the queue.  */
-  __pthread_enqueue (&mutex->__queue, self);
-  __pthread_spin_unlock (&mutex->__lock);
-
+  //__pthread_enqueue (&mutex->__queue, self);
+  //__pthread_spin_unlock (&mutex->__lock);
+//
   /* Block the thread.  */
-  if (abstime != NULL)
-    err = __pthread_timedblock (self, abstime, CLOCK_REALTIME);
-  else
-    {
-      err = 0;
-      thread_block (self);
-    }
+  err = 0;
+  thread_block (self);
+   
 
-  __pthread_spin_lock (&mutex->__lock);
+  //__pthread_spin_lock (&mutex->__lock);
   if (self->prevp == NULL)
     /* Another thread removed us from the queue, which means a wakeup message
        has been sent.  It was either consumed while we were blocking, or
@@ -336,48 +327,53 @@ int __pthread_mutex_timedlock_internal (struct __pthread_mutex *mutex, const str
     {
       /* We're still in the queue.  Noone attempted to wake us up, i.e. we
          timed out.  */
-      __pthread_dequeue (self);
+      //__pthread_dequeue (self);
       drain = 0;
     }
-  __pthread_spin_unlock (&mutex->__lock);
+  //__pthread_spin_unlock (&mutex->__lock);
 
   if (drain)
-    __pthread_block (self);
+    //__pthread_block (self);
 
   if (err)
-    {
-      assert (err == ETIMEDOUT);
+  {
+      error();/*timeout*/
       return err;
-    }
+   }
 
-#if !defined(ALWAYS_TRACK_MUTEX_OWNER)
-  if (attr != NULL && attr->__mutex_type != PTHREAD_MUTEX_NORMAL)
-#endif
-    {
-      assert (mutex->__owner == self);
-    }
+      //assert (mutex->__owner == self);
+
 
   if (attr != NULL)
-    switch (attr->__mutex_type)
+      switch (attr->__mutex_type)
       {
-      case PTHREAD_MUTEX_NORMAL:
-	break;
+      	case __PTHREAD_MUTEX_NORMAL:
+		break;
 
-      case PTHREAD_MUTEX_RECURSIVE:
-	assert (mutex->__locks == 0);
-	mutex->__locks = 1;
-      case PTHREAD_MUTEX_ERRORCHECK:
-	mutex->__owner = self;
-	break;
+      	case __PTHREAD_MUTEX_RECURSIVE:
+		//assert (mutex->__locks == 0);
+		mutex->__locks = 1;
+     	 case __PTHREAD_MUTEX_ERRORCHECK:
+		mutex->__owner = self;
+		break;
 
-      default:
-	LOSE;
+      	default:
+		error();
       }
 
   return 0;
 }
 
+int thread_cond_timedwait_internal (struct thread_cond *cond,struct thread_mutex *mutex,unsigned int abstime)
+{
 
+	if(abstime==0){
+	      thread_block();/*wait for signal*/
+	}else{
+		wait_msec_st(abstime);/*wait for abstime*/
+	}
+
+}
 
 void thread_block (void){
 	*(current -> state) = TASK_ZOMBIE;

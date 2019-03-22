@@ -100,7 +100,7 @@ struct thread_mutex
      pointer, as such, we cannot rely on its value for anything.  */
   char *__cthreadscompat1;
   struct pcb *__queue;
-  //struct __pthread_mutexattr *__attr;
+  struct __pthread_mutexattr *__attr;
   void *__data;
   /*  Up to this point, we are completely compatible with cthreads
      and what libc expects.  */
@@ -122,11 +122,13 @@ struct pcb_struct {
 	void* status;/*exit status*/
 	struct mailbox mail[15];
 	struct thread_mutex state_lock;
-	struct thread_cond state_cond;	
+	struct thread_cond state_cond;
+	struct pcb_struct *prevp;	
 	//struct task_struct *thread;
 	/* thread_set */
 	/* thread_id */
 };
+
 
 
 

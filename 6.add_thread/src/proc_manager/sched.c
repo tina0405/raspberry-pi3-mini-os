@@ -4,8 +4,7 @@
 #include "utils.h"
 #include "mm.h"
 #include "fork.h"
-#include "user_sys.h"
-#include <stddef.h>
+
 struct cpu_context init_cpu = {0,0,0,0,0,0,0,0,0,0,0,0,0};
 long init_state = 0;
 long init_counter = 0;

@@ -1,11 +1,10 @@
 #ifndef	_SYS_H
 #define	_SYS_H
 
-#define __NR_syscalls	 10
+#define __NR_syscalls	 11
 
 #ifndef __ASSEMBLER__
-typedef int __thread_t;
-typedef __thread_t thread_t; /*pthreadtypes.h*/
+ /*pthreadtypes.h*/
 
 void sys_write(char * buf);
 int sys_fork();

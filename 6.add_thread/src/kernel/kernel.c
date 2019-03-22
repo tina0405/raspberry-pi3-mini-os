@@ -15,6 +15,7 @@
 extern unsigned char _end;
 unsigned int t;	
 unsigned long user_page_start;
+extern unsigned int pm_daemon;
 void kernel_process(){
 	printf("Kernel process started. EL %d\r\n", get_el());
 	unsigned long begin = (unsigned long)&user_begin;
@@ -74,6 +75,13 @@ void kernel_main()
 #endif	
 
 	int res = copy_process(PF_KTHREAD, (unsigned long)&kernel_process, 0);
+	
+	if (res < 0) {
+		printf("error while starting kernel process");
+		return;
+	}
+
+	res = copy_process(PF_KTHREAD, (unsigned long)&pm_daemon, 0);
 	
 	if (res < 0) {
 		printf("error while starting kernel process");

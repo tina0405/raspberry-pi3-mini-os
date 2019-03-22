@@ -28,6 +28,7 @@
 #ifndef __ASSEMBLER__
 
 void ret_from_fork(void);
+void ret_from_syscall(void);
 
 #endif
 
