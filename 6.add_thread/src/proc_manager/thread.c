@@ -9,7 +9,8 @@
 #include "sys.h"
 #include "entry.h"
 #include "threadtype.h"
-//int thread_id_table[4096] ={-1};/*tid and pid map*/
+struct pcb_struct *thread_id_table[4096] ={0};/*tid and pid map*/
+/*thread table Pointer thread_id-> pointer*/
 extern int next;
 
 
@@ -38,11 +39,11 @@ void error(void){
 }
 
 int add_thread(thread_t *thread, const struct thread_attr_t *attr,void * (*start_routine)(void *),void* arg){
-	
+	struct pcb_struct *tmp_pcb;
 	preempt_disable();
 	static int tid = 0; 
 	int pid = nr_tasks++;
-	//thread_id_table[tid]=pid;	
+		
 	*thread = tid++;	
 	
 	struct pcb_struct *pcb; /*interface*/
@@ -100,7 +101,7 @@ int add_thread(thread_t *thread, const struct thread_attr_t *attr,void * (*start
 	}
 	tmp_pcb->nextp = pcb;
 	//task[pid] = pcb;
-	
+	thread_id_table[tid]=pcb;
 	printf("pid:%x\n\r",pid);
 	printf("pcb:%x\n\r",pcb);
 	preempt_enable();
@@ -163,7 +164,7 @@ void signal(thread_t thread){
 //		error();
 //	}
 	
-	pcb_thread = task[3];
+	//pcb_thread = task[3];
 	//printf("%x\n\r",pcb_thread);
         if (pcb_thread == NULL)
 		error();
@@ -184,16 +185,12 @@ int _thread_join (thread_t thread, void **status){
 	int *msg;
 	int pid_map;
 	/*without thread id*/
-	if(thread_id_table[thread]>=0){
-		pid_map = thread_id_table[thread];/*wait for which thread*/
-	}else{
-
+	if(thread_id_table[thread]==0){
 		error();
 	}
-	pcb_thread = task[pid_map];
+	pcb_thread = thread_id_table[thread];
 	printf("%x\n\r",pcb_thread);
-        if (pcb_thread == NULL)
-		error();
+
 	/*mutex*/
 
 	/*__pthread_cond_wait*/

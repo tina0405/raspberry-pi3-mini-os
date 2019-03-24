@@ -72,14 +72,17 @@ void _schedule(void)
 	struct pcb_struct* pcb;
 	//struct pcb_struct pcb;
 	printf("scheduler\n\r");
-	int index = 0;/*0 priority highest*/
+	static int index = 3;/*3 priority highest*/
 
 	
-	while (task_prio_table[index]->nextp == NULL){
-		index++;
-		if(index == 5){ index = 0; }
+	while (task_prio_table[index]->nextp == NULL || !(*(task_prio_table[index]->nextp->state) == TASK_RUNNING||*(task_prio_table[index]->nextp->state) == THREAD_JOINABLE ||*(task_prio_table[index]->nextp->state) == THREAD_DETACHED)){
+		index--;
+		if(index == -1){ index = 3; }
+		printf("%x\n\r",index);
 	}
-	
+
+
+
 	task_prio_table[index] = task_prio_table[index]->nextp;
 
         
