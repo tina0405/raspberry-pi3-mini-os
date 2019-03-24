@@ -4,24 +4,25 @@
 #include "utils.h"
 #include "mm.h"
 #include "fork.h"
-
+#include <stddef.h>
 struct cpu_context init_cpu = {0,0,0,0,0,0,0,0,0,0,0,0,0};
 long init_state = 0;
 long init_counter = 0;
 long init_priority = 15;
 long init_preempt_count = 0;
-unsigned long init_flags = PF_KTHREAD;
+unsigned long init_flags = SERVER_THREAD;
 struct mm_struct init_mm = { 0, 0, {{0}}, 0, {0}};
 struct pcb_struct init_task = {&init_cpu,&init_state,&init_counter,&init_priority,&init_preempt_count,&init_flags,&init_mm};
 struct pcb_struct *current = &(init_task);
+/*linked list*/
+struct pcb_struct *task_prio_table[4] = {&init_task, &init_task, &init_task, &init_task}; /*Hardware*/ /*Server*/ /*Change task*/ /*User*/
 
-
+/*linked list*/
 struct pcb_struct *task_IO[NR_TASKS]={&init_task,}; /*Hardware*/
 struct pcb_struct *task_SERVER[NR_TASKS]={&init_task,}; /*Server*/
-struct pcb_struct *task_Change[NR_TASKS]={&init_task,}; /*change task*/
-struct pcb_struct *task[NR_TASKS]={&init_task,}; /*user*/ 
+struct pcb_struct *task_Change[NR_TASKS]={&init_task,}; /*Change task*/
+struct pcb_struct *task[NR_TASKS]={&init_task,}; /*User*/ 
 
-struct pcb_struct **Task_Priority[4]={&task_IO[0],&task_SERVER[0],&task_Change[0],&task[0]};
 
 
 int nr_tasks = 1;
@@ -60,14 +61,29 @@ struct pcb_struct {
 
 };
 */
+
+
 int next = 0;
 void _schedule(void)
 {
 	preempt_disable();
+	
 	int c;
 	struct pcb_struct* pcb;
 	//struct pcb_struct pcb;
 	printf("scheduler\n\r");
+	int index = 0;/*0 priority highest*/
+
+	
+	while (task_prio_table[index]->nextp == NULL){
+		index++;
+		if(index == 5){ index = 0; }
+	}
+	
+	task_prio_table[index] = task_prio_table[index]->nextp;
+
+        
+/*
 	while (1) {
 		c = -1;
 		next = 0;
@@ -84,7 +100,7 @@ void _schedule(void)
 			break;
 		}
 
-/*add bill*/
+
 		for (int i = 0; i < NR_TASKS; i++) {
 			pcb = task[i];
 			if (pcb) {
@@ -94,8 +110,9 @@ void _schedule(void)
 
 		}
 	}
-	printf("choose task:%d\n\r",next);
-	switch_to(task[next]);
+*/
+	//printf("choose task:%d\n\r",next);
+	switch_to(task_prio_table[index]);
 	preempt_enable();
 }
 

@@ -74,17 +74,17 @@ void kernel_main()
 	fat_listdirectory(&_end+(t-(unsigned int)&_end));
 #endif	
 
-	int res = copy_process(PF_KTHREAD, (unsigned long)&kernel_process, 0);
+	int res = copy_process(SERVER_THREAD, (unsigned long)&kernel_process, 0);
 	
 	if (res < 0) {
 		printf("error while starting kernel process");
 		return;
 	}
 
-	res = copy_process(PF_KTHREAD, (unsigned long)&pm_daemon, 0);
+	res = copy_process(SERVER_THREAD, (unsigned long)&pm_daemon, 0);
 	
 	if (res < 0) {
-		printf("error while starting kernel process");
+		printf("error while starting process manager ");
 		return;
 	}
 

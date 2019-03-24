@@ -5,6 +5,7 @@
 #include "entry.h"
 #include "printf.h"
 #include "user_sys.h"
+#include <stddef.h>
 extern unsigned long user_page_start;
 extern unsigned long uart_send;
 extern unsigned long add;
@@ -12,7 +13,7 @@ unsigned long  page_next;
 unsigned long  page_prev;
 struct task_struct *prev_real;
 struct task_struct *next_real;
-
+/*clone_flag = 0,1,2,3*/
 int copy_process(unsigned long clone_flags, unsigned long fn,unsigned long arg)
 {
 	
@@ -34,10 +35,10 @@ int copy_process(unsigned long clone_flags, unsigned long fn,unsigned long arg)
 	if (!p)
 		return -1;
 
-	if (clone_flags==PF_KTHREAD) {
+	if (clone_flags==SERVER_THREAD) {
 		p->cpu_context.x19 = fn;
 		p->cpu_context.x20 = arg;
-	} else if(clone_flags==0){
+	} else if(clone_flags==0){ /*user fork*/
 		struct pt_regs * cur_regs = task_pt_regs(&(current->cpu_context->x19));
 		*cur_regs = *childregs;
 		childregs->regs[0] = 0;
@@ -62,7 +63,41 @@ int copy_process(unsigned long clone_flags, unsigned long fn,unsigned long arg)
 	pcb -> mm = &(p->mm);
 	//pcb -> thread_id = &(p->thread_id);
 	/* interface */
-	task[pid] = pcb;
+
+	/*compare add task*/
+	//task[pid] = pcb;
+
+	struct pcb_struct *tmp_pcb;
+	if (clone_flags == SERVER_THREAD){/*SERVER*/
+		tmp_pcb = task_prio_table[2];
+		while (tmp_pcb ->nextp != NULL){
+			tmp_pcb = tmp_pcb -> nextp;
+		}
+		tmp_pcb->nextp = pcb;
+
+	}else if  (clone_flags == APP_THREAD){
+		tmp_pcb = task_prio_table[0];
+		while (tmp_pcb ->nextp != NULL){
+			tmp_pcb = tmp_pcb -> nextp;
+		}
+		tmp_pcb->nextp = pcb;
+	}else if(clone_flags == MODULE_THREAD) { /*temperate*/
+		tmp_pcb = task_prio_table[1];
+		while (tmp_pcb ->nextp != NULL){
+			tmp_pcb = tmp_pcb -> nextp;
+		}
+		tmp_pcb->nextp = pcb;
+	
+	}else if(clone_flags == IO_THREAD){ /*temperate*/
+		tmp_pcb = task_prio_table[3];
+		while (tmp_pcb ->nextp != NULL){
+			tmp_pcb = tmp_pcb -> nextp;
+		}
+		tmp_pcb->nextp = pcb;
+	}else{
+		printf("error clone flag\n\r");
+	}
+	
 	
 	printf("pid:%x\n\r",pid);
 	printf("pcb:%x\n\r",pcb);

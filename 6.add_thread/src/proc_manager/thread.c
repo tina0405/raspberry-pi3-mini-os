@@ -9,7 +9,7 @@
 #include "sys.h"
 #include "entry.h"
 #include "threadtype.h"
-int thread_id_table[4096] ={-1};/*tid and pid map*/
+//int thread_id_table[4096] ={-1};/*tid and pid map*/
 extern int next;
 
 
@@ -42,7 +42,7 @@ int add_thread(thread_t *thread, const struct thread_attr_t *attr,void * (*start
 	preempt_disable();
 	static int tid = 0; 
 	int pid = nr_tasks++;
-	thread_id_table[tid]=pid;	
+	//thread_id_table[tid]=pid;	
 	*thread = tid++;	
 	
 	struct pcb_struct *pcb; /*interface*/
@@ -93,7 +93,13 @@ int add_thread(thread_t *thread, const struct thread_attr_t *attr,void * (*start
 	pcb -> tid = *thread;
 	//pcb -> thread_id = &(p->thread_id);
 	/* interface */
-	task[pid] = pcb;
+
+	tmp_pcb = task_prio_table[0];
+	while (tmp_pcb ->nextp != NULL){
+		tmp_pcb = tmp_pcb -> nextp;
+	}
+	tmp_pcb->nextp = pcb;
+	//task[pid] = pcb;
 	
 	printf("pid:%x\n\r",pid);
 	printf("pcb:%x\n\r",pcb);
@@ -177,7 +183,7 @@ int _thread_join (thread_t thread, void **status){
 	struct pcb_struct *pcb_thread; /*interface*/	
 	int *msg;
 	int pid_map;
-
+	/*without thread id*/
 	if(thread_id_table[thread]>=0){
 		pid_map = thread_id_table[thread];/*wait for which thread*/
 	}else{
@@ -377,6 +383,7 @@ int thread_cond_timedwait_internal (struct thread_cond *cond,struct thread_mutex
 
 void thread_block (void){
 	*(current -> state) = TASK_ZOMBIE;
+	schedule();
 }
 
 int thread_cond_wait (struct thread_cond *cond,struct thread_mutex * mutex){

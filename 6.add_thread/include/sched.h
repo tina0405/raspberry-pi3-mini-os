@@ -19,15 +19,16 @@
 #define THREAD_EXITED				4 /* A joinable thread exited and its return code is available.  */
 #define THREAD_TERMINATED			5 /* The thread structure is unallocated and available for reuse.  */
 
-
-#define PF_KTHREAD				0x00000002	
-
+#define APP_THREAD				0x00000000
+#define MODULE_THREAD				0x00000001
+#define SERVER_THREAD				0x00000002	
+#define IO_THREAD				0x00000003
  
 extern struct pcb_struct *current;
 extern struct task_struct *next_real;
-extern struct pcb_struct *task[NR_TASKS];
+//extern struct pcb_struct *task[NR_TASKS];
 extern int nr_tasks;
-
+extern struct pcb_struct *task_prio_table[4];
 
 
 struct cpu_context {
@@ -123,8 +124,11 @@ struct pcb_struct {
 	struct mailbox mail[15];
 	struct thread_mutex state_lock;
 	struct thread_cond state_cond;
-	struct pcb_struct *prevp;	
-	//struct task_struct *thread;
+	/*for mutex*/	
+	struct pcb_struct *prevp;
+	/*for scheduler*/
+	struct pcb_struct *nextp;	
+
 	/* thread_set */
 	/* thread_id */
 };
