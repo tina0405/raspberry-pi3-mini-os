@@ -19,10 +19,10 @@
 #define THREAD_EXITED				4 /* A joinable thread exited and its return code is available.  */
 #define THREAD_TERMINATED			5 /* The thread structure is unallocated and available for reuse.  */
 
-#define APP_THREAD				0x00000000
-#define MODULE_THREAD				0x00000001
-#define SERVER_THREAD				0x00000002	
-#define IO_THREAD				0x00000003
+#define APP_THREAD				0x00000003
+#define MODULE_THREAD				0x00000002
+#define SERVER_THREAD				0x00000001	
+#define IO_THREAD				0x00000000
  
 extern struct pcb_struct *current;
 extern struct task_struct *next_real;
@@ -139,6 +139,7 @@ struct pcb_struct {
 
 
 extern void schedule(void);
+extern void schedule_init(void);
 extern void timer_tick(void);
 extern void preempt_disable(void);
 extern void preempt_enable(void);

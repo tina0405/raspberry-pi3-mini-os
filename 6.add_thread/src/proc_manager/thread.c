@@ -75,7 +75,7 @@ int add_thread(thread_t *thread, const struct thread_attr_t *attr,void * (*start
 	
 	p->flags = 0;
 	p->priority = 2;
-	p->state = TASK_RUNNING;
+	p->state = THREAD_JOINABLE;
 	p->counter = p->priority;
 	p->preempt_count = 1; //disable preemtion until schedule_tail
 	p->cpu_context.pc = (unsigned long)ret_from_fork;

@@ -12,16 +12,16 @@ long init_priority = 15;
 long init_preempt_count = 0;
 unsigned long init_flags = SERVER_THREAD;
 struct mm_struct init_mm = { 0, 0, {{0}}, 0, {0}};
-struct pcb_struct init_task = {&init_cpu,&init_state,&init_counter,&init_priority,&init_preempt_count,&init_flags,&init_mm};
-struct pcb_struct *current = &(init_task);
+struct pcb_struct init_task_0 = {&init_cpu,&init_state,&init_counter,&init_priority,&init_preempt_count,&init_flags,&init_mm};
+struct pcb_struct init_task_1 = {&init_cpu,&init_state,&init_counter,&init_priority,&init_preempt_count,&init_flags,&init_mm};
+struct pcb_struct init_task_2 = {&init_cpu,&init_state,&init_counter,&init_priority,&init_preempt_count,&init_flags,&init_mm};
+struct pcb_struct init_task_3 = {&init_cpu,&init_state,&init_counter,&init_priority,&init_preempt_count,&init_flags,&init_mm};
+struct pcb_struct *current = &(init_task_0);
 /*linked list*/
-struct pcb_struct *task_prio_table[4] = {&init_task, &init_task, &init_task, &init_task}; /*Hardware*/ /*Server*/ /*Change task*/ /*User*/
+struct pcb_struct *task_prio_table[4] = {&init_task_0, &init_task_1, &init_task_2, &init_task_3}; /*Hardware*/ /*Server*/ /*Change task*/ /*User*/
+struct pcb_struct *head[4]={&init_task_0, &init_task_1, &init_task_2, &init_task_3};
+/*linked list*/
 
-/*linked list*/
-struct pcb_struct *task_IO[NR_TASKS]={&init_task,}; /*Hardware*/
-struct pcb_struct *task_SERVER[NR_TASKS]={&init_task,}; /*Server*/
-struct pcb_struct *task_Change[NR_TASKS]={&init_task,}; /*Change task*/
-struct pcb_struct *task[NR_TASKS]={&init_task,}; /*User*/ 
 
 
 
@@ -63,6 +63,7 @@ struct pcb_struct {
 */
 
 
+
 int next = 0;
 void _schedule(void)
 {
@@ -72,17 +73,27 @@ void _schedule(void)
 	struct pcb_struct* pcb;
 	//struct pcb_struct pcb;
 	printf("scheduler\n\r");
-	static int index = 3;/*3 priority highest*/
-
+	static int index = 0;/*3 priority highest*/
 	
-	while (task_prio_table[index]->nextp == NULL || !(*(task_prio_table[index]->nextp->state) == TASK_RUNNING||*(task_prio_table[index]->nextp->state) == THREAD_JOINABLE ||*(task_prio_table[index]->nextp->state) == THREAD_DETACHED)){
-		index--;
-		if(index == -1){ index = 3; }
+	while(1){
+
+		while (task_prio_table[index]->nextp == NULL){	
+			task_prio_table[index] = head[index];
+			index++;			
+			if(index == 4){ index = 0; }
+			
+		}
 		printf("%x\n\r",index);
+		if(*(task_prio_table[index]->nextp->state) == TASK_RUNNING||*(task_prio_table[index]->nextp->state) == THREAD_JOINABLE||*(task_prio_table[index]->nextp->state) == THREAD_DETACHED){
+			break;
+
+		}else{
+			task_prio_table[index] = task_prio_table[index]->nextp;
+					
+		}
+		
 	}
-
-
-
+	
 	task_prio_table[index] = task_prio_table[index]->nextp;
 
         
@@ -114,7 +125,7 @@ void _schedule(void)
 		}
 	}
 */
-	//printf("choose task:%d\n\r",next);
+	printf("task_prio_table:%d\n\r",index);
 	switch_to(task_prio_table[index]);
 	preempt_enable();
 }
@@ -178,10 +189,12 @@ void schedule_tail(void) {
 void timer_tick()
 {
 	--*(current->counter);
-	if (*(current->counter)>0 || *(current->preempt_count) >0) {
+
+	if ( *(current->preempt_count) >0) {
 		return;
 	}
 	*(current->counter)=0;
+
 	enable_irq();
         //printf("interrupt schedule\n\r");
 	_schedule();
@@ -199,10 +212,12 @@ void timer3_tick()
 void exit_process(){
 	preempt_disable();
 	for (int i = 0; i < NR_TASKS; i++){
+/*
 		if (task[i] == current) {
 			*(task[i]->state) = TASK_ZOMBIE;
 			break;
 		}
+*/
 	}
 	preempt_enable();
 	schedule();
