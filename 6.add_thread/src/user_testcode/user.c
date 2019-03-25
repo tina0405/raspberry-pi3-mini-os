@@ -56,7 +56,7 @@ void user_process()
 	call_sys_write("Create Thread\n\r");
 	
 	//const struct thread_attr_t* attr = NULL;
-	//thread_create(&thread, NULL, &add, 5) ;
+	thread_create(&thread, NULL, &add, 5) ;
 
         //call_sys_led();
 	call_sys_write("Fork\n\r");
@@ -71,16 +71,16 @@ void user_process()
 		
 	if (pid == 0){
 
-		//thread_create(&thread_2, NULL, &add, 2) ;
+		thread_create(&thread_2, NULL, &add, 2) ;
 		//call_sys_write("JOIN!\n\r");
 		//thread_join(thread_2,5);
-		/*
+		
 		if(thread_equal(thread_2,thread)){
 			call_sys_write("Equel!\n\r");
   		} else {
 			call_sys_write("Not equel!\n\r");
    		}		
-		*/
+		
 		loop("abcde");
 		
 	} else {

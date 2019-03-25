@@ -74,7 +74,7 @@ void _schedule(void)
 	//struct pcb_struct pcb;
 	printf("scheduler\n\r");
 	static int index = 0;/*3 priority highest*/
-	
+	*(task_prio_table[index]->counter) = (*(task_prio_table[index]->counter) >> 1) + *(task_prio_table[index]->priority);
 	while(1){
 
 		while (task_prio_table[index]->nextp == NULL){	
@@ -190,7 +190,7 @@ void timer_tick()
 {
 	--*(current->counter);
 
-	if ( *(current->preempt_count) >0) {
+	if (*(current->counter)>0 || *(current->preempt_count) >0) {
 		return;
 	}
 	*(current->counter)=0;
