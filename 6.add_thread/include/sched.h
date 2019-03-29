@@ -74,11 +74,7 @@ struct task_struct {
 	//struct task_struct *thread;
 	/* thread_set */
 };
-struct mailbox {
-	struct pcb_struct *from_where;
-	int time;
-	int status;
-};
+
 
 /* The type of a spin lock object.  */
 typedef volatile int __thread_spinlock_t;
@@ -121,7 +117,7 @@ struct pcb_struct {
 	int pid;/*process_id*/	
 	int tid;/*thread_id*/
 	void* status;/*exit status*/
-	struct mailbox mail[15];
+	//struct mailbox mail[15];
 	struct thread_mutex state_lock;
 	struct thread_cond state_cond;
 	/*for mutex*/	

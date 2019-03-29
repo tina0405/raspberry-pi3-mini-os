@@ -73,19 +73,23 @@ int copy_process(unsigned long clone_flags, unsigned long fn,unsigned long arg)
 		while (tmp_pcb ->nextp != NULL){
 			tmp_pcb = tmp_pcb -> nextp;
 		}
+		pcb -> prevp = tmp_pcb;
 		tmp_pcb->nextp = pcb;
+		
 
 	}else if  (clone_flags == APP_THREAD){
 		tmp_pcb = task_prio_table[3];
 		while (tmp_pcb ->nextp != NULL){
 			tmp_pcb = tmp_pcb -> nextp;
 		}
+		pcb -> prevp = tmp_pcb;
 		tmp_pcb->nextp = pcb;
 	}else if(clone_flags == MODULE_THREAD) { /*temperate*/
 		tmp_pcb = task_prio_table[2];
 		while (tmp_pcb ->nextp != NULL){
 			tmp_pcb = tmp_pcb -> nextp;
 		}
+		pcb -> prevp = tmp_pcb;
 		tmp_pcb->nextp = pcb;
 	
 	}else if(clone_flags == IO_THREAD){ /*temperate*/
@@ -93,6 +97,7 @@ int copy_process(unsigned long clone_flags, unsigned long fn,unsigned long arg)
 		while (tmp_pcb ->nextp != NULL){
 			tmp_pcb = tmp_pcb -> nextp;
 		}
+		pcb -> prevp = tmp_pcb;
 		tmp_pcb->nextp = pcb;
 	}else{
 		printf("error clone flag\n\r");

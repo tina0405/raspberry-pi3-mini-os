@@ -9,6 +9,7 @@
 #include "sys.h"
 #include "entry.h"
 #include "threadtype.h"
+#include "pm.h"
 struct pcb_struct *thread_id_table[4096] ={0};/*tid and pid map*/
 /*thread table Pointer thread_id-> pointer*/
 extern int next;
@@ -19,8 +20,12 @@ void thread_end(void) /*Normal end*/
    /*thread id to kernel*/
    call_sys_write("this thread have ended!\n\r");
    int msg = 1;
-   //send(*(current -> mailbox),&msg);
-   while(1){}
+   
+   //send_pm_daemon(END_Thread,thread_id_self(),0);
+   /*kernel mode cannot schedule*/
+   while(1){
+	//schedule();
+   }
    /**/
 
 
@@ -113,40 +118,7 @@ thread_t thread_id_self ( void ){
 	return current -> tid;	/*now task*/
 }
 
-/*temperate*/
-void recieve(struct pcb_struct *src,int* msg){
-	static int recv_index = 0;
-	while(1){	
-		while(current -> mail[recv_index].time){
-			recv_index++;
-			if(recv_index==15){
-			    recv_index=0;
-			}
 
-                        		
-		}
-
-		if(src == current -> mail[recv_index].from_where)
-		{
-		    *msg = current->mail[recv_index].status;
-		    //current->mail[recv_index] = NULL;
-		    break;
-		} else {
-			recv_index++;
-			if(recv_index==15){
-			    recv_index=0;
-			}
-
-		}
-	}
-}
-
-
-/*temperate*/
-
-void send(struct pcb_struct *dst,int* msg){
-	
-}
 void hi(void){
    printf("hihihihi\n\r");
 }

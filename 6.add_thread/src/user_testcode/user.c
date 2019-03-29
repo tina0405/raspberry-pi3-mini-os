@@ -32,26 +32,10 @@ void add(int a)
    call_sys_write("Finish to add 1!\n\r");	
 }
 
-void user_process() 
+void user_process_1() 
 {	
 	call_sys_write("User start\n\r");
-#ifdef SHELL
-	char command[2] = {""};
-	call_sys_write("Shell start\n\r");
-	call_sys_write("tkernel@user_name:$");
-	
-	while(1){
-	
-		command[0] = call_sys_read();
-		if(command[0] == '\r'){	
-			call_sys_write("\n\rtkernel@user_name:$");
-		}
-		else
-		{
-			call_sys_write(command);
-		}
-	}
-#endif
+
 	call_sys_write_int(t);
 	call_sys_write("Create Thread\n\r");
 	

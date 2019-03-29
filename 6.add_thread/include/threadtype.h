@@ -1,7 +1,5 @@
 # define PTHREAD_MUTEX_DEFAULT __PTHREAD_MUTEX_NORMAL
 
-
-
 enum __pthread_process_shared
 {
   __PTHREAD_PROCESS_PRIVATE = 0,

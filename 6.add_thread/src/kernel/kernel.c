@@ -13,14 +13,15 @@
 #include "fat.h"
 
 extern unsigned char _end;
-unsigned int t;	
+unsigned int fat_addr;	
 unsigned long user_page_start;
 extern unsigned int pm_daemon;
 void kernel_process(){
 	printf("Kernel process started. EL %d\r\n", get_el());
 	unsigned long begin = (unsigned long)&user_begin;
 	unsigned long end = (unsigned long)&user_end;
-	unsigned long process = (unsigned long)&user_process;
+	unsigned long process = (unsigned long)&shell_user_process;
+
 	user_page_start = move_to_user_mode(begin, end - begin, process - begin);
 	if (user_page_start < 0){
 		printf("Error while moving process to user mode\n\r");
@@ -34,7 +35,7 @@ void kernel_main()
 	uart_init();
 	init_printf(NULL, putc);
 	irq_vector_init();
-	timer_init();
+	
 
 	//set_gpio(20,2);
 	//set_gpio(16,2);
@@ -42,56 +43,66 @@ void kernel_main()
 	//set_gpio(19,2);
 	//set_gpio(12,2);
 
-	enable_interrupt_controller();
-	enable_irq();
 
-#ifdef FS
+
         unsigned int cluster;
 	if(sd_init()==SD_OK) {
-		
-		
+
 		// read the master boot record and find our partition
 		if(fat_getpartition()) {
 		    // find out file in root directory entries
+
 		    cluster=fat_getcluster("OVERLAYS    ");
 		    if(cluster==0)
 		        cluster=fat_getcluster("KERNEL8 IMG");
 		    if(cluster) {
 		        // read into memory
-		        t = fat_readfile(cluster);
-			fat_listdirectory(&_end+(t-(unsigned int)&_end));
+		        fat_addr = fat_readfile(cluster);
+			fat_listdirectory(&_end+(fat_addr-(unsigned int)&_end));
 		    }
+
 		} else {
 		    uart_puts("FAT partition not found???\n");
 		}
 		
 
         } 
+
 	while(!uart_recv()){}
 	/*root directory*/
-	t = fat_readfile(2);
+
+	fat_addr= fat_readfile(2);
 	/*list root directory*/
-	fat_listdirectory(&_end+(t-(unsigned int)&_end));
-#endif	
-
-	int res = copy_process(SERVER_THREAD, (unsigned long)&kernel_process, 0);
+	printf("&end:%x\n\r",&_end);
+	printf("t:%x\n\r",fat_addr);
+	fat_listdirectory(&_end+(fat_addr-(unsigned int)&_end));
+        
 	
+	int res = copy_process(SERVER_THREAD, (unsigned long)&pm_daemon, 0);
+	
+
 	if (res < 0) {
-		printf("error while starting kernel process");
+		printf("error while starting process manager \n\r");
 		return;
 	}
-
-	res = copy_process(SERVER_THREAD, (unsigned long)&pm_daemon, 0);
+	
+	res = copy_process(SERVER_THREAD, (unsigned long)&kernel_process, 0);
 	
 	if (res < 0) {
-		printf("error while starting process manager ");
+		printf("error while starting kernel process\n\r");
 		return;
 	}
+       
+	
+	timer_init();
+	enable_interrupt_controller();
+	enable_irq();
 
 	while (1){
-
-
+		
+		printf("kernel\n\r");
 		schedule();
+		
 	}	
 	
 }	

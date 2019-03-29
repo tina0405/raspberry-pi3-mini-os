@@ -72,7 +72,7 @@ void _schedule(void)
 	int c;
 	struct pcb_struct* pcb;
 	//struct pcb_struct pcb;
-	printf("scheduler\n\r");
+	//printf("scheduler\n\r");
 	static int index = 0;/*3 priority highest*/
 	*(task_prio_table[index]->counter) = (*(task_prio_table[index]->counter) >> 1) + *(task_prio_table[index]->priority);
 	while(1){
@@ -83,7 +83,7 @@ void _schedule(void)
 			if(index == 4){ index = 0; }
 			
 		}
-		printf("%x\n\r",index);
+		//printf("%x\n\r",index);
 		if(*(task_prio_table[index]->nextp->state) == TASK_RUNNING||*(task_prio_table[index]->nextp->state) == THREAD_JOINABLE||*(task_prio_table[index]->nextp->state) == THREAD_DETACHED){
 			break;
 
@@ -125,7 +125,7 @@ void _schedule(void)
 		}
 	}
 */
-	printf("task_prio_table:%d\n\r",index);
+	//printf("task_prio_table:%d\n\r",index);
 	switch_to(task_prio_table[index]);
 	preempt_enable();
 }
@@ -164,7 +164,7 @@ void switch_to(struct pcb_struct * next)
 	}
 	else{
 		/*save old data*/
-		printf("prev:%x\n\r",prev);
+		//printf("prev:%x\n\r",prev);
 		prev_real-> cpu_context = *(prev -> cpu_context);
 	}
 
