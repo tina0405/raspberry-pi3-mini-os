@@ -1,4 +1,3 @@
-
 #include "fork.h"
 #include "printf.h"
 #include "utils.h"
@@ -8,6 +7,7 @@
 #include "led_blink.h"
 #include "user_sys.h"
 #include "sys.h"
+#include "fs.h"
 
 int add_thread(thread_t *thread, const struct thread_attr_t *attr,void * (*start_routine)(void *),void* arg);
 thread_t thread_id_self(void);
@@ -62,5 +62,11 @@ void sys_thread_exit (thread_t thread){
 void sys_thread_signal(thread_t thread){
 	signal(thread);
 }
+
+void sys_list_file(void){
+	list();
+}
+
 void * const sys_call_table[] = {sys_write, sys_fork, sys_exit, sys_led, sys_read, sys_write_int, /*0-5*/ 
-				 sys_create_thread, sys_thread_self,sys_thread_join,sys_thread_exit,sys_thread_signal};/*6-10*/
+				 sys_create_thread, sys_thread_self,sys_thread_join,sys_thread_exit,sys_thread_signal,/*6-10*/
+				 sys_list_file};

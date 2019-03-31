@@ -69,6 +69,7 @@ void uart_puts(char *s) {
         if(*s=='\n')
             uart_send('\r');
         uart_send(*s++);
+	
     }
 }
 

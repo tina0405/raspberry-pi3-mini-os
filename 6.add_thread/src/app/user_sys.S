@@ -11,6 +11,8 @@
 .set SYS_THREAD_JOIN, 8
 .set SYS_THREAD_EXIT, 9
 .set SYS_THREAD_SIGNAL, 10
+.set SYS_LIST_NUMBER, 11
+
 
 .globl user_delay
 user_delay:
@@ -76,6 +78,12 @@ thread_join:
 .globl thread_signal
 thread_signal:
 	mov w8, #SYS_THREAD_SIGNAL
+	svc #0
+	ret
+
+.globl call_sys_list
+call_sys_list:
+	mov w8, #SYS_LIST_NUMBER
 	svc #0
 	ret
 

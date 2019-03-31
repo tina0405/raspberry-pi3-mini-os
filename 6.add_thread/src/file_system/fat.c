@@ -26,7 +26,7 @@
 #include "sd.h"
 #include "mini_uart.h"
 #include "printf.h"
-
+#include "fs.h" 
 // get the end of bss segment from linker
 extern unsigned char _end;
 
@@ -59,16 +59,6 @@ typedef struct {
     char            fst2[8];
 } __attribute__((packed)) bpb_t;
 
-// directory entry structure
-typedef struct {
-    char            name[8];
-    char            ext[3];
-    char            attr[9];
-    unsigned short  ch;
-    unsigned int    attr2;
-    unsigned short  cl;
-    unsigned int    size;
-} __attribute__((packed)) fatdir_t;
 
 /**
  * Get the starting LBA address of the first partition
@@ -134,6 +124,7 @@ unsigned int fat_getcluster(char *fn)
             // is it a valid entry?
             if(dir->name[0]==0xE5 || dir->attr[0]==0xF) continue;
             // filename match?
+	    /*
             uart_send(dir->attr[0]& 1?'R':'.');  // read-only
             uart_send(dir->attr[0]& 2?'H':'.');  // hidden
             uart_send(dir->attr[0]& 4?'S':'.');  // system
@@ -141,6 +132,7 @@ unsigned int fat_getcluster(char *fn)
             uart_send(dir->attr[0]&16?'D':'.');  // directory
             uart_send(dir->attr[0]&32?'A':'.');  // archive
             uart_send(' ');
+	    
             // staring cluster
             uart_hex(((unsigned int)dir->ch)<<16|dir->cl);
             uart_send(' ');
@@ -151,13 +143,16 @@ unsigned int fat_getcluster(char *fn)
             dir->attr[0]=0;
             uart_puts(dir->name);
             uart_puts("\n");
+	    */
 	    //pr_int(memcmp("KERNEL8 IMG","KERNEL8 IMG",11));
             if(!memcmp(dir->name,fn,8)) {
-                uart_puts("FAT File ");
+                /*
+		uart_puts("FAT File ");
                 uart_puts(fn);
                 uart_puts(" starts at cluster: ");
                 uart_hex(((unsigned int)dir->ch)<<16|dir->cl);
                 uart_puts("\n");
+		*/
                 // if so, return starting cluster
                 return ((unsigned int)dir->ch)<<16|dir->cl;
             }
@@ -192,6 +187,7 @@ char *fat_readfile(unsigned int cluster)
     // add partition LBA
     data_sec+=partitionlba;
     // dump important properties
+/*
     uart_puts("FAT Bytes per Sector: ");
     uart_hex(bpb->bps0 + (bpb->bps1 << 8));
     uart_puts("\nFAT Sectors per Cluster: ");
@@ -205,6 +201,7 @@ char *fat_readfile(unsigned int cluster)
     uart_puts("\nFAT First data sector: ");
     uart_hex(data_sec);
     uart_puts("\n");
+*/
     // load FAT table
     s=sd_readblock(partitionlba+1,(unsigned char*)&_end+512,(bpb->spf16?bpb->spf16:bpb->spf32)+bpb->rsc);
     // end of FAT in memory
@@ -220,17 +217,17 @@ char *fat_readfile(unsigned int cluster)
     }
     return (char*)data;
 }
-
+fatdir_t *dir;
 void fat_listdirectory(unsigned int* addr)
 {
     bpb_t *bpb=(bpb_t*)addr;
-    fatdir_t *dir=(fatdir_t*)addr;
+    dir=(fatdir_t*)addr;
     unsigned int root_sec, s;
     // find the root directory's LBA
     root_sec=((bpb->spf16?bpb->spf16:bpb->spf32)*bpb->nf)+bpb->rsc;
     s = (bpb->nr0 + (bpb->nr1 << 8));
-    uart_puts("FAT number of root diretory entries: ");
-    uart_hex(s);
+    //uart_puts("FAT number of root diretory entries: ");
+    //uart_hex(s);
     s *= sizeof(fatdir_t);
     if(bpb->spf16==0) {
         // adjust for FAT32
@@ -238,34 +235,13 @@ void fat_listdirectory(unsigned int* addr)
     }
     // add partition LBA
     root_sec+=partitionlba;
-    uart_puts("\nFAT root directory LBA: ");
-    uart_hex(root_sec);
-    uart_puts("\n");
+    //uart_puts("\nFAT root directory LBA: ");
+    //uart_hex(root_sec);
+    //uart_puts("\n");
     // load the root directory
    
-    uart_puts("\nAttrib Cluster  Size     Name\n");
+    
     // iterate on each entry and print out
-    for(;dir->name[0]!=0;dir++) {
-        // is it a valid entry?
-        if(dir->name[0]==0xE5 || dir->attr[0]==0xF) continue;
-        // decode attributes
-        uart_send(dir->attr[0]& 1?'R':'.');  // read-only
-        uart_send(dir->attr[0]& 2?'H':'.');  // hidden
-        uart_send(dir->attr[0]& 4?'S':'.');  // system
-        uart_send(dir->attr[0]& 8?'L':'.');  // volume label
-        uart_send(dir->attr[0]&16?'D':'.');  // directory
-        uart_send(dir->attr[0]&32?'A':'.');  // archive
-        uart_send(' ');
-        // staring cluster
-        uart_hex(((unsigned int)dir->ch)<<16|dir->cl);
-        uart_send(' ');
-        // size
-        uart_hex(dir->size);
-        uart_send(' ');
-        // filename
-        dir->attr[0]=0;
-        uart_puts(dir->name);
-        uart_puts("\n");
-     }
+    
 
 }

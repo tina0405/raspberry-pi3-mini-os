@@ -13,9 +13,10 @@
 #include "fat.h"
 
 extern unsigned char _end;
-unsigned int fat_addr;	
 unsigned long user_page_start;
 extern unsigned int pm_daemon;
+extern unsigned int fs_daemon;
+unsigned int fat_addr;
 void kernel_process(){
 	printf("Kernel process started. EL %d\r\n", get_el());
 	unsigned long begin = (unsigned long)&user_begin;
@@ -50,7 +51,8 @@ void kernel_main()
 
 		// read the master boot record and find our partition
 		if(fat_getpartition()) {
-		    // find out file in root directory entries
+		    /*
+	       	    // find out file in root directory entries
 
 		    cluster=fat_getcluster("OVERLAYS    ");
 		    if(cluster==0)
@@ -60,6 +62,7 @@ void kernel_main()
 		        fat_addr = fat_readfile(cluster);
 			fat_listdirectory(&_end+(fat_addr-(unsigned int)&_end));
 		    }
+*/
 
 		} else {
 		    uart_puts("FAT partition not found???\n");
@@ -67,20 +70,25 @@ void kernel_main()
 		
 
         } 
-
-	while(!uart_recv()){}
+	
 	/*root directory*/
-
 	fat_addr= fat_readfile(2);
+	
 	/*list root directory*/
-	printf("&end:%x\n\r",&_end);
-	printf("t:%x\n\r",fat_addr);
 	fat_listdirectory(&_end+(fat_addr-(unsigned int)&_end));
+
         
 	
 	int res = copy_process(SERVER_THREAD, (unsigned long)&pm_daemon, 0);
 	
 
+	if (res < 0) {
+		printf("error while starting process manager \n\r");
+		return;
+	}
+
+	res = copy_process(SERVER_THREAD, (unsigned long)&fs_daemon, 0);
+	
 	if (res < 0) {
 		printf("error while starting process manager \n\r");
 		return;
