@@ -238,10 +238,16 @@ void fat_listdirectory(unsigned int* addr)
     //uart_puts("\nFAT root directory LBA: ");
     //uart_hex(root_sec);
     //uart_puts("\n");
-    // load the root directory
-   
-    
+    // load the root directory 
     // iterate on each entry and print out
-    
-
 }
+
+
+
+
+
+
+
+
+
+

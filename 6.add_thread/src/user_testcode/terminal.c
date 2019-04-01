@@ -8,9 +8,13 @@ void shell_user_process()
 {	
 	call_sys_write("Shell start\n\r");
 	static int index = 0;
-	char output[10] = {""};	
+	char output[15] = {""};	
 	char command[2] = {""};
-	call_sys_write("tkernel@user_name:$");
+	char directory[20] = {"root"};
+	char file_name[11] = {""};	
+	call_sys_write("tkernel@user_name:");
+	call_sys_write(directory);
+	call_sys_write("$");
 	for(int nope = 0;nope<8;nope++){
 		call_sys_read();
 	};
@@ -27,28 +31,56 @@ void shell_user_process()
 			
 		
 			if(output[0]=='l'&& output[1]=='s' && output[2]=='\r'){ /*to_do_list*/	
-				call_sys_list();				
-				call_sys_write("\n\rtkernel@user_name:$");
+				call_sys_list();								
+				call_sys_write("\n\rtkernel@user_name:");
+				call_sys_write(directory);
+				call_sys_write("$");
 			}
-			else if(output[0]=='c'&& output[1]=='a' && output[2]=='t' && output[3]=='\r'){ 
-				/*to_do_list*/
-				call_sys_write("\n\rcat file!"); 
-				call_sys_write("\n\rtkernel@user_name:$");
-			}
-			else if(output[0]=='c'&& output[1]=='d' && output[2]=='\r'){ /*to_do_list*/
-				call_sys_write("\n\rcd file!");
-				call_sys_write("\n\rtkernel@user_name:$");
+			
+			else if(output[0]=='c'&& output[1]=='d'){ /*to_do_list*/
+			        if(output[2]=='\r'){
+					
+					/*go to root*/
+				}
+				else if(output[2]==' '){
+					for(int f = 3,n=0;f < 15;f++,n++){
+					   if(output[f]=='\r'){
+						break;
+					   }
+					   file_name[n] = output[f];
+					   
+		                           
+					}
+		    			
+					call_sys_cd(file_name);
+					call_sys_write("\n\rtkernel@user_name:");
+					call_sys_write(directory);
+					call_sys_write("$");
+				}
+				else
+				{
+					call_sys_write("\n\rNot support this command!");
+					call_sys_write("\n\rtkernel@user_name:");
+					call_sys_write(directory);
+					call_sys_write("$");
+				}
 			}
 			else if(output[0]=='m'&& output[1]=='o' && output[2]=='d' && output[3]=='\r'){ 
 				/*to_do_list*/			
 				call_sys_write("\n\rmod file!");
-				call_sys_write("\n\rtkernel@user_name:$");
+				call_sys_write("\n\rtkernel@user_name:");
+				call_sys_write(directory);
+				call_sys_write("$");
 			}else if(output[0] != '\r'){
                                 call_sys_write("\n\rNot support this command!");
-				call_sys_write("\n\rtkernel@user_name:$");
+				call_sys_write("\n\rtkernel@user_name:");
+				call_sys_write(directory);
+				call_sys_write("$");
 				
 			}else{
-				call_sys_write("\n\rtkernel@user_name:$");
+				call_sys_write("\n\rtkernel@user_name:");
+				call_sys_write(directory);
+				call_sys_write("$");
 			}
 			index = 0;	
 		}
