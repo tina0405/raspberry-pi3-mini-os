@@ -134,6 +134,7 @@ unsigned int fat_getcluster(char *fn)
             uart_send(' ');
 	    
             // staring cluster
+	   
             uart_hex(((unsigned int)dir->ch)<<16|dir->cl);
             uart_send(' ');
             // size
@@ -157,7 +158,7 @@ unsigned int fat_getcluster(char *fn)
                 return ((unsigned int)dir->ch)<<16|dir->cl;
             }
         }
-        uart_puts("ERROR: file not found\n");
+        //uart_puts("ERROR: file not found\n");
     } else {
         uart_puts("ERROR: Unable to load root directory\n");
     }
@@ -203,9 +204,9 @@ char *fat_readfile(unsigned int cluster)
     uart_puts("\n");
 */
     // load FAT table
-    s=sd_readblock(partitionlba+1,(unsigned char*)&_end+512,(bpb->spf16?bpb->spf16:bpb->spf32)+bpb->rsc);
+    s = sd_readblock(partitionlba+1,(unsigned char*)&_end+512,(bpb->spf16?bpb->spf16:bpb->spf32)+bpb->rsc);
     // end of FAT in memory
-    data=ptr=&_end+512+s;
+    data = ptr = &_end+512+s;
     // iterate on cluster chain
     while(cluster>1 && cluster<0xFFF8) {
         // load all sectors in a cluster

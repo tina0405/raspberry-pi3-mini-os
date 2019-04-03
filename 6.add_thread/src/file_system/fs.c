@@ -21,6 +21,8 @@ struct user_fs{
     char           name[11];
     char            attr[9];
     unsigned int    size;
+    unsigned short  ch;
+    unsigned short  cl;
     struct user_fs* folder;
 };
 void build_root(void){
@@ -30,7 +32,7 @@ struct user_fs file_dir[20];
 
 void search_file(void){
         int index = 0;
-	memzero(file_dir,29*20);
+	memzero(file_dir,33*20);
         for(;origin->name[0]!=0;origin++) {
 		// is it a valid entry?
 		if(origin->name[0]==0xE5 || origin->attr[0]==0xF) continue;
@@ -39,6 +41,8 @@ void search_file(void){
 		file_dir[index].size = origin -> size;
 		memcpy(origin -> attr,file_dir[index].attr,9);	
 		memcpy(origin -> name,file_dir[index].name,11);
+		file_dir[index].cl = origin -> cl;
+		file_dir[index].ch = origin -> ch;
 		index++;
 		
 	}
@@ -47,7 +51,7 @@ void search_file(void){
 
 void list(){
 
-    uart_puts("\nAttrib Size     Name    Type\n");
+    uart_puts("\nAttrib Size     Cluster  Name\n");
     for(int k = 0;file_dir[k].name[0]!='\0';k++){
 	   uart_send(file_dir[k].attr[0]& 1?'R':'.');  // read-only
            uart_send(file_dir[k].attr[0]& 2?'H':'.');  // hidden
@@ -58,18 +62,45 @@ void list(){
 	   uart_send(' ');
 	   uart_hex(file_dir[k].size);
 	   uart_send(' ');
+	   uart_hex(((unsigned int)file_dir[k].ch)<<16|file_dir[k].cl);
+           uart_send(' ');
 	   uart_puts(file_dir[k].name);
-           uart_puts("\n");
+	   uart_send(' ');
+	   uart_puts("\n");
+
 
      }
 
+}
+
+int dump(char* file_name){
+
+	unsigned int clust =0;
+
+	for(int k = 0;file_dir[k].name[0]!='\0';k++){
+	 
+	   if(!memcmp(file_dir[k].name,file_name,8)){
+		clust =((unsigned int)file_dir[k].ch)<<16|file_dir[k].cl;
+		if(clust){
+			printf("\n\r");
+			uart_dump(fat_readfile(clust));
+		}
+		else{
+			printf("\n\rNot file");		
+		}
+		return 0;
+	   }
+	   
+
+        }
+	printf("\n\rNot file");
 }
 
 void cd(char* file_name){
 		//char directory[20]
 		unsigned int clu = fat_getcluster(file_name);
 		if(clu ==0){
-		       	printf("\n\rNot know this file!");;
+		       	printf("\n\rNot know this file!");
 		}else{
 		       				 // read into memory
 		       	unsigned int adr = fat_readfile(clu);

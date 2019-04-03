@@ -13,6 +13,7 @@
 .set SYS_THREAD_SIGNAL, 10
 .set SYS_LIST_NUMBER, 11
 .set SYS_CD_NUMBER, 12
+.set SYS_DUMP_NUMBER, 13
 
 .globl user_delay
 user_delay:
@@ -90,6 +91,12 @@ call_sys_list:
 .globl call_sys_cd
 call_sys_cd:
 	mov w8, #SYS_CD_NUMBER
+	svc #0
+	ret
+
+.globl call_sys_dump
+call_sys_dump:
+	mov w8, #SYS_DUMP_NUMBER
 	svc #0
 	ret
 

@@ -58,18 +58,23 @@ void kernel_main()
 		     fat_listdirectory(&_end+(fat_addr-(unsigned int)&_end));
 		     build_root();
 		     search_file();
-		    /*
+		    
 	       	    // find out file in root directory entries
 
-		    cluster=fat_getcluster("OVERLAYS    ");
-		    if(cluster==0)
-		        cluster=fat_getcluster("KERNEL8 IMG");
+		    cluster = 0x137FE;
+		    if(cluster==0){
+		        //cluster=fat_getcluster("KERNEL8 IMG");
+			//printf("123");
+		    }
 		    if(cluster) {
 		        // read into memory
-		        fat_addr = fat_readfile(cluster);
-			fat_listdirectory(&_end+(fat_addr-(unsigned int)&_end));
+		        //fat_addr = fat_readfile(cluster);
+			//fat_listdirectory(&_end+(fat_addr-(unsigned int)&_end));
+			//uart_dump(fat_readfile(0x000137FE));
+			//fat_listdirectory(&_end+(fat_addr-(unsigned int)&_end));
+			//printf("456");
 		    }
-*/
+
 
 		} else {
 		    uart_puts("FAT partition not found???\n");

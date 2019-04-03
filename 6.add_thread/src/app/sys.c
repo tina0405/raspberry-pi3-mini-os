@@ -71,6 +71,10 @@ void sys_cd_folder(char* file_name){
 	cd(file_name);
 }
 
+void sys_dump_file(char* file_name){
+	dump(file_name);
+}
+
 void * const sys_call_table[] = {sys_write, sys_fork, sys_exit, sys_led, sys_read, sys_write_int, /*0-5*/ 
 				 sys_create_thread, sys_thread_self,sys_thread_join,sys_thread_exit,sys_thread_signal,/*6-10*/
-				 sys_list_file,sys_cd_folder};
+				 sys_list_file,sys_cd_folder,sys_dump_file};

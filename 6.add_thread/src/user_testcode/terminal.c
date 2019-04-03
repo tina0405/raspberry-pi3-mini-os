@@ -36,7 +36,35 @@ void shell_user_process()
 				call_sys_write(directory);
 				call_sys_write("$");
 			}
+			else if(output[0]=='d'&& output[1]=='u' && output[2]=='m'&& output[3]=='p'){ /*to_do_list*/
+				if(output[4]=='\r'){
+					
+					/*go to root*/
+				}
+				else if(output[4]==' '){
+					for(int f = 5,n=0;f < 17;f++,n++){
+					   if(output[f]=='\r'){
+						break;
+					   }
+					   file_name[n] = output[f];
+					   
+		                           
+					}
+		    			
+					call_sys_dump(file_name);
+					call_sys_write("\n\rtkernel@user_name:");
+					call_sys_write(directory);
+					call_sys_write("$");
+				}
+				else
+				{
+					call_sys_write("\n\rNot support this command!");
+					call_sys_write("\n\rtkernel@user_name:");
+					call_sys_write(directory);
+					call_sys_write("$");
+				}
 			
+			}
 			else if(output[0]=='c'&& output[1]=='d'){ /*to_do_list*/
 			        if(output[2]=='\r'){
 					
