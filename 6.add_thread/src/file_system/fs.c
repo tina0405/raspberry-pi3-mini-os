@@ -33,16 +33,18 @@ struct user_fs file_dir[20];
 void search_file(void){
         int index = 0;
 	memzero(file_dir,33*20);
+	
         for(;origin->name[0]!=0;origin++) {
 		// is it a valid entry?
 		if(origin->name[0]==0xE5 || origin->attr[0]==0xF) continue;
 		// decode attributes
-
-		file_dir[index].size = origin -> size;
-		memcpy(origin -> attr,file_dir[index].attr,9);	
+		
 		memcpy(origin -> name,file_dir[index].name,11);
+		memcpy(origin -> attr,file_dir[index].attr,9);	
+		file_dir[index].size = origin -> size;
+		file_dir[index].ch = origin -> ch;		
 		file_dir[index].cl = origin -> cl;
-		file_dir[index].ch = origin -> ch;
+		
 		index++;
 		
 	}
@@ -111,6 +113,14 @@ void cd(char* file_name){
 
 }
 
+void cd_root(void){
+		
+		unsigned int adr = fat_readfile(2);
+	        fat_listdirectory(&_end+(adr-(unsigned int)&_end));
+		build_root();
+		search_file();
+
+}
 
 void fs_daemon(void)
 {

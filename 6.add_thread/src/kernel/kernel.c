@@ -52,29 +52,11 @@ void kernel_main()
 		// read the master boot record and find our partition
 		if(fat_getpartition()) {
 		     /*root directory*/
-		     fat_addr= fat_readfile(2);
-	
+		     fat_addr= fat_readfile(2);	
 		     /*list root directory*/
 		     fat_listdirectory(&_end+(fat_addr-(unsigned int)&_end));
 		     build_root();
 		     search_file();
-		    
-	       	    // find out file in root directory entries
-
-		    cluster = 0x137FE;
-		    if(cluster==0){
-		        //cluster=fat_getcluster("KERNEL8 IMG");
-			//printf("123");
-		    }
-		    if(cluster) {
-		        // read into memory
-		        //fat_addr = fat_readfile(cluster);
-			//fat_listdirectory(&_end+(fat_addr-(unsigned int)&_end));
-			//uart_dump(fat_readfile(0x000137FE));
-			//fat_listdirectory(&_end+(fat_addr-(unsigned int)&_end));
-			//printf("456");
-		    }
-
 
 		} else {
 		    uart_puts("FAT partition not found???\n");
@@ -82,14 +64,7 @@ void kernel_main()
 		
 
         } 
-	
-	/*root directory*/
-	fat_addr= fat_readfile(2);
-	
-	/*list root directory*/
-	fat_listdirectory(&_end+(fat_addr-(unsigned int)&_end));
 
-        
 	
 	int res = copy_process(SERVER_THREAD, (unsigned long)&pm_daemon, 0);
 	

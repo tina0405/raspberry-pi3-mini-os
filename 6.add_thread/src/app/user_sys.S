@@ -14,6 +14,7 @@
 .set SYS_LIST_NUMBER, 11
 .set SYS_CD_NUMBER, 12
 .set SYS_DUMP_NUMBER, 13
+.set SYS_ROOT_NUMBER, 14
 
 .globl user_delay
 user_delay:
@@ -97,6 +98,12 @@ call_sys_cd:
 .globl call_sys_dump
 call_sys_dump:
 	mov w8, #SYS_DUMP_NUMBER
+	svc #0
+	ret
+
+.globl call_sys_root
+call_sys_root:
+	mov w8, #SYS_ROOT_NUMBER
 	svc #0
 	ret
 

@@ -85,7 +85,7 @@ void uart_hex(unsigned int d) {
     }
 }
 
-void uart_dump(void *ptr)
+void uart_dump(void *ptr,)
 {
     unsigned long a,b,d;
     unsigned char c;

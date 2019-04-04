@@ -38,7 +38,8 @@ void shell_user_process()
 			}
 			else if(output[0]=='d'&& output[1]=='u' && output[2]=='m'&& output[3]=='p'){ /*to_do_list*/
 				if(output[4]=='\r'){
-					
+					call_sys_write("\n\rWithout input file!");
+					call_sys_write("\n\rtkernel@user_name:");
 					/*go to root*/
 				}
 				else if(output[4]==' '){
@@ -66,8 +67,8 @@ void shell_user_process()
 			
 			}
 			else if(output[0]=='c'&& output[1]=='d'){ /*to_do_list*/
-			        if(output[2]=='\r'){
-					
+			        if(output[2]=='\r' || (output[2]==' ' && output[3]=='r' && output[4]=='o' && output[5]=='o' && output[6]=='t' && output[7]=='\r') ){
+					call_sys_root();
 					/*go to root*/
 				}
 				else if(output[2]==' '){
