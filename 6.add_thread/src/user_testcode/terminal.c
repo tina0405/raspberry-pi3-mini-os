@@ -94,12 +94,35 @@ void shell_user_process()
 					call_sys_write("$");
 				}
 			}
-			else if(output[0]=='m'&& output[1]=='o' && output[2]=='d' && output[3]=='\r'){ 
+			else if(output[0]=='m'&& output[1]=='o' && output[2]=='d'){ 
 				/*to_do_list*/			
-				call_sys_write("\n\rmod file!");
-				call_sys_write("\n\rtkernel@user_name:");
-				call_sys_write(directory);
-				call_sys_write("$");
+				if(output[3]=='\r'){
+					call_sys_write("\n\rWithout input file!");
+					call_sys_write("\n\rtkernel@user_name:");
+					
+				}
+				else if(output[3]==' '){
+					for(int f = 4,n=0;f < 14;f++,n++){
+					   if(output[f]=='\r'){
+						break;
+					   }
+					   file_name[n] = output[f];
+					   
+		                           
+					}
+		    			
+					call_sys_mod(file_name);
+					call_sys_write("\n\rtkernel@user_name:");
+					call_sys_write(directory);
+					call_sys_write("$");
+				}
+				else
+				{
+					call_sys_write("\n\rNot support this command!");
+					call_sys_write("\n\rtkernel@user_name:");
+					call_sys_write(directory);
+					call_sys_write("$");
+				}
 			}else if(output[0] != '\r'){
                                 call_sys_write("\n\rNot support this command!");
 				call_sys_write("\n\rtkernel@user_name:");

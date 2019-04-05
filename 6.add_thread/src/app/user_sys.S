@@ -15,6 +15,8 @@
 .set SYS_CD_NUMBER, 12
 .set SYS_DUMP_NUMBER, 13
 .set SYS_ROOT_NUMBER, 14
+.set SYS_MOD_NUMBER, 15
+
 
 .globl user_delay
 user_delay:
@@ -106,6 +108,13 @@ call_sys_root:
 	mov w8, #SYS_ROOT_NUMBER
 	svc #0
 	ret
+
+.globl call_sys_mod
+call_sys_mod:
+	mov w8, #SYS_MOD_NUMBER
+	svc #0
+	ret
+
 
 /* Return true if T1 and T2 both name the same thread.  Otherwise, false.  */
 .globl thread_equal

@@ -1,7 +1,7 @@
 #ifndef	_SYS_H
 #define	_SYS_H
 
-#define __NR_syscalls	 15
+#define __NR_syscalls	 16
 
 #ifndef __ASSEMBLER__
  /*pthreadtypes.h*/
