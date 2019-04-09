@@ -1,10 +1,12 @@
 #include <printf.h>
 #include "fat.h"
 #include "fs.h"
+#include "sched.h"
 int fs_mail[64] = {0};
 extern unsigned char _end;
 extern fatdir_t *dir;
 extern char directory[20];
+extern unsigned long mod_process;
 fatdir_t *origin;
 struct user_fs;
 /*
@@ -149,11 +151,11 @@ void cd_root(void){
 		search_file();
 
 }
-struct mod_section move_sec[4];
+struct mod_section move_sec[4];/*0.text 1.data 2.bss 3.rodata*/
 
 int mod_file(char* file_name){
 	unsigned int clust =0;
-        unsigned long addr=0;
+        unsigned long base =0;
         
 	for(int k = 0;file_dir[k].name[0]!='\0';k++){
 	 
@@ -161,21 +163,35 @@ int mod_file(char* file_name){
 		clust =((unsigned int)file_dir[k].ch)<<16|file_dir[k].cl;
 		if(clust){
 			printf("\n\r");
-			addr = fat_readfile(clust);
+			base = fat_readfile(clust);
 			unsigned long section_table_start;
 			unsigned long section_num;
 			unsigned long section_size;
 			unsigned long name_index;
 			
-			int check = check_file_format(addr,&section_table_start,&section_num,&section_size,&name_index);
+			int check = check_file_format(base ,&section_table_start,&section_num,&section_size,&name_index);
 			
 			if(!check){printf("\n\rNot ELF format!"); return 0;} 
-			/*to do list*/
-			for(int num_sec = 0 ; num_sec < section_num ; num_sec++){
-                        	find_sec_addr(section_table_start+addr+num_sec*section_size);
-			}
-
 			
+			for(int num_sec = 0 ; num_sec < section_num ; num_sec++){
+                        	find_sec_addr(section_table_start + base + num_sec * section_size);
+			}
+			
+			//unsigned long section = allocate_kernel_page();
+			char map_array[move_sec[0].size + move_sec[3].size + move_sec[1].size + move_sec[2].size];
+
+	 		char * A = (char *)(base + move_sec[0].addr);
+			memcpy((char *)(base + move_sec[0].addr), &map_array[0],move_sec[0].size);/*text*/
+			memcpy((char *)(base + move_sec[3].addr), &map_array[move_sec[0].size-1], move_sec[3].size);
+			memcpy((char *)(base + move_sec[1].addr), &map_array[move_sec[0].size + move_sec[3].size -1],move_sec[1].size);
+			memzero((char *)(&map_array[move_sec[0].size + move_sec[3].size + move_sec[1].size -1]),move_sec[2].size);
+			
+			/*move to user space*/
+			unsigned long load_size = move_sec[0].size + move_sec[3].size + move_sec[1].size + move_sec[2].size;
+			
+			copy_process(SERVER_THREAD, (unsigned long)&mod_process, &map_array[0], load_size);
+			/*arg*/
+			//mod_process(section,move_sec[0]->size+ move_sec[3]->size + move_sec[1]->size);			
 		}
 		else{
 			printf("\n\rNot file");		
@@ -189,47 +205,22 @@ int mod_file(char* file_name){
 
 }
 
-int find_sec_addr(Elf64_Shdr *header,unsigned long size){
+int find_sec_addr(Elf64_Shdr *header){
 	if(move_sec[0].num == header ->sh_name ){
 	   move_sec[0].addr = header -> sh_offset;
 	   move_sec[0].size =	header -> sh_size;
-	   uart_hex(move_sec[0].num);
-	   printf("\n\r");
-	   uart_hex(move_sec[0].addr);
-	   printf("\n\r");
-	   uart_hex(move_sec[0].size);
-	   printf("\n\r");
 	
 	}else if(move_sec[1].num == header ->sh_name ){
 	   move_sec[1].addr = header -> sh_offset;
-	   move_sec[1].size =	header -> sh_size;
-	   uart_hex(move_sec[1].num);
-	   printf("\n\r");
-	   uart_hex(move_sec[1].addr);
-	   printf("\n\r");
-	   uart_hex(move_sec[1].size);
-	   printf("\n\r");
+	   move_sec[1].size = header -> sh_size;
 
 	}else if(move_sec[2].num == header ->sh_name ){
 	   move_sec[2].addr = header -> sh_offset;
 	   move_sec[2].size =	header -> sh_size;
-	   uart_hex(move_sec[2].num);
-	   printf("\n\r");
-	   uart_hex(move_sec[2].addr);
-	   printf("\n\r");
-	   uart_hex(move_sec[2].size);
-	   printf("\n\r");
 
 	}else if(move_sec[3].num == header ->sh_name ){
 	   move_sec[3].addr = header -> sh_offset;
 	   move_sec[3].size =	header -> sh_size;
-	   uart_hex(move_sec[3].num);
-	   printf("\n\r");
-	   uart_hex(move_sec[3].addr);
-	   printf("\n\r");
-	   uart_hex(move_sec[3].size);
-	   printf("\n\r");
-
 	}	
 	
 	return 0;
@@ -242,13 +233,12 @@ int check_file_format(Elf64_Ehdr *header,unsigned long *section_table_start ,uns
 	*section_num = header->e_shnum;
 	*section_size = header->e_shentsize;
 	*name_index = header->e_shstrndx;
-	if((header->e_shoff)%16==0){
+	if((header->e_shoff)%8==0){
 	     *section_table_start = header->e_shoff;	
 	}	
 	else{
-	    *section_table_start = header->e_shoff+(16-((header->e_shoff) %16));
+	     *section_table_start = header->e_shoff+(8 - ((header->e_shoff) % 8));
 	}
-
 	string_table(*section_table_start+ (unsigned long) header +  header->e_shentsize * header->e_shstrndx, header);	
   	return 1; 
 }

@@ -1,14 +1,35 @@
-#include "user_sys.h"
-#include "user.h"
-#include "printf.h"
-#include "mini_uart.h"
-#include "utils.h"
-#include "sched.h"
-#include "sys.h"
 #include <stddef.h>
+typedef int __thread_t;
+typedef __thread_t thread_t;
+
+
+extern void call_sys_write(char * buf);
+extern int call_sys_fork();
+extern void call_sys_exit();
+extern void call_sys_led(void);
+extern char call_sys_read(void);
+extern void call_sys_write_int(int a);
+
+int thread_create(thread_t *thread, const struct thread_attr_t *attr,void * (*start_routine)(void *),void* b);
+int thread_equal (thread_t t1, thread_t t2);
+int thread_join ( thread_t thread, void **value_ptr);
+thread_t sys_thread_self(void);
+
+
+
 int t=0;
 thread_t thread=0;
 thread_t thread_2=0;
+
+
+void try(void)
+{
+	call_sys_write("User module start!\n\r");
+	while(1){}
+}
+
+
+
 void loop(char* str)
 {
 	char buf[2] = {""};

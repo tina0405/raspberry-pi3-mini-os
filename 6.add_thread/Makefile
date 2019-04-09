@@ -11,7 +11,8 @@ DEVICE_DIR = src/device
 KERNEL_DIR = src/kernel
 MM_DIR = src/memory_manager
 PM_DIR = src/proc_manager
-USER_DIR = src/user_testcode
+USER_DIR = src/testcode
+SHELL_DIR = src/user_shell
 
 all : kernel8.img
 
@@ -29,8 +30,8 @@ $(BUILD_DIR)/%_s.o: $(SRC_DIR)/%.S
 
 
 
-C_FILES = $(wildcard $(FS_DIR)/*.c $(USER_DIR)/*.c $(PM_DIR)/*.c $(MM_DIR)/*.c $(KERNEL_DIR)/*.c $(DEVICE_DIR)/*.c $(APP_DIR)/*.c)
-ASM_FILES = $(wildcard $(FS_DIR)/*.S $(USER_DIR)/*.S $(PM_DIR)/*.S $(MM_DIR)/*.S $(KERNEL_DIR)/*.S $(DEVICE_DIR)/*.S $(APP_DIR)/*.S)
+C_FILES = $(wildcard $(FS_DIR)/*.c $(USER_DIR)/*.c $(PM_DIR)/*.c $(MM_DIR)/*.c $(KERNEL_DIR)/*.c $(DEVICE_DIR)/*.c $(APP_DIR)/*.c $(SHELL_DIR)/*.c)
+ASM_FILES = $(wildcard $(FS_DIR)/*.S $(USER_DIR)/*.S $(PM_DIR)/*.S $(MM_DIR)/*.S $(KERNEL_DIR)/*.S $(DEVICE_DIR)/*.S $(APP_DIR)/*.S $(SHELL_DIR)/*.S)
 OBJ_FILES = $(C_FILES:$(SRC_DIR)/%.c=$(BUILD_DIR)/%_c.o)
 OBJ_FILES += $(ASM_FILES:$(SRC_DIR)/%.S=$(BUILD_DIR)/%_s.o)
 

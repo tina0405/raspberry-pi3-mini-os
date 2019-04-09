@@ -27,7 +27,7 @@ void sys_write_int(int a){
 }
 
 int sys_fork(){
-	return copy_process(3, 0, 0);
+	return copy_process(3, 0, 0, 0);
 }
 
 void sys_exit(){

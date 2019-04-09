@@ -16,18 +16,30 @@ extern unsigned char _end;
 unsigned long user_page_start;
 extern unsigned int pm_daemon;
 extern unsigned int fs_daemon;
+extern unsigned long shell_user_process;
+extern unsigned long try;
 unsigned int fat_addr;
 void kernel_process(){
 	printf("Kernel process started. EL %d\r\n", get_el());
 	unsigned long begin = (unsigned long)&user_begin;
 	unsigned long end = (unsigned long)&user_end;
-	unsigned long process = (unsigned long)&shell_user_process;
+	unsigned long process = (unsigned long)&shell_user_process;\
 
 	user_page_start = move_to_user_mode(begin, end - begin, process - begin);
 	if (user_page_start < 0){
 		printf("Error while moving process to user mode\n\r");
 	} 
 
+}
+
+void mod_process(unsigned long* start,unsigned long size){
+	printf("Module process started. EL %d\r\n", get_el());
+	unsigned long user_page_2 = move_to_user_mode_1(start, size, 0);
+	if (user_page_2 < 0){
+		printf("Error while moving process to user mode\n\r");
+	} 
+	
+	
 }
 
 void kernel_main()
@@ -66,7 +78,7 @@ void kernel_main()
         } 
 
 	
-	int res = copy_process(SERVER_THREAD, (unsigned long)&pm_daemon, 0);
+	int res = copy_process(SERVER_THREAD, (unsigned long)&pm_daemon, 0, 0);
 	
 
 	if (res < 0) {
@@ -74,21 +86,23 @@ void kernel_main()
 		return;
 	}
 
-	res = copy_process(SERVER_THREAD, (unsigned long)&fs_daemon, 0);
+	res = copy_process(SERVER_THREAD, (unsigned long)&fs_daemon, 0, 0);
 	
 	if (res < 0) {
 		printf("error while starting process manager \n\r");
 		return;
 	}
 	
-	res = copy_process(SERVER_THREAD, (unsigned long)&kernel_process, 0);
+	res = copy_process(SERVER_THREAD, (unsigned long)&kernel_process, 0, 0);
 	
 	if (res < 0) {
 		printf("error while starting kernel process\n\r");
 		return;
 	}
+		
+
        
-	
+
 	timer_init();
 	enable_interrupt_controller();
 	enable_irq();
