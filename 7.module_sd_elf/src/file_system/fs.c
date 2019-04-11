@@ -152,7 +152,7 @@ void cd_root(void){
 
 }
 struct mod_section move_sec[4];/*0.text 1.data 2.bss 3.rodata*/
-char map_array[0x114];
+char map_array[0x200];
 int mod_file(char* file_name){
 	unsigned int clust =0;
         unsigned long base =0;
@@ -164,22 +164,12 @@ int mod_file(char* file_name){
 		if(clust){
 
 			printf("\n\r");
-/*
-			disable_irq();
-			base = fat_readfile(clust) + 0x10000;
-			unsigned long size_u = 0x114;
-			char map_array[size_u];
+
+			base = fat_readfile(clust);
+			unsigned long size_u = 0x200;
 			memcpy(base , &map_array[0],size_u);
 			copy_process(SERVER_THREAD, (unsigned long)&mod_process, &map_array[0], size_u);
 			printf("module OK\n\r");
-
-*/
-
-        unsigned long base = fat_readfile(0xD214) + 0x10000;
-	unsigned long size_u = 0x114;
-	//char map_array[size_u];
-	memcpy(base , &map_array[0],size_u);
-	copy_process(SERVER_THREAD, (unsigned long)&mod_process, &map_array[0], size_u);
 			
 /*
 			unsigned long section_table_start;
