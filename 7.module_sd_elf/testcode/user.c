@@ -22,7 +22,7 @@ void try(void)
 	while(1){}
 }
 
-/*
+
 
 void loop(char* str)
 {
@@ -89,4 +89,4 @@ void user_process_1()
 	
 	
 }
-*/
+

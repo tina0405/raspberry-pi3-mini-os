@@ -9,6 +9,6 @@ typedef __thread_t thread_t;
 struct mailbox {
 	unsigned int letter_type;
 	thread_t dst_task;
-	unsigned int msg;
+	int msg;
 };
 extern struct mailbox mail[mail_size];

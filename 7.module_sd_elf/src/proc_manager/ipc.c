@@ -12,3 +12,11 @@ void recieve(struct pcb_struct *src,int* msg){
 void send(struct pcb_struct *dst,int* msg){
 	
 }
+
+/*listen*/ 
+
+
+/*request*/
+
+/*accept*/ 
+/*reply*/
