@@ -152,7 +152,7 @@ void cd_root(void){
 
 }
 struct mod_section move_sec[4];/*0.text 1.data 2.bss 3.rodata*/
-char map_array[0x200];
+char map_array[4096];/*improve*/
 int mod_file(char* file_name){
 	unsigned int clust =0;
         unsigned long base =0;
@@ -166,7 +166,8 @@ int mod_file(char* file_name){
 			printf("\n\r");
 
 			base = fat_readfile(clust);
-			unsigned long size_u = 0x200;
+			
+			unsigned long size_u = file_dir[k].size;
 			memcpy(base , &map_array[0],size_u);
 			copy_process(SERVER_THREAD, (unsigned long)&mod_process, &map_array[0], size_u);
 			printf("module OK\n\r");

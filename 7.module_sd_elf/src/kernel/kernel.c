@@ -11,6 +11,7 @@
 #include "user.h"
 #include "sd.h"
 #include "fat.h"
+#include "pm.h"
 
 extern unsigned char _end;
 unsigned long user_page_start;
@@ -115,6 +116,7 @@ void kernel_main()
 	while (1){
 		
 		printf("kernel\n\r");
+		send_pm_daemon(Rendezvous, 5, 3);
 		schedule();
 		
 	}	

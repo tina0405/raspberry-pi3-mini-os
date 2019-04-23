@@ -10,5 +10,7 @@ struct mailbox {
 	unsigned int letter_type;
 	thread_t dst_task;
 	int msg;
+	int empty;
 };
 extern struct mailbox mail[mail_size];
+void send_pm_daemon(unsigned int type, thread_t thread_id, int msg);
