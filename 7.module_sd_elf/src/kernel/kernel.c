@@ -89,6 +89,13 @@ void kernel_main()
 		return;
 	}
 
+	res = copy_process(SERVER_THREAD, (unsigned long)&ipc_test, 0, 0);
+	
+	if (res < 0) {
+		printf("error while starting kernel process\n\r");
+		return;
+	}
+
 	res = copy_process(SERVER_THREAD, (unsigned long)&fs_daemon, 0, 0);
 	
 	if (res < 0) {
@@ -104,12 +111,7 @@ void kernel_main()
 		return;
 	}
 
-	res = copy_process(SERVER_THREAD, (unsigned long)&ipc_test, 0, 0);
 	
-	if (res < 0) {
-		printf("error while starting kernel process\n\r");
-		return;
-	}
 	/*
 	unsigned long base = fat_readfile(0xD214) + 0x10000;
 	unsigned long size_u = 0x114;

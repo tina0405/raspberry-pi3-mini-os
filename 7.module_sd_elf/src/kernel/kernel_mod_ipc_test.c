@@ -9,9 +9,9 @@ void ipc_test(void)
 	
 	printf("IPC_TEST Starts receiving messages....\n\r");
 	/*Rendezvous Message-Passing or Mailbox Message-Passing*/
-	while(1){
-		struct mailbox rev = recieve_msg(Rendezvous);
-		printf("rev.msg:%d\n\r",rev.msg);	
-	}
+	
+	struct mailbox rev = recieve_msg(Rendezvous);
+	printf("ipc_test rev.msg:%d\n\r",rev.msg);	
+	while(1){}
 }
 

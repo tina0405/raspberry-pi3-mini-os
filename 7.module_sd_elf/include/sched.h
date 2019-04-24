@@ -134,6 +134,7 @@ struct pcb_struct {
 	struct mailbox Box[8];
 	/*Rendezvous*/
 	struct mailbox Rdv;
+	int reply;
 	/* thread_set */
 	/* thread_id */
 };

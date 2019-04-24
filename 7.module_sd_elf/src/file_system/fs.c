@@ -306,9 +306,12 @@ void fs_daemon(void)
 {
 	
 	static int read_mail_index = 0;
+	
+	
+	printf("File System send a message (int 3) to ipc_test (use pid as an address)\n\r");
+	send_msg(Rendezvous, 2, 3);
 	printf("File System Starts running....\n\r");
 	printf("File System Starts receiving messages....\n\r");
-	send_msg(Rendezvous, 4, 3);
 	/*Rendezvous Message-Passing or Mailbox Message-Passing*/
 	while(1){
 		if(read_mail_index == 64){

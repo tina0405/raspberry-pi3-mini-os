@@ -13,10 +13,7 @@ static int index_push = 0;
 static int index_pop = 0;
 
 /*FIFO*/
-void reply(void){
 
-
-}
 void pm_daemon(void)
 {
 	
@@ -32,20 +29,15 @@ void pm_daemon(void)
 		struct pcb_struct *tmp_pcb = task[pm_mail[index_pop].dst_task];
 		switch(pm_mail[index_pop].letter_type){
 			case Rendezvous:
-				printf("recieve a  Rendezvous letter!\n\r");
-				tmp_pcb->Rdv = pm_mail[index_pop];/*thread 1*/
-				printf("pcb:%x\n\r",task[pm_mail[index_pop].dst_task]);
+				tmp_pcb->Rdv = pm_mail[index_pop];
 				pm_mail[index_pop].letter_type = 0;	
 				index_pop++;			
 				if(index_pop== mail_size){index_pop=0;}
-				reply();
 				break;
 
 			case Mailbox:
-				printf("recieve a  Rendezvous letter!\n\r");
 				pm_mail[index_pop++].letter_type = 0;
 				if(index_pop== mail_size){index_pop=0;}
-				reply();
 				break;
 
 			case END_Thread:
@@ -53,8 +45,7 @@ void pm_daemon(void)
 				tmp_pcb-> nextp ->prevp = tmp_pcb-> prevp;
 				free_page(pm_mail[index_pop].dst_task);	
 				pm_mail[index_pop++].letter_type = 0;
-				if(index_pop== mail_size){index_pop=0;}
-				reply();				
+				if(index_pop== mail_size){index_pop=0;}				
 				break;
 			default:
 				schedule();
@@ -68,13 +59,32 @@ void pm_daemon(void)
 
 
 }
-struct mailbox recieve_msg(unsigned int type){
-	if(type == Rendezvous){
+
+void reply(struct pcb_struct *letter){
+	struct pcb_struct *from_pcb = letter; 
+	from_pcb -> reply = 1; 
+
+}
+
+void accept_reply(void){
+	while(current->reply == 0){
+		schedule();
+	}
+	current->reply = 0;
+}
+
+
+struct mailbox recieve_msg(unsigned int ipc_type){
+	if(ipc_type == Rendezvous){
 		while(current->Rdv.letter_type == 0){
+						
 			schedule();
 		}
-		return current->Rdv;
-	}else { 
+		struct mailbox ret = current->Rdv;
+		current->Rdv.letter_type = 0;		
+		reply(current->Rdv.from);
+		return ret;
+	}else if(ipc_type == Mailbox){ 
 		return current->Box[0];
 	}
 
@@ -93,6 +103,7 @@ void send_msg(unsigned int type, int pid, int msg){
 		pm_mail[index_push].from = current;
 		pm_mail[index_push++].msg = msg;
 		if(index_push == mail_size){index_push=0;}
+		accept_reply();
 	}
 	
 }
