@@ -10,10 +10,10 @@ Linker script and memory map
 .text           0x0000000000000000      0x210
  *(.text)
  .text          0x0000000000000000      0x210 user.o
-                0x0000000000000000                try
-                0x0000000000000018                loop
-                0x0000000000000090                add
-                0x00000000000000f4                user_process_1
+                0x0000000000000000                user_process_1
+                0x000000000000011c                try
+                0x0000000000000134                loop
+                0x00000000000001ac                add
  .text          0x0000000000000210        0x0 user_sys.o
 
 .iplt           0x0000000000000210        0x0
@@ -39,28 +39,28 @@ Linker script and memory map
                 0x00000000000002c4                call_sys_mod
                 0x00000000000002d0                thread_equal
 
-.rodata         0x00000000000002e8       0xc6
+.rodata         0x00000000000002e8       0xc3
  *(.rodata)
- .rodata        0x00000000000002e8       0xc6 user.o
+ .rodata        0x00000000000002e8       0xc3 user.o
 
 .rela.dyn       0x00000000000003b0        0x0
  .rela.iplt     0x00000000000003b0        0x0 user.o
 
-.data           0x00000000000003ae        0x0
+.data           0x00000000000003ab        0x0
  *(.data)
- .data          0x00000000000003ae        0x0 user.o
- .data          0x00000000000003ae        0x0 user_sys.o
+ .data          0x00000000000003ab        0x0 user.o
+ .data          0x00000000000003ab        0x0 user_sys.o
 
 .igot.plt       0x00000000000003b0        0x0
  .igot.plt      0x00000000000003b0        0x0 user.o
 
-.bss            0x00000000000003b0        0xc
+.bss            0x00000000000003ac        0xc
  *(.bss*)
- .bss           0x00000000000003b0        0xc user.o
-                0x00000000000003b0                t
-                0x00000000000003b4                thread
-                0x00000000000003b8                thread_2
- .bss           0x00000000000003bc        0x0 user_sys.o
+ .bss           0x00000000000003ac        0xc user.o
+                0x00000000000003ac                t
+                0x00000000000003b0                thread
+                0x00000000000003b4                thread_2
+ .bss           0x00000000000003b8        0x0 user_sys.o
 LOAD user.o
 LOAD user_sys.o
 OUTPUT(test.elf elf64-littleaarch64)

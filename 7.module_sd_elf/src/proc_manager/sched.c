@@ -158,10 +158,10 @@ void switch_to(struct pcb_struct * next)
 	if(flag ==0){
 		page_prev = allocate_kernel_page();
 		page_next = allocate_kernel_page();
-		prev_real = (struct task_struct *)page_prev;
+		prev_real = (struct task_struct *) page_prev;
 		next_real =(struct task_struct *) page_next;
 		flag = 1;
-	}
+	} 
 	else{
 		/*save old data*/
 		//printf("prev:%x\n\r",prev);
@@ -173,8 +173,6 @@ void switch_to(struct pcb_struct * next)
 	set_pgd(next->mm->pgd);
 
 	*(next -> cpu_context) = next_real-> cpu_context;
-
-
 
 	cpu_switch_to(prev_real, next_real);
 

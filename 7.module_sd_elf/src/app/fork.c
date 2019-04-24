@@ -67,7 +67,7 @@ int copy_process(unsigned long clone_flags, unsigned long fn,unsigned long arg,u
 	/* interface */
 
 	/*compare add task*/
-	//task[pid] = pcb;
+	task[pid] = pcb;
 
 	struct pcb_struct *tmp_pcb;
 	if (clone_flags == SERVER_THREAD){/*SERVER*/

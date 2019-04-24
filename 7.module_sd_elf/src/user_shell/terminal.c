@@ -1,6 +1,7 @@
 #include "user_sys.h"
 #include "user.h"
 #include "printf.h"
+#include "sched.h"
 #include "mini_uart.h"
 
 extern unsigned long _end;
@@ -21,7 +22,6 @@ void shell_user_process()
 	};
 	/*Nope*/
 
-	unsigned long a = &_end;
 	while(1){
 		
 		command[0] = call_sys_read();		

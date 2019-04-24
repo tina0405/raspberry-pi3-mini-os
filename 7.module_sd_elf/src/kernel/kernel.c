@@ -17,6 +17,7 @@ extern unsigned char _end;
 unsigned long user_page_start;
 extern unsigned int pm_daemon;
 extern unsigned int fs_daemon;
+extern unsigned int ipc_test;
 extern unsigned long shell_user_process;
 extern unsigned long try;
 unsigned int fat_addr;
@@ -102,6 +103,13 @@ void kernel_main()
 		printf("error while starting kernel process\n\r");
 		return;
 	}
+
+	res = copy_process(SERVER_THREAD, (unsigned long)&ipc_test, 0, 0);
+	
+	if (res < 0) {
+		printf("error while starting kernel process\n\r");
+		return;
+	}
 	/*
 	unsigned long base = fat_readfile(0xD214) + 0x10000;
 	unsigned long size_u = 0x114;
@@ -116,7 +124,6 @@ void kernel_main()
 	while (1){
 		
 		printf("kernel\n\r");
-		send_pm_daemon(Rendezvous, 5, 3);
 		schedule();
 		
 	}	

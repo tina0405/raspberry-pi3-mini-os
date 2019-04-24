@@ -1,6 +1,7 @@
 #include <printf.h>
 #include "fat.h"
 #include "fs.h"
+#include "pm.h"
 #include "sched.h"
 int fs_mail[64] = {0};
 extern unsigned char _end;
@@ -307,7 +308,7 @@ void fs_daemon(void)
 	static int read_mail_index = 0;
 	printf("File System Starts running....\n\r");
 	printf("File System Starts receiving messages....\n\r");
-	
+	send_msg(Rendezvous, 4, 3);
 	/*Rendezvous Message-Passing or Mailbox Message-Passing*/
 	while(1){
 		if(read_mail_index == 64){

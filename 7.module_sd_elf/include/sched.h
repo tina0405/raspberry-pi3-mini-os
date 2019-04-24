@@ -1,6 +1,5 @@
 #ifndef _SCHED_H
 #define _SCHED_H
-
 #define THREAD_CPU_CONTEXT			0 		// offset of cpu_context in task_struct 
 
 #ifndef __ASSEMBLER__
@@ -23,13 +22,20 @@
 #define MODULE_THREAD				0x00000002
 #define SERVER_THREAD				0x00000001	
 #define IO_THREAD				0x00000000
- 
+
 extern struct pcb_struct *current;
 extern struct task_struct *next_real;
-//extern struct pcb_struct *task[NR_TASKS];
+struct pcb_struct *task[NR_TASKS];
 extern int nr_tasks;
 extern struct pcb_struct *task_prio_table[4];
-
+#include <pm.h> 
+struct mailbox {
+	unsigned int letter_type;
+	thread_t dst_task;
+	struct pcb_struct *from;
+	int msg;
+	//int empty;
+};
 
 struct cpu_context {
 	unsigned long x19;
@@ -124,7 +130,10 @@ struct pcb_struct {
 	struct pcb_struct *prevp;
 	/*for scheduler*/
 	struct pcb_struct *nextp;	
-
+	/*mailbox*/
+	struct mailbox Box[8];
+	/*Rendezvous*/
+	struct mailbox Rdv;
 	/* thread_set */
 	/* thread_id */
 };

@@ -3,9 +3,15 @@
 typedef int __thread_t;
 typedef __thread_t thread_t;
 
+void call_sys_list(void);
 void call_sys_write(char * buf);
-int call_sys_fork();
-void call_sys_exit();
+void call_sys_root(void);
+void call_sys_cd(char* file_name);
+void call_sys_mod(char* file_name);
+void call_sys_dump(char* file_name);
+void call_sys_root(void);
+int call_sys_fork(void);
+void call_sys_exit(void);
 void call_sys_led(void);
 char call_sys_read(void);
 void call_sys_write_int(int a);

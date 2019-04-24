@@ -11,6 +11,7 @@ extern struct pcb_struct *thread_id_table[4096];
 extern unsigned long mod_process;
 static int index_push = 0;
 static int index_pop = 0;
+
 /*FIFO*/
 void reply(void){
 
@@ -28,18 +29,19 @@ void pm_daemon(void)
         while(1){
 		//listening
 		/*pop*/
-		struct pcb_struct *tmp_pcb = thread_id_table[pm_mail[index_pop].dst_task];
+		struct pcb_struct *tmp_pcb = task[pm_mail[index_pop].dst_task];
 		switch(pm_mail[index_pop].letter_type){
 			case Rendezvous:
-				//send();
 				printf("recieve a  Rendezvous letter!\n\r");
-				pm_mail[index_pop++].letter_type = 0;
+				tmp_pcb->Rdv = pm_mail[index_pop];/*thread 1*/
+				printf("pcb:%x\n\r",task[pm_mail[index_pop].dst_task]);
+				pm_mail[index_pop].letter_type = 0;	
+				index_pop++;			
 				if(index_pop== mail_size){index_pop=0;}
 				reply();
 				break;
 
 			case Mailbox:
-				//send();
 				printf("recieve a  Rendezvous letter!\n\r");
 				pm_mail[index_pop++].letter_type = 0;
 				if(index_pop== mail_size){index_pop=0;}
@@ -66,18 +68,29 @@ void pm_daemon(void)
 
 
 }
+struct mailbox recieve_msg(unsigned int type){
+	if(type == Rendezvous){
+		while(current->Rdv.letter_type == 0){
+			schedule();
+		}
+		return current->Rdv;
+	}else { 
+		return current->Box[0];
+	}
 
+}
 
 
 /*type: mailbox or rendezvous or end_thread*/
-void send_pm_daemon(unsigned int type, thread_t thread_id, int msg){
+void send_msg(unsigned int type, int pid, int msg){
 	/*push*/	
 	if(pm_mail[index_push].letter_type != 0){
 		printf("Push pm_mail error! Mailbox is Full");	
 	}
 	else{
 		pm_mail[index_push].letter_type = type;/*0:empty*/
-		pm_mail[index_push].dst_task = thread_id;/*pid?*/
+		pm_mail[index_push].dst_task = pid;/*pid?*/
+		pm_mail[index_push].from = current;
 		pm_mail[index_push++].msg = msg;
 		if(index_push == mail_size){index_push=0;}
 	}
