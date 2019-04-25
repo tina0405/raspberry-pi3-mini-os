@@ -16,7 +16,7 @@
 .set SYS_DUMP_NUMBER, 13
 .set SYS_ROOT_NUMBER, 14
 .set SYS_MOD_NUMBER, 15
-
+.set SYS_SEND_NUMBER, 16
 
 .globl user_delay
 user_delay:
@@ -112,6 +112,12 @@ call_sys_root:
 .globl call_sys_mod
 call_sys_mod:
 	mov w8, #SYS_MOD_NUMBER
+	svc #0
+	ret
+
+.globl call_sys_send
+call_sys_send:
+	mov w8, #SYS_SEND_NUMBER
 	svc #0
 	ret
 

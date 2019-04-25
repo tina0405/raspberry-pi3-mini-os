@@ -5,8 +5,8 @@
 
 
 
-struct mailbox pm_mail[mail_size]; /*Mailbox*/
-struct mailbox rendezvous; /*Rendezvous*/
+static struct mailbox pm_mail[mail_size]; /*Mailbox*/
+static struct mailbox rendezvous; /*Rendezvous*/
 extern struct pcb_struct *thread_id_table[4096];
 extern unsigned long mod_process;
 static int index_push = 0;
@@ -76,6 +76,7 @@ void accept_reply(void){
 
 struct mailbox recieve_msg(unsigned int ipc_type){
 	if(ipc_type == Rendezvous){
+
 		while(current->Rdv.letter_type == 0){
 						
 			schedule();

@@ -8,7 +8,7 @@
 #include "user_sys.h"
 #include "sys.h"
 #include "fs.h"
-
+extern struct mailbox user_ipc_mail[mail_size];
 int add_thread(thread_t *thread, const struct thread_attr_t *attr,void * (*start_routine)(void *),void* arg);
 thread_t thread_id_self(void);
 int _thread_join (thread_t thread, void **status);
@@ -82,6 +82,15 @@ void sys_root_file(char* file_name){
 void sys_mod_file(char* file_name){
 	mod_file(file_name);
 }
+/*ipc_*/
+int ipc_index_push =0;
+void sys_send_msg(unsigned int type, int pid, int msg){
+	user_ipc_mail[ipc_index_push].dst_task = pid;/*pid?*/
+	user_ipc_mail[ipc_index_push].from = current;
+	user_ipc_mail[ipc_index_push].msg = msg;
+	user_ipc_mail[ipc_index_push++].letter_type = type;/*0:empty*/
+	if(ipc_index_push == mail_size){ipc_index_push=0;}	
+}
 void * const sys_call_table[] = {sys_write, sys_fork, sys_exit, sys_led, sys_read, sys_write_int, /*0-5*/ 
 				 sys_create_thread, sys_thread_self,sys_thread_join,sys_thread_exit,sys_thread_signal,/*6-10*/
-				 sys_list_file,sys_cd_folder,sys_dump_file,sys_root_file,sys_mod_file};
+				 sys_list_file,sys_cd_folder,sys_dump_file,sys_root_file,sys_mod_file,sys_send_msg};

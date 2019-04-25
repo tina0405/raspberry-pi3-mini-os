@@ -17,6 +17,7 @@ extern unsigned char _end;
 unsigned long user_page_start;
 extern unsigned int pm_daemon;
 extern unsigned int fs_daemon;
+extern unsigned int user_ipc_service;
 extern unsigned int ipc_test;
 extern unsigned long shell_user_process;
 extern unsigned long try;
@@ -103,7 +104,13 @@ void kernel_main()
 		return;
 	}
 	
+	res = copy_process(SERVER_THREAD, (unsigned long)&user_ipc_service, 0, 0);
 	
+	if (res < 0) {
+		printf("error while starting kernel process\n\r");
+		return;
+	}
+
 	res = copy_process(SERVER_THREAD, (unsigned long)&kernel_process, 0, 0);
 	
 	if (res < 0) {
