@@ -11,7 +11,7 @@ void ipc_test(void)
 	/*Rendezvous Message-Passing or Mailbox Message-Passing*/
 	while(1){	
 		struct mailbox rev = recieve_msg(Rendezvous);
-		printf("\n\rkernel_mod_ipc_test rev.msg:%d\n\r",rev.msg);	
+		printf("kernel_mod_ipc_test rev.msg:%d\n\r",rev.msg);	
 	}
 }
 

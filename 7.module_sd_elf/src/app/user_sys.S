@@ -123,7 +123,7 @@ call_sys_send:
 	ret
 
 .globl call_sys_recv
-call_sys_send:
+call_sys_recv:
 	mov w8, #SYS_RECV_NUMBER
 	svc #0
 	ret

@@ -60,8 +60,8 @@ void pm_daemon(void)
 				schedule();			
 				break;
 			default:
-				printf("\n\rUser IPC Service recieve a msg!\n\r");
-				user_send_msg(user_ipc_mail[ipc_index_pop].letter_type, user_ipc_mail[ipc_index_pop].dst_task, user_ipc_mail[ipc_index_pop].msg);
+				printf("User IPC Service recieve a msg!\n\r");
+				user_send_msg(user_ipc_mail[ipc_index_pop].letter_type, user_ipc_mail[ipc_index_pop].dst_task,user_ipc_mail[ipc_index_pop].from, user_ipc_mail[ipc_index_pop].msg);
 				user_ipc_mail[ipc_index_pop].letter_type = 0;	
 				ipc_index_pop++;			
 				if(ipc_index_pop == mail_size){ipc_index_pop=0;}
@@ -83,7 +83,7 @@ void reply(struct pcb_struct *letter){
 }
 
 void accept_reply(void){
-	printf("accept:%x\n\r",current);
+
 	while(current->reply == 0){
 		schedule();
 	}
@@ -99,7 +99,7 @@ struct mailbox recieve_msg(unsigned int ipc_type){
 			schedule();
 		}
 		struct mailbox ret = current->Rdv;
-		current->Rdv.letter_type = 0;		
+		current->Rdv.letter_type = 0;	
 		reply(current->Rdv.from);
 		return ret;
 	}else if(ipc_type == Mailbox){ 
@@ -129,7 +129,7 @@ void send_msg(unsigned int type, int pid, int msg){
 }
 
 
-void user_send_msg(unsigned int type, int pid, int msg){
+void user_send_msg(unsigned int type, int pid,struct pcb_struct *from, int msg){
 	/*push*/	
 	if(pm_mail[index_push].letter_type != 0){
 		printf("Push pm_mail error! Mailbox is Full\n\r");	
@@ -137,9 +137,8 @@ void user_send_msg(unsigned int type, int pid, int msg){
 	else{
 		pm_mail[index_push].letter_type = type;/*0:empty*/
 		pm_mail[index_push].dst_task = pid;/*pid?*/
-		pm_mail[index_push].from = current;
+		pm_mail[index_push].from = from;
 		pm_mail[index_push].msg = msg;
-		
 		index_push++;
 		if(index_push == mail_size){index_push=0;}
 	}

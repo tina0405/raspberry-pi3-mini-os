@@ -87,6 +87,7 @@ int ipc_index_push =0;
 void sys_send_msg(unsigned int type, int pid, int msg){
 	user_ipc_mail[ipc_index_push].dst_task = pid;/*pid?*/
 	user_ipc_mail[ipc_index_push].from = current;
+	printf("current:%x\n\r",current);
 	user_ipc_mail[ipc_index_push].msg = msg;
 	user_ipc_mail[ipc_index_push++].letter_type = type;/*0:empty*/
 	if(ipc_index_push == mail_size){ipc_index_push=0;}
