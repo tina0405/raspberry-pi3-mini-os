@@ -12,6 +12,9 @@ extern unsigned long mod_process;
 static int index_push = 0;
 static int index_pop = 0;
 
+struct mailbox user_ipc_mail[mail_size]; /*Mailbox*/
+int ipc_index_pop=0;
+
 /*FIFO*/
 
 void pm_daemon(void)
@@ -32,7 +35,7 @@ void pm_daemon(void)
 				tmp_pcb->Rdv = pm_mail[index_pop];
 				pm_mail[index_pop].letter_type = 0;	
 				index_pop++;			
-				if(index_pop== mail_size){index_pop=0;}
+				if(index_pop == mail_size){index_pop=0;}
 				break;
 
 			case Mailbox:
@@ -52,7 +55,20 @@ void pm_daemon(void)
 			
 		}
 
-		
+		switch(user_ipc_mail[ipc_index_pop].letter_type){
+			case 0:
+				schedule();			
+				break;
+			default:
+				printf("\n\rUser IPC Service recieve a msg!\n\r");
+				user_send_msg(user_ipc_mail[ipc_index_pop].letter_type, user_ipc_mail[ipc_index_pop].dst_task, user_ipc_mail[ipc_index_pop].msg);
+				user_ipc_mail[ipc_index_pop].letter_type = 0;	
+				ipc_index_pop++;			
+				if(ipc_index_pop == mail_size){ipc_index_pop=0;}
+			
+			
+		}
+	
 	}
 
 	
@@ -67,6 +83,7 @@ void reply(struct pcb_struct *letter){
 }
 
 void accept_reply(void){
+	printf("accept:%x\n\r",current);
 	while(current->reply == 0){
 		schedule();
 	}
@@ -96,15 +113,35 @@ struct mailbox recieve_msg(unsigned int ipc_type){
 void send_msg(unsigned int type, int pid, int msg){
 	/*push*/	
 	if(pm_mail[index_push].letter_type != 0){
-		printf("Push pm_mail error! Mailbox is Full");	
+		printf("Push pm_mail error! Mailbox is Full\n\r");	
 	}
 	else{
 		pm_mail[index_push].letter_type = type;/*0:empty*/
 		pm_mail[index_push].dst_task = pid;/*pid?*/
 		pm_mail[index_push].from = current;
-		pm_mail[index_push++].msg = msg;
+		pm_mail[index_push].msg = msg;
+		
+		index_push++;
 		if(index_push == mail_size){index_push=0;}
 		accept_reply();
+	}
+	
+}
+
+
+void user_send_msg(unsigned int type, int pid, int msg){
+	/*push*/	
+	if(pm_mail[index_push].letter_type != 0){
+		printf("Push pm_mail error! Mailbox is Full\n\r");	
+	}
+	else{
+		pm_mail[index_push].letter_type = type;/*0:empty*/
+		pm_mail[index_push].dst_task = pid;/*pid?*/
+		pm_mail[index_push].from = current;
+		pm_mail[index_push].msg = msg;
+		
+		index_push++;
+		if(index_push == mail_size){index_push=0;}
 	}
 	
 }

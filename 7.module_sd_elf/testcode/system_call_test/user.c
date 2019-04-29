@@ -17,12 +17,6 @@ void add(int a);
 void loop(char* str);
 void try(void);
 
-void user_ipc_test() 
-{
-	call_sys_write("Send a msg from user application\n\r");
-	call_send_msg(Rendezvous, 2, 3);
-	while(1){}
-}
 void user_process_1() 
 {	
 	call_sys_write("User start\n\r");

@@ -17,7 +17,6 @@
 .set SYS_ROOT_NUMBER, 14
 .set SYS_MOD_NUMBER, 15
 .set SYS_SEND_NUMBER, 16
-.set SYS_RECV_NUMBER, 17
 
 .globl user_delay
 user_delay:
@@ -122,11 +121,6 @@ call_sys_send:
 	svc #0
 	ret
 
-.globl call_sys_recv
-call_sys_send:
-	mov w8, #SYS_RECV_NUMBER
-	svc #0
-	ret
 
 /* Return true if T1 and T2 both name the same thread.  Otherwise, false.  */
 .globl thread_equal

@@ -104,13 +104,6 @@ void kernel_main()
 		return;
 	}
 	
-	res = copy_process(SERVER_THREAD, (unsigned long)&user_ipc_service, 0, 0);
-	
-	if (res < 0) {
-		printf("error while starting kernel process\n\r");
-		return;
-	}
-
 	res = copy_process(SERVER_THREAD, (unsigned long)&kernel_process, 0, 0);
 	
 	if (res < 0) {

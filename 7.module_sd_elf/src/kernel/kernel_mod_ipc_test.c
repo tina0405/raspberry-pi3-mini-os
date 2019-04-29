@@ -12,7 +12,6 @@ void ipc_test(void)
 	while(1){	
 		struct mailbox rev = recieve_msg(Rendezvous);
 		printf("\n\rkernel_mod_ipc_test rev.msg:%d\n\r",rev.msg);	
-		schedule();
 	}
 }
 
