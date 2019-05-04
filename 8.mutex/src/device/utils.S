@@ -37,14 +37,17 @@ get_pgd:
 	ldr x0, [x1]
 	ret
 
-.globl lock
-1:      bl schedule
-lock: /*x3  w4 tmp*/
+.globl try_lock
+1:      mov  	 w0, w4
+	ret
+try_lock: /*x3  w4 tmp*/
 	ldaxr    x3, [x0] /*x0:lock*/
+	mov      w4, #1
         cbnz     x3, 1b
 	add      x3, x3, #1	
         stxr     w4, x3, [x0]
         cbnz     w4, 1b	
+	mov  	 w0, w4
 	ret
 
 

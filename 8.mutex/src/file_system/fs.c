@@ -313,15 +313,6 @@ void fs_daemon(void)
 	printf("File System Starts running....\n\r");
 	printf("File System Starts receiving messages....\n\r");
 	/*Rendezvous Message-Passing or Mailbox Message-Passing*/
-	unsigned int tmp=0, tmp2=1,var=3,a =0;
-	printf("a:%x\n\r",a);
-	a = lock(tmp,tmp2,&var);	
- 	
-	printf("a:%x\n\r",a);
-	printf("tmp:%x\n\r",tmp);
-	printf("tmp2:%x\n\r",tmp2);
-	printf("lock:%x\n\r",var);
-
 	while(1){
 		if(read_mail_index == 64){
 			read_mail_index = 0;

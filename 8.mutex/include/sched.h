@@ -103,7 +103,7 @@ struct thread_mutex
      pointer, as such, we cannot rely on its value for anything.  */
   char *__cthreadscompat1;
   struct pcb *__queue;
-  struct __pthread_mutexattr *__attr;
+  int __attr;
   void *__data;
   /*  Up to this point, we are completely compatible with cthreads
      and what libc expects.  */

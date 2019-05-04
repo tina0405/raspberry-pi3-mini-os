@@ -21,6 +21,7 @@ enum __pthread_mutex_protocol
 };
 /* This structure describes the attributes of a POSIX mutex
    attribute.  */
+/*
 struct __pthread_mutexattr
 {
   int __prioceiling;
@@ -50,7 +51,7 @@ const struct __pthread_mutexattr __pthread_recursive_mutexattr = {
   __pshared: __PTHREAD_PROCESS_PRIVATE,
   __mutex_type: __PTHREAD_MUTEX_RECURSIVE
 };
-
+*/
 
 /*
 struct __pthread_condattr
