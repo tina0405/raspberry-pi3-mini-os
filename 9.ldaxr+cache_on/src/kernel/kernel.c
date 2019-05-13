@@ -116,23 +116,24 @@ void kernel_main()
 	char map_array[size_u];
 	memcpy((char*)base, (char*)&map_array[0],size_u);
 	copy_process(SERVER_THREAD, (unsigned long)&mod_process, &map_array[0], size_u);
-*/
+	*/
 
 	
-
-	//int a = semaphore_take(&c);	
-	//printf("c:%x\n\r",&c);
-	//printf("a:%x\n\r",a);
-
 	timer_init();
 	enable_interrupt_controller();
 	enable_irq();
-	//
 
+	/*test trylock and unlock*/
 	int c = 0;
-	printf("c:%x\n\r",&c);	
-	trytry_lock(&c);
-	printf("trylock");
+	printf("lock:%x\n\r",c);	
+	int succeed = try_lock(&c);
+	printf("lock_succeed:%d\n\r",succeed);
+	printf("lock:%x\n\r",c);	
+	printf("trylock\n\r");
+	
+	succeed = unlock(&c);
+	printf("unlock_succeed:%d\n\r",succeed);
+	printf("unlock:%x\n\r",c);
 	while (1){
 		
 		printf("kernel\n\r");

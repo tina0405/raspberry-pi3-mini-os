@@ -27,7 +27,6 @@
 #include "delays.h"
 #include "sd.h"
 #include "mini_uart.h"
-#include "printf.h"
 #define EMMC_ARG2           ((volatile unsigned int*)(MMIO_BASE+0x00300000))
 #define EMMC_BLKSIZECNT     ((volatile unsigned int*)(MMIO_BASE+0x00300004))
 #define EMMC_ARG1           ((volatile unsigned int*)(MMIO_BASE+0x00300008))
@@ -290,17 +289,13 @@ int sd_init()
     *EMMC_INT_EN   = 0xffffffff;
     *EMMC_INT_MASK = 0xffffffff;
     sd_scr[0]=sd_scr[1]=sd_rca=sd_err=0;
-    printf("1");
     sd_cmd(CMD_GO_IDLE,0);
     if(sd_err) return sd_err;
-    printf("2");
     sd_cmd(CMD_SEND_IF_COND,0x000001AA);
-    printf("3");
     if(sd_err) return sd_err;
     cnt=6; r=0; while(!(r&ACMD41_CMD_COMPLETE) && cnt--) {
         wait_cycles(1000000);
         r=sd_cmd(CMD_SEND_OP_COND,ACMD41_ARG_HC);
-	printf("4");
         uart_puts("EMMC: CMD_SEND_OP_COND returned ");
         if(r&ACMD41_CMD_COMPLETE)
             uart_puts("COMPLETE ");
@@ -319,11 +314,8 @@ int sd_init()
     if(!(r&ACMD41_CMD_COMPLETE) || !cnt ) return SD_TIMEOUT;
     if(!(r&ACMD41_VOLTAGE)) return SD_ERROR;
     if(r&ACMD41_CMD_CCS) ccs=SCR_SUPP_CCS;
-    printf("5");
     sd_cmd(CMD_ALL_SEND_CID,0);
-    printf("6");
     sd_rca = sd_cmd(CMD_SEND_REL_ADDR,0);
-    printf("7");
     uart_puts("EMMC: CMD_SEND_REL_ADDR returned ");
     uart_hex(sd_rca>>32);
     uart_hex(sd_rca);
@@ -333,13 +325,11 @@ int sd_init()
     if((r=sd_clk(25000000))) return r;
 
     sd_cmd(CMD_CARD_SELECT,sd_rca);
-    printf("8");
     if(sd_err) return sd_err;
 
     if(sd_status(SR_DAT_INHIBIT)) return SD_TIMEOUT;
     *EMMC_BLKSIZECNT = (1<<16) | 8;
     sd_cmd(CMD_SEND_SCR,0);
-    printf("9");
     if(sd_err) return sd_err;
     if(sd_int(INT_READ_RDY)) return SD_TIMEOUT;
 

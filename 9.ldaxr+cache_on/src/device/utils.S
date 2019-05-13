@@ -38,14 +38,15 @@ get_pgd:
 	ret
 
 .globl try_lock
-1:      mov  	 w0, w4
-	ret
-try_lock: /*x3  w4 tmp*/
-	ldaxr    x3, [x0] /*x0:lock*/
+1:      
 	mov      w4, #1
-        cbnz     x3, 1b
-	add      x3, x3, #1	
-        stxr     w4, x3, [x0]
+	mov  	 w0, w4
+	ret
+try_lock: /*w3  w4 tmp*/
+	ldaxr    w3, [x0] /*x0:lock*/
+        cbnz     w3, 1b
+	add      w3, w3, #1	
+        stxr     w4, w3, [x0]
         cbnz     w4, 1b	
 	mov  	 w0, w4
 	ret
@@ -59,20 +60,15 @@ unlock: /*w3 w4 tmp*/
         sub     w3, w3, #1
     	stlxr   w4, w3, [x0]
         cbnz    w4, loop
+	mov     w0, w4
 	ret
 
-.globl trytry_lock
-trytry_lock: /*x3  w4 tmp*/
-	ldaxr    x3, [x0] /*x0:lock*/
-	stlxr   w4, w3, [x0]
-	ret
 
 .globl semaphore_take;
 .type semaphore_take, %function
 semaphore_take:
      	mov   w2, 1
-    	ldaxr   w1, [x0]
-	ret    	
+    	ldaxr   w1, [x0]    	
 	stxr    w3, w2, [x0]
     	cbnz    w3, semaphore_take
     	cbnz    w1, semaphore_take
