@@ -19,9 +19,9 @@
 .set SYS_SEND_NUMBER, 16
 .set SYS_RECV_NUMBER, 17 /*here*/
 .set SYS_TRYLOCK_NUMBER, 18
-.set SYS_LOCK_NUMBER, 18
-.set SYS_UNLOCK_NUMBER, 19
-.set SYS_COM_NUMBER,20
+.set SYS_LOCK_NUMBER, 19
+.set SYS_UNLOCK_NUMBER, 20
+.set SYS_COM_NUMBER,21
 
 .globl user_delay
 user_delay:

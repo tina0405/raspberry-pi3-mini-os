@@ -118,4 +118,4 @@ struct mailbox sys_recieve_msg(unsigned int ipc_type){
 void * const sys_call_table[] = {sys_write, sys_fork, sys_exit, sys_led, sys_read, sys_write_int, /*0-5*/ 
 				 sys_create_thread, sys_thread_self,sys_thread_join,sys_thread_exit,sys_thread_signal,/*6-10*/
 				 sys_list_file,sys_cd_folder,sys_dump_file,sys_root_file,sys_run_file,sys_send_msg,/*11-16*/
-				sys_recieve_msg,sys_mutex_trylock,sys_mutex_lock,sys_mutex_unlock,sys_com_file};
+				sys_recieve_msg,sys_mutex_trylock,sys_mutex_lock,sys_mutex_unlock,sys_com_file};/*17-21*/

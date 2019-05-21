@@ -36,7 +36,7 @@ void kernel_process(){
 }
 
 void mod_process(unsigned long* start,unsigned long size){
-	printf("\r\nModule process started. EL %d\r\n", get_el());
+	printf("\r\nUser process start to set. EL %d\r\n", get_el());
 
 	unsigned long user_page_2 = move_to_user_mode(start, size, 0);
 	if (user_page_2 < 0){
@@ -61,7 +61,7 @@ void kernel_main()
 
 
 	
-        unsigned int cluster;
+        //unsigned int cluster;
 	if(sd_init()==SD_OK) {
 
 		// read the master boot record and find our partition

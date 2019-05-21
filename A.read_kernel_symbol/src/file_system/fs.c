@@ -152,9 +152,43 @@ void cd_root(void){
 		search_file();
 
 }
-struct mod_section move_sec[4];/*0.text 1.data 2.bss 3.rodata*/
+struct mod_section move_sec[6];/*0.text 1.rodata 2.data 3.bss 4.rela.text 5. */
 char map_array[4096];/*improve*/
+unsigned int map_index= 0;
 int run_file(char* file_name){
+	unsigned int clust =0;
+        unsigned long base =0;
+        
+	for(int k = 0;file_dir[k].name[0]!='\0';k++){
+	 
+	   if(!memcmp(file_dir[k].name,file_name,8)){
+		clust =((unsigned int)file_dir[k].ch)<<16|file_dir[k].cl;
+		if(clust){
+
+			printf("\n\r");
+			base = fat_readfile(clust);
+			unsigned long size_u = file_dir[k].size;
+			memcpy(base , &map_array[map_index],size_u);
+			copy_process(SERVER_THREAD, (unsigned long)&mod_process, &map_array[map_index], size_u);
+			map_index = map_index + size_u;
+			printf("User application: read file OK!\n\r");
+			
+		}
+		else{
+			printf("\n\rNot file");	
+			return 0;	
+		}
+		return 1;
+	   }
+	   
+
+        }
+	printf("\n\rNot file");
+	return 0;
+
+}
+int com_file(char* file_name){
+
 	unsigned int clust =0;
         unsigned long base =0;
         
@@ -169,11 +203,9 @@ int run_file(char* file_name){
 			base = fat_readfile(clust);
 			
 			unsigned long size_u = file_dir[k].size;
-			memcpy(base , &map_array[0],size_u);
-			copy_process(SERVER_THREAD, (unsigned long)&mod_process, &map_array[0], size_u);
-			printf("module OK\n\r");
+			printf("Component: read file OK!\n\r");
 			
-/*
+
 			unsigned long section_table_start;
 			unsigned long section_num;
 			unsigned long section_size;
@@ -188,37 +220,93 @@ int run_file(char* file_name){
 			}
 			
 			//unsigned long section = allocate_kernel_page();
-			char map_array[move_sec[0].size + move_sec[3].size + move_sec[1].size + move_sec[2].size];
+			int com_start = map_index;
 
-	 		char * A = (char *)(base + move_sec[0].addr);
-			memcpy((char *)(base + move_sec[0].addr), &map_array[0],move_sec[0].size);
-			memcpy((char *)(base + move_sec[3].addr), &map_array[move_sec[0].size-1], move_sec[3].size);
-			memcpy((char *)(base + move_sec[1].addr), &map_array[move_sec[0].size + move_sec[3].size -1],move_sec[1].size);
-			memzero((char *)(&map_array[move_sec[0].size + move_sec[3].size + move_sec[1].size -1]),move_sec[2].size);
+			memcpy((char *)(base + move_sec[0].addr), &map_array[map_index],move_sec[0].size);/*.text*/
+			map_index = map_index + move_sec[0].size;
+			memcpy((char *)(base + move_sec[1].addr), &map_array[map_index], move_sec[1].size);/*.rodata*/
+			map_index = map_index + move_sec[1].size;
+			memcpy((char *)(base + move_sec[2].addr), &map_array[map_index],move_sec[2].size);/*.data*/
+			map_index = map_index + move_sec[2].size;
+			memzero((char *)(&map_array[map_index]),move_sec[3].size);/*.bss*/
+			map_index = map_index + move_sec[3].size;
+			unsigned long load_size = move_sec[0].size + move_sec[1].size + move_sec[2].size + move_sec[3].size;
+			
+			/*relocate*/
+			//relocate(&map_array[com_start],(char *)(base + move_sec[4].addr),move_sec[4].size);
+			unsigned char* ch_test =  &map_array[com_start]+0xd;
+			//memcpy("8",(char *)&map_array[com_start]+0xa,1);
+			//&printf			
+			*ch_test = 0xa0;
+			ch_test = &map_array[com_start]+ 0xe;
+			*ch_test = 0x0f;
+			ch_test = &map_array[com_start]+ 0x10;
+			*ch_test = 0x05;
+			ch_test = &map_array[com_start]+ 0x11;
+			*ch_test = 0xd4;
+			ch_test = &map_array[com_start]+ 0x12;
+			*ch_test = 0xfd;
+			ch_test = &map_array[com_start]+ 0x13;
+			*ch_test = 0x97;			
+			/*dump*/
+			unsigned long a,b,d,stop;
+                        unsigned char c;
+			
+			for(a = &map_array[com_start],stop =0;a < &map_array[com_start] +load_size;a+=16,stop+=16) {
+				uart_hex(a); uart_puts(": ");
+				for(b=0;b<16;b++) {
+				    c=*((unsigned char*)(a+b));
+				    d=(unsigned int)c;d>>=4;d&=0xF;d+=d>9?0x37:0x30;
+				    uart_send(d);
+				    d=(unsigned int)c;d&=0xF;d+=d>9?0x37:0x30;
+				    uart_send(d);
+				    uart_send(' ');
+				    if(b%4==3)
+				    uart_send(' ');
+				}
+				for(b=0;b<16;b++) {
+				    c=*((unsigned char*)(a+b));
+				    uart_send(c<32||c>=127?'.':c);
+				}
+				uart_send('\r');
+				uart_send('\n');
+			
+				if(stop==512){
+					stop = 0;
+					while(!uart_recv()){}
+				}
+   			}
+
 			
 			
-			unsigned long load_size = move_sec[0].size + move_sec[3].size + move_sec[1].size + move_sec[2].size;
+			copy_process(SERVER_THREAD, (unsigned long)&map_array[com_start], 0, 0);
 			
-			copy_process(SERVER_THREAD, (unsigned long)&mod_process, &map_array[0], load_size);
-			
-			//mod_process(section,move_sec[0]->size+ move_sec[3]->size + move_sec[1]->size);			
-*/
+						
+
 		}
 		else{
-			printf("\n\rNot file");		
+			printf("\n\rNot file");
+			return 0;		
 		}
 		return 1;
 	   }
 	   
 
         }
+
 	printf("\n\rNot file");
-
-}
-int com_file(char* file_name){
 	return 0;
-}
 
+}
+void relocation(char* base,Elf64_Rela* rela,unsigned long size){
+	for(int init=0; init < size/24 ;init++){
+		char* change = rela -> r_offset + base; 
+		
+		//rela -> r_info;
+		//rela -> r_addend;
+	}
+
+}
 int find_sec_addr(Elf64_Shdr *header){
 	if(move_sec[0].num == header ->sh_name ){
 	   move_sec[0].addr = header -> sh_offset;
@@ -235,7 +323,10 @@ int find_sec_addr(Elf64_Shdr *header){
 	}else if(move_sec[3].num == header ->sh_name ){
 	   move_sec[3].addr = header -> sh_offset;
 	   move_sec[3].size =	header -> sh_size;
-	}	
+	}else if(move_sec[4].num == header ->sh_name ){
+	   move_sec[4].addr = header -> sh_offset;
+	   move_sec[4].size =	header -> sh_size;
+	}		
 	
 	return 0;
 }
@@ -257,16 +348,13 @@ int check_file_format(Elf64_Ehdr *header,unsigned long *section_table_start ,uns
   	return 1; 
 }
 
-int string_table(Elf64_Shdr *section,Elf64_Ehdr * header){
+void string_table(Elf64_Shdr *section,Elf64_Ehdr * header){
 
 	unsigned long section_size = section->sh_size;
 	get_string(section->sh_offset+(unsigned long)header,section_size);
-	return 0;
-
-
 }
 
-int get_string(char* addr,unsigned long size){
+void get_string(char* addr,unsigned long size){
 	unsigned long b;
         char c;
 
@@ -278,26 +366,34 @@ int get_string(char* addr,unsigned long size){
 		      if(*((char*)(addr+b+1))=='t'&&*((char*)(addr+b+2))=='e'&&*((char*)(addr+b+3))=='x'&&*((char*)(addr+b+4))=='t')
 		      {
 				move_sec[0].num = b;
+			
 		      }
-		      
-		      else if(*((char*)(addr+b+1))=='d'&&*((char*)(addr+b+2))=='a'&&*((char*)(addr+b+3))=='t'&&*((char*)(addr+b+4))=='a')
+		      else if(*((char*)(addr+b+1))=='r'&&*((char*)(addr+b+2))=='o'&&*((char*)(addr+b+3))=='d'&&*((char*)(addr+b+4))=='a'&&*((char*)(addr+b+5))=='t'&&*((char*)(addr+b+6))=='a')
 		      {
 				move_sec[1].num = b;
+				
+		      }
+		      else if(*((char*)(addr+b+1))=='d'&&*((char*)(addr+b+2))=='a'&&*((char*)(addr+b+3))=='t'&&*((char*)(addr+b+4))=='a')
+		      {
+				move_sec[2].num = b;
+				
 		      }
 			
 		      else if(*((char*)(addr+b+1))=='b'&&*((char*)(addr+b+2))=='s'&&*((char*)(addr+b+3))=='s')
 		      {
-				move_sec[2].num = b;
+				move_sec[3].num = b;
+			
+		      }
+		       else if(*((char*)(addr+b+1))=='r'&&*((char*)(addr+b+2))=='e'&&*((char*)(addr+b+3))=='l'&&*((char*)(addr+b+4))=='a'&&*((char*)(addr+b+5))=='.'&&*((char*)(addr+b+6))=='t'&&*((char*)(addr+b+7))=='e'&&*((char*)(addr+b+8))=='x'&&*((char*)(addr+b+9))=='t')
+		      {
+				move_sec[4].num = b;
+			
 		      }
 		      
-		      else if(*((char*)(addr+b+1))=='r'&&*((char*)(addr+b+2))=='o'&&*((char*)(addr+b+3))=='d'&&*((char*)(addr+b+4))=='a'&&*((char*)(addr+b+5))=='t'&&*((char*)(addr+b+6))=='a')
-		      {
-				move_sec[3].num = b;
-		      }
+		      
 		
 		}
 	}
-	return 0;
 }
 
 
