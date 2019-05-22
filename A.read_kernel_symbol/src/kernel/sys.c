@@ -22,10 +22,6 @@ void kernel_sevice_write(char * buf){
 	printf(buf);
 }
 
-void  kernel_sevice_write_int(int a){	
-	pr_int(a);
-}
-
 int  kernel_sevice_fork(){
 	return copy_process(3, 0, 0, 0);
 }
@@ -115,7 +111,7 @@ void kernel_sevice_send_msg(unsigned int type, int pid, int msg){
 struct mailbox kernel_sevice_recieve_msg(unsigned int ipc_type){
 	recieve_msg(ipc_type);
 }
-void * const sys_call_table[] = {kernel_sevice_write, kernel_sevice_fork, kernel_sevice_exit, kernel_sevice_led, kernel_sevice_read, kernel_sevice_write_int, /*0-5*/ 
-				 kernel_sevice_create_thread, kernel_sevice_thread_self,kernel_sevice_thread_join,kernel_sevice_thread_exit,kernel_sevice_thread_signal,/*6-10*/
-				 kernel_sevice_list_file,kernel_sevice_cd_folder,kernel_sevice_dump_file,kernel_sevice_root_file,kernel_sevice_run_file,kernel_sevice_send_msg,/*11-16*/
-				kernel_sevice_recieve_msg,kernel_sevice_mutex_trylock,kernel_sevice_mutex_lock,kernel_sevice_mutex_unlock,kernel_sevice_com_file};/*17-21*/
+void * const sys_call_table[] = {kernel_sevice_write, kernel_sevice_fork, kernel_sevice_exit, kernel_sevice_led, kernel_sevice_read,  /*0-4*/ 
+				 kernel_sevice_create_thread, kernel_sevice_thread_self,kernel_sevice_thread_join,kernel_sevice_thread_exit,kernel_sevice_thread_signal,/*5-9*/
+				 kernel_sevice_list_file,kernel_sevice_cd_folder,kernel_sevice_dump_file,kernel_sevice_root_file,kernel_sevice_run_file,kernel_sevice_send_msg,/*10-15*/
+				kernel_sevice_recieve_msg,kernel_sevice_mutex_trylock,kernel_sevice_mutex_lock,kernel_sevice_mutex_unlock,kernel_sevice_com_file};/*16-20*/

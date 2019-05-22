@@ -234,9 +234,7 @@ int com_file(char* file_name){
 			
 			/*relocate*/
 			//relocate(&map_array[com_start],(char *)(base + move_sec[4].addr),move_sec[4].size);
-			unsigned char* ch_test =  &map_array[com_start]+0xd;
-			//memcpy("8",(char *)&map_array[com_start]+0xa,1);
-			//&printf			
+			unsigned char* ch_test =  &map_array[com_start]+0xd;	
 			*ch_test = 0xa0;
 			ch_test = &map_array[com_start]+ 0xe;
 			*ch_test = 0x0f;

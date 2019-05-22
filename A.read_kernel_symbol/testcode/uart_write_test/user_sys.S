@@ -5,22 +5,22 @@
 .set SYS_EXIT_NUMBER, 2
 .set SYS_LED_NUMBER, 3 
 .set SYS_READ_NUMBER, 4	
-.set SYS_CREATE_THREAD, 5
-.set SYS_THREAD_SELF, 6
-.set SYS_THREAD_JOIN, 7
-.set SYS_THREAD_EXIT, 8
-.set SYS_THREAD_SIGNAL, 9
-.set SYS_LIST_NUMBER, 10
-.set SYS_CD_NUMBER, 11
-.set SYS_DUMP_NUMBER, 12
-.set SYS_ROOT_NUMBER, 13
-.set SYS_MOD_NUMBER, 14
-.set SYS_SEND_NUMBER, 15
-.set SYS_RECV_NUMBER, 16 /*here*/
-.set SYS_TRYLOCK_NUMBER, 17
+.set SYS_WRITE_INT_NUMBER, 5 
+.set SYS_CREATE_THREAD, 6
+.set SYS_THREAD_SELF, 7
+.set SYS_THREAD_JOIN, 8
+.set SYS_THREAD_EXIT, 9
+.set SYS_THREAD_SIGNAL, 10
+.set SYS_LIST_NUMBER, 11
+.set SYS_CD_NUMBER, 12
+.set SYS_DUMP_NUMBER, 13
+.set SYS_ROOT_NUMBER, 14
+.set SYS_MOD_NUMBER, 15
+.set SYS_SEND_NUMBER, 16
+.set SYS_RECV_NUMBER, 17 /*here*/
+.set SYS_TRYLOCK_NUMBER, 18
 .set SYS_LOCK_NUMBER, 18
 .set SYS_UNLOCK_NUMBER, 19
-.set SYS_COM_NUMBER,20
 
 .globl user_delay
 user_delay:
@@ -31,6 +31,12 @@ user_delay:
 .globl call_sys_write
 call_sys_write:
 	mov w8, #SYS_WRITE_NUMBER	
+	svc #0
+	ret
+
+.globl call_sys_write_int
+call_sys_write_int:
+	mov w8, #SYS_WRITE_INT_NUMBER	
 	svc #0
 	ret
 
@@ -107,15 +113,9 @@ call_sys_root:
 	svc #0
 	ret
 
-.globl call_sys_run
-call_sys_run:
+.globl call_sys_mod
+call_sys_mod:
 	mov w8, #SYS_MOD_NUMBER
-	svc #0
-	ret
-
-.globl call_sys_com
-call_sys_com:
-	mov w8, #SYS_COM_NUMBER
 	svc #0
 	ret
 
