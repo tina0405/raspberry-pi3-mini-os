@@ -103,6 +103,3 @@ void pr_int(int n) {
     uart_send('-');
 }
 
-void pr_T(void) {
-        uart_send('T');
-}

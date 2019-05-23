@@ -18,88 +18,70 @@ void signal(thread_t thread);
 extern unsigned long user_page_start;
 
 
-void kernel_sevice_write(char * buf){	
+void kservice_uart_write(char * buf){	
 	printf(buf);
 }
 
-int  kernel_sevice_fork(){
+int  kservice_fork(){
 	return copy_process(3, 0, 0, 0);
 }
 
-void  kernel_sevice_exit(){
+void  kservice_exit(){
 	exit_process();
 }
 
-void  kernel_sevice_led(void){
+void  kservice_led_blink(void){
 	led_blink();
 }
 
-char  kernel_sevice_read(void){
+char  kservice_uart_read(void){
 	return uart_recv();
 }
 
-int  kernel_sevice_create_thread(thread_t *thread, const struct thread_attr_t *attr,void * (*start_routine)(void *),void* arg){
+int  kservice_create_thread(thread_t *thread, const struct thread_attr_t *attr,void * (*start_routine)(void *),void* arg){
 	return _thread_create(thread, attr, start_routine, arg);
 }
 
-thread_t  kernel_sevice_thread_self(void){
+thread_t  kservice_thread_self(void){
 	return thread_id_self();
 }
 
-int  kernel_sevice_thread_join (thread_t thread, void **value_ptr ){
+int  kservice_thread_join (thread_t thread, void **value_ptr ){
 	_thread_join(thread,value_ptr);
 	return 0;
 }
 
-void  kernel_sevice_thread_exit (thread_t thread){
+void  kservice_thread_exit (thread_t thread){
 	
 }
 
-void  kernel_sevice_thread_signal(thread_t thread){
+void  kservice_thread_signal(thread_t thread){
 	_thread_cond_signal(thread);
 }
 
-void  kernel_sevice_list_file(void){
+void  kservice_list_file(void){
 	list();
 }
 
-void  kernel_sevice_cd_folder(char* file_name){
+void  kservice_cd_folder(char* file_name){
 	cd(file_name);
 }
 
-void  kernel_sevice_dump_file(char* file_name){
+void  kservice_dump_file(char* file_name){
 	dump(file_name);
 }
 
-void  kernel_sevice_root_file(char* file_name){
+void  kservice_root_file(char* file_name){
 	cd_root();
 }
 
-void  kernel_sevice_com_file(char* file_name){
-	com_file(file_name);
-}
-
-void  kernel_sevice_run_file(char* file_name){
+void  kservice_run_file(char* file_name){
 	run_file(file_name);
 }
 
-
-void  kernel_sevice_mutex_trylock(struct thread_mutex *mutex){
-	thread_mutex_trylock(mutex);
-}
-
-void  kernel_sevice_mutex_lock(struct thread_mutex *mutex){
-	thread_mutex_lock(mutex);
-}
-
-void  kernel_sevice_mutex_unlock(struct thread_mutex *mutex){
-	thread_mutex_unlock(mutex);
-}
-
-
 /*ipc_*/
 int ipc_index_push =0;
-void kernel_sevice_send_msg(unsigned int type, int pid, int msg){
+void kservice_send_msg(unsigned int type, int pid, int msg){
 	user_ipc_mail[ipc_index_push].dst_task = pid;/*pid?*/
 	user_ipc_mail[ipc_index_push].from = current;
 	user_ipc_mail[ipc_index_push].msg = msg;
@@ -108,10 +90,36 @@ void kernel_sevice_send_msg(unsigned int type, int pid, int msg){
 	accept_reply();	
 }
 
-struct mailbox kernel_sevice_recieve_msg(unsigned int ipc_type){
+struct mailbox kservice_recieve_msg(unsigned int ipc_type){
 	recieve_msg(ipc_type);
 }
-void * const sys_call_table[] = {kernel_sevice_write, kernel_sevice_fork, kernel_sevice_exit, kernel_sevice_led, kernel_sevice_read,  /*0-4*/ 
-				 kernel_sevice_create_thread, kernel_sevice_thread_self,kernel_sevice_thread_join,kernel_sevice_thread_exit,kernel_sevice_thread_signal,/*5-9*/
-				 kernel_sevice_list_file,kernel_sevice_cd_folder,kernel_sevice_dump_file,kernel_sevice_root_file,kernel_sevice_run_file,kernel_sevice_send_msg,/*10-15*/
-				kernel_sevice_recieve_msg,kernel_sevice_mutex_trylock,kernel_sevice_mutex_lock,kernel_sevice_mutex_unlock,kernel_sevice_com_file};/*16-20*/
+
+void  kservice_mutex_trylock(struct thread_mutex *mutex){
+	thread_mutex_trylock(mutex);
+}
+
+void  kservice_mutex_lock(struct thread_mutex *mutex){
+	thread_mutex_lock(mutex);
+}
+
+void  kservice_mutex_unlock(struct thread_mutex *mutex){
+	thread_mutex_unlock(mutex);
+}
+
+void  kservice_com_file(char* file_name){
+	com_file(file_name);
+}
+
+unsigned long  kservice_allocate_page(){
+	return allocate_kernel_page();
+}
+
+void kservice_free_page(unsigned long p){
+	free_page(p);
+}
+
+void * const sys_call_table[] = {kservice_uart_write, kservice_fork, kservice_exit, kservice_led_blink, kservice_uart_read,  /*0-4*/ 
+kservice_create_thread, kservice_thread_self,kservice_thread_join,kservice_thread_exit,kservice_thread_signal,/*5-9*/
+kservice_list_file,kservice_cd_folder,kservice_dump_file,kservice_root_file,kservice_run_file,kservice_send_msg,/*10-15*/
+kservice_recieve_msg,kservice_mutex_trylock,kservice_mutex_lock,kservice_mutex_unlock,kservice_com_file,/*16-20*/
+kservice_allocate_page, kservice_free_page/*21-22*/};

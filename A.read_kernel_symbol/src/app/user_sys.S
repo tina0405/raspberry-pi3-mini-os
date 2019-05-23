@@ -20,7 +20,9 @@
 .set SYS_TRYLOCK_NUMBER, 17
 .set SYS_LOCK_NUMBER, 18
 .set SYS_UNLOCK_NUMBER, 19
-.set SYS_COM_NUMBER,20
+.set SYS_COM_NUMBER, 20
+.set SYS_ALLOCP_NUMBER, 21
+.set SYS_FREEP_NUMBER, 22
 
 .globl user_delay
 user_delay:
@@ -146,6 +148,18 @@ thread_mutex_lock:
 .globl thread_mutex_unlock
 thread_mutex_unlock:
 	mov w8, #SYS_UNLOCK_NUMBER
+	svc #0
+	ret
+
+.globl call_sys_allocate_page
+call_sys_allocate_page:
+	mov w8, #SYS_ALLOCP_NUMBER
+	svc #0
+	ret
+
+.globl call_sys_free_page
+call_sys_free_page:
+	mov w8, #SYS_FREEP_NUMBER
 	svc #0
 	ret
 

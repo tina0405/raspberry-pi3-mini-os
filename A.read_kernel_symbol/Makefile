@@ -18,7 +18,7 @@ SHELL_DIR = src/user_shell
 all : kernel8.img
 
 clean :
-	rm -rf $(BUILD_DIR) *.img *.map
+	rm -rf $(BUILD_DIR) *.img *.map symbol.txt
 
 
 $(BUILD_DIR)/%_c.o: $(SRC_DIR)/%.c
@@ -43,3 +43,4 @@ DEP_FILES = $(OBJ_FILES:%.o=%.d)
 kernel8.img: $(SRC_DIR)/linker.ld $(OBJ_FILES)
 	$(ARMGNU)-ld -T $(SRC_DIR)/linker.ld -o $(BUILD_DIR)/kernel8.elf  $(OBJ_FILES) -Map System.map
 	$(ARMGNU)-objcopy $(BUILD_DIR)/kernel8.elf -O binary kernel8.img
+	./symbol.sh
