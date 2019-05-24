@@ -110,16 +110,25 @@ void  kservice_com_file(char* file_name){
 	com_file(file_name);
 }
 
-unsigned long  kservice_allocate_page(){
-	return allocate_kernel_page();
+unsigned long  kservice_allocate_upage(){
+	return allocate_user_page(&(current->cpu_context->x19),0);
 }
 
 void kservice_free_page(unsigned long p){
 	free_page(p);
 }
 
+unsigned long  kservice_allocate_kpage(){
+	return allocate_kernel_page();
+}
+
+void  kservice_schedule(){
+	schedule();
+}
+
 void * const sys_call_table[] = {kservice_uart_write, kservice_fork, kservice_exit, kservice_led_blink, kservice_uart_read,  /*0-4*/ 
 kservice_create_thread, kservice_thread_self,kservice_thread_join,kservice_thread_exit,kservice_thread_signal,/*5-9*/
 kservice_list_file,kservice_cd_folder,kservice_dump_file,kservice_root_file,kservice_run_file,kservice_send_msg,/*10-15*/
 kservice_recieve_msg,kservice_mutex_trylock,kservice_mutex_lock,kservice_mutex_unlock,kservice_com_file,/*16-20*/
-kservice_allocate_page, kservice_free_page/*21-22*/};
+kservice_allocate_upage, kservice_free_page/*21-22*//*below for symbol table*/,kservice_allocate_kpage,kservice_schedule
+};

@@ -187,6 +187,11 @@ int run_file(char* file_name){
 	return 0;
 
 }
+
+
+
+
+
 int com_file(char* file_name){
 
 	unsigned int clust =0;
@@ -394,10 +399,56 @@ void get_string(char* addr,unsigned long size){
 	}
 }
 
+struct symbol_struct{
+	unsigned char sym_name[30];
+	unsigned int sym_addr;
+};
+ 
+extern void * const sys_call_table[];
+struct symbol_struct ksym[100];
+int read_ksymbol(){
+	unsigned int clust =0;
+        unsigned long base =0;
+	for(int k = 0;file_dir[k].name[0]!='\0';k++){
+	 
+	   if(!memcmp(file_dir[k].name,"SYMBOL  TXT",8)){
+		clust =((unsigned int)file_dir[k].ch)<<16|file_dir[k].cl;
+		
+		if(clust){
 
+			printf("\n\r");
+			base = fat_readfile(clust);
 
+			/*save kernel symbol*/
+			unsigned int name_word=0,a=0,base_index=0;
+			while(*((unsigned char*)(base + base_index))!= 0x00){	
+	
+				if(*((unsigned char*)(base + base_index)) != 0xA){
+					ksym[name_word].sym_name[a++] = *((unsigned char*)(base + base_index));
+				}else{
+					ksym[name_word].sym_addr = sys_call_table[name_word];
+					name_word++;
+					a = 0;			
+				}
+				
+				base_index++;
+			}
+			
 
-struct thread_mutex mutex;
+			return 0;
+			
+		}
+		else{
+			printf("Cannot read kernel symbol.\n\r");
+			return 1;
+	   	}
+	   }
+	   
+	}
+	
+	printf("Cannot find kernel symbol.\n\r");
+
+}
 
 
 void fs_daemon(void)
@@ -410,11 +461,8 @@ void fs_daemon(void)
 	//send_msg(Rendezvous, 2, 3);
 	printf("File System Starts running....\n\r");
 	printf("File System Starts receiving messages....\n\r");
-	mutex.__queue = current;
-	mutex.__attr = 0;
-	mutex.__owner = 0;
-  	mutex.__lock = 0;
-	//int ret = _thread_mutex_lock(&mutex);
+	
+	read_ksymbol();
 	
 	/*Rendezvous Message-Passing or Mailbox Message-Passing*/
 	while(1){
