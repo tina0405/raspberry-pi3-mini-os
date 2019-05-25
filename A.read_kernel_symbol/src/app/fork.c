@@ -22,7 +22,6 @@ int copy_process(unsigned long clone_flags, unsigned long fn,unsigned long arg,u
 	struct pcb_struct *pcb;
 	struct task_struct *p;
 	
-    	
 	unsigned long page = allocate_kernel_page();
 	unsigned long page_1 = allocate_kernel_page();
 	

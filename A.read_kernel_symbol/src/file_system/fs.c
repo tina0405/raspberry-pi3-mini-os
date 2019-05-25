@@ -2,8 +2,9 @@
 #include "fat.h"
 #include "fs.h"
 #include "pm.h"
+#include <mm.h>
 #include "sched.h"
-int fs_mail[64] = {0};
+
 extern unsigned char _end;
 extern fatdir_t *dir;
 extern char directory[20];
@@ -191,7 +192,6 @@ int run_file(char* file_name){
 
 
 
-
 int com_file(char* file_name){
 
 	unsigned int clust =0;
@@ -224,38 +224,39 @@ int com_file(char* file_name){
                         	find_sec_addr(section_table_start + base + num_sec * section_size);
 			}
 			
-			//unsigned long section = allocate_kernel_page();
-			int com_start = map_index;
+			unsigned long section = allocate_kernel_page();
+			char* comp_start = section;			
 
-			memcpy((char *)(base + move_sec[0].addr), &map_array[map_index],move_sec[0].size);/*.text*/
-			map_index = map_index + move_sec[0].size;
-			memcpy((char *)(base + move_sec[1].addr), &map_array[map_index], move_sec[1].size);/*.rodata*/
-			map_index = map_index + move_sec[1].size;
-			memcpy((char *)(base + move_sec[2].addr), &map_array[map_index],move_sec[2].size);/*.data*/
-			map_index = map_index + move_sec[2].size;
-			memzero((char *)(&map_array[map_index]),move_sec[3].size);/*.bss*/
-			map_index = map_index + move_sec[3].size;
+
+			memcpy((char *)(base + move_sec[0].addr),(char *) section,move_sec[0].size);/*.text*/
+			section = section + move_sec[0].size;
+			memcpy((char *)(base + move_sec[1].addr),(char *) section, move_sec[1].size);/*.rodata*/
+			section = section + move_sec[1].size;
+			memcpy((char *)(base + move_sec[2].addr), (char *)section,move_sec[2].size);/*.data*/
+			section = section + move_sec[2].size;
+			memzero((char *)section,move_sec[3].size);/*.bss*/
+			section = section + move_sec[3].size;
 			unsigned long load_size = move_sec[0].size + move_sec[1].size + move_sec[2].size + move_sec[3].size;
 			
 			/*relocate*/
-			//relocate(&map_array[com_start],(char *)(base + move_sec[4].addr),move_sec[4].size);
-			unsigned char* ch_test =  &map_array[com_start]+0xd;	
+			relocate((char *)base,(char *)(base + move_sec[4].addr),move_sec[4].size);
+			unsigned char* ch_test = comp_start+0xd;	
 			*ch_test = 0xa0;
-			ch_test = &map_array[com_start]+ 0xe;
+			ch_test = comp_start + 0xe;
 			*ch_test = 0x0f;
-			ch_test = &map_array[com_start]+ 0x10;
+			ch_test = comp_start + 0x10;
 			*ch_test = 0x05;
-			ch_test = &map_array[com_start]+ 0x11;
+			ch_test =  comp_start + 0x11;
 			*ch_test = 0xd4;
-			ch_test = &map_array[com_start]+ 0x12;
+			ch_test = comp_start + 0x12;
 			*ch_test = 0xfd;
-			ch_test = &map_array[com_start]+ 0x13;
+			ch_test = comp_start + 0x13;
 			*ch_test = 0x97;			
 			/*dump*/
 			unsigned long a,b,d,stop;
                         unsigned char c;
 			
-			for(a = &map_array[com_start],stop =0;a < &map_array[com_start] +load_size;a+=16,stop+=16) {
+			for(a = (char *)comp_start,stop = 0;a < (char *)comp_start +load_size;a+=16,stop+=16) {
 				uart_hex(a); uart_puts(": ");
 				for(b=0;b<16;b++) {
 				    c=*((unsigned char*)(a+b));
@@ -282,7 +283,7 @@ int com_file(char* file_name){
 
 			
 			
-			copy_process(SERVER_THREAD, (unsigned long)&map_array[com_start], 0, 0);
+			copy_process(SERVER_THREAD, (char *)comp_start, 0, 0);
 			
 						
 
@@ -301,15 +302,17 @@ int com_file(char* file_name){
 	return 0;
 
 }
-void relocation(char* base,Elf64_Rela* rela,unsigned long size){
+void relocate(char* base,Elf64_Rela* rela,unsigned long size){
+	printf("size:%x\n\r",size);
 	for(int init=0; init < size/24 ;init++){
-		char* change = rela -> r_offset + base; 
-		
-		//rela -> r_info;
-		//rela -> r_addend;
+		printf("off:%x\n\r",(rela+init)->r_offset);
+		printf("sym:%x\n\r",(rela+init)->r_info >> 32);
+		printf("info:%x\n\r",(rela+init)->r_info);
+		printf("addend:%x\n\r",(rela+init)->r_addend);
 	}
 
 }
+
 int find_sec_addr(Elf64_Shdr *header){
 	if(move_sec[0].num == header ->sh_name ){
 	   move_sec[0].addr = header -> sh_offset;
@@ -387,7 +390,7 @@ void get_string(char* addr,unsigned long size){
 				move_sec[3].num = b;
 			
 		      }
-		       else if(*((char*)(addr+b+1))=='r'&&*((char*)(addr+b+2))=='e'&&*((char*)(addr+b+3))=='l'&&*((char*)(addr+b+4))=='a'&&*((char*)(addr+b+5))=='.'&&*((char*)(addr+b+6))=='t'&&*((char*)(addr+b+7))=='e'&&*((char*)(addr+b+8))=='x'&&*((char*)(addr+b+9))=='t')
+		       else if(*((char*)(addr+b+1))=='r'&&*((char*)(addr+b+2))=='e'&&*((char*)(addr+b+3))=='l'&&*((char*)(addr+b+4))=='a'&&*((char*)(addr+b+5))=='.'&&*((char*)(addr+b+6))=='t'&&*((char*)(addr+b+7))=='e'&&*((char*)(addr+b+8))=='x'&&*((char*)(addr+b+9))=='t')/*rela.text*/
 		      {
 				move_sec[4].num = b;
 			
@@ -450,46 +453,6 @@ int read_ksymbol(){
 
 }
 
-
-void fs_daemon(void)
-{
-	
-	static int read_mail_index = 0;
-	
-	
-	printf("File System send a message (int 3) to ipc_test (use pid as an address)\n\r");
-	//send_msg(Rendezvous, 2, 3);
-	printf("File System Starts running....\n\r");
-	printf("File System Starts receiving messages....\n\r");
-	
-	read_ksymbol();
-	
-	/*Rendezvous Message-Passing or Mailbox Message-Passing*/
-	while(1){
-		if(read_mail_index == 64){
-			read_mail_index = 0;
-		}
-  
-		switch(fs_mail[read_mail_index]){
-			case 1: /*ls*/
-
-				
-				read_mail_index++;
-				break;
-
-			case 2:
-				//send();
-				read_mail_index++;
-				break;
-
-			default:
-				schedule();
-			
-		}
-
-		
-	}
-}
 
 
 
