@@ -153,7 +153,7 @@ void cd_root(void){
 		search_file();
 
 }
-struct mod_section move_sec[6];/*0.text 1.rodata 2.data 3.bss 4.rela.text 5. */
+struct mod_section move_sec[7];/*0.text 1.rodata 2.data 3.bss 4.rela.text 5.symtab 6.strtab*/
 char map_array[4096];/*improve*/
 unsigned int map_index= 0;
 int run_file(char* file_name){
@@ -239,6 +239,7 @@ int com_file(char* file_name){
 			unsigned long load_size = move_sec[0].size + move_sec[1].size + move_sec[2].size + move_sec[3].size;
 			
 			/*relocate*/
+			symbol((char *)base,(char *)(base + move_sec[5].addr),move_sec[5].size);
 			relocate((char *)base,(char *)(base + move_sec[4].addr),move_sec[4].size);
 			unsigned char* ch_test = comp_start+0xd;	
 			*ch_test = 0xa0;
@@ -302,13 +303,28 @@ int com_file(char* file_name){
 	return 0;
 
 }
+
+
+void symbol(char* base,Elf64_Sym* sym,unsigned long size){
+	printf("size:%x\n\r",size);
+	for(int init=0; init < size/24 ;init++){
+		printf("st_name:%x st_other:%x\n\r",(sym+init)->st_name,(sym+init)->st_other);
+		printf("bind:%x type:%x \n\r",(sym+init)->st_info >> 4,(sym+init)->st_info & 0xf);
+		printf("st_shndx:%x st_value:%x st_size:%x\n\r",(sym+init)->st_shndx,(sym+init)->st_value,(sym+init)->st_size);
+
+	}
+
+}
+
+
+
 void relocate(char* base,Elf64_Rela* rela,unsigned long size){
 	printf("size:%x\n\r",size);
 	for(int init=0; init < size/24 ;init++){
-		printf("off:%x\n\r",(rela+init)->r_offset);
-		printf("sym:%x\n\r",(rela+init)->r_info >> 32);
-		printf("info:%x\n\r",(rela+init)->r_info);
-		printf("addend:%x\n\r",(rela+init)->r_addend);
+		//printf("off:%x\n\r",(rela+init)->r_offset);
+		//printf("sym:%x\n\r",(rela+init)->r_info >> 32);
+		//printf("info:%x\n\r",(rela+init)->r_info);
+		//printf("addend:%x\n\r",(rela+init)->r_addend);
 	}
 
 }
@@ -318,21 +334,31 @@ int find_sec_addr(Elf64_Shdr *header){
 	   move_sec[0].addr = header -> sh_offset;
 	   move_sec[0].size =	header -> sh_size;
 	
-	}else if(move_sec[1].num == header ->sh_name ){
+	}else if(move_sec[1].num == header ->sh_name){
 	   move_sec[1].addr = header -> sh_offset;
 	   move_sec[1].size = header -> sh_size;
 
-	}else if(move_sec[2].num == header ->sh_name ){
+	}else if(move_sec[2].num == header ->sh_name){
 	   move_sec[2].addr = header -> sh_offset;
 	   move_sec[2].size =	header -> sh_size;
 
-	}else if(move_sec[3].num == header ->sh_name ){
+	}else if(move_sec[3].num == header ->sh_name){
+
 	   move_sec[3].addr = header -> sh_offset;
 	   move_sec[3].size =	header -> sh_size;
-	}else if(move_sec[4].num == header ->sh_name ){
+	}else if(move_sec[4].num == header ->sh_name){
+
 	   move_sec[4].addr = header -> sh_offset;
 	   move_sec[4].size =	header -> sh_size;
-	}		
+	}else if(move_sec[5].num == header ->sh_name){
+
+	   move_sec[5].addr = header -> sh_offset;
+	   move_sec[5].size =	header -> sh_size;
+	}else if(move_sec[6].num == header ->sh_name){
+
+	   move_sec[6].addr = header -> sh_offset;
+	   move_sec[6].size =	header -> sh_size;
+	}				
 	
 	return 0;
 }
@@ -395,6 +421,17 @@ void get_string(char* addr,unsigned long size){
 				move_sec[4].num = b;
 			
 		      }
+		       else if(*((char*)(addr+b+1))=='s'&&*((char*)(addr+b+2))=='y'&&*((char*)(addr+b+3))=='m'&&*((char*)(addr+b+4))=='t'&&*((char*)(addr+b+5))=='a'&& *((char*)(addr+b+6))=='b'/*symtab*/)
+		      {
+				move_sec[5].num = b;
+			
+		      }
+		      else if(*((char*)(addr+b+1))=='s'&&*((char*)(addr+b+2))=='t'&&*((char*)(addr+b+3))=='r'&&*((char*)(addr+b+4))=='t'&&*((char*)(addr+b+5))=='a'&& *((char*)(addr+b+6))=='b'/*strtab*/)
+		      {
+				move_sec[6].num = b;
+			
+		      }
+		
 		      
 		      
 		
