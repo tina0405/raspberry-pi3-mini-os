@@ -10,6 +10,13 @@ extern fatdir_t *dir;
 extern char directory[20];
 extern unsigned long mod_process;
 fatdir_t *origin;
+struct symbol_struct{
+	unsigned char sym_name[30];
+	unsigned int sym_addr;
+};
+ 
+extern void * const sys_call_table[];
+struct symbol_struct ksym[100];
 struct user_fs;
 /*
 struct user_fs{
@@ -238,25 +245,13 @@ int com_file(char* file_name){
 			section = section + move_sec[3].size;
 			unsigned long load_size = move_sec[0].size + move_sec[1].size + move_sec[2].size + move_sec[3].size;
 			
+
 			/*relocate*/
-			symbol((char *)base,(char *)(base + move_sec[5].addr),move_sec[5].size);
-			relocate((char *)base,(char *)(base + move_sec[4].addr),move_sec[4].size);
-			unsigned char* ch_test = comp_start+0xd;	
-			*ch_test = 0xa0;
-			ch_test = comp_start + 0xe;
-			*ch_test = 0x0f;
-			ch_test = comp_start + 0x10;
-			*ch_test = 0x05;
-			ch_test =  comp_start + 0x11;
-			*ch_test = 0xd4;
-			ch_test = comp_start + 0x12;
-			*ch_test = 0xfd;
-			ch_test = comp_start + 0x13;
-			*ch_test = 0x97;			
-			/*dump*/
+
+			relocate(comp_start,section_table_start,section_size,(char *)base,(char *)(base + move_sec[4].addr),move_sec[4].size);
+	/*
 			unsigned long a,b,d,stop;
                         unsigned char c;
-			
 			for(a = (char *)comp_start,stop = 0;a < (char *)comp_start +load_size;a+=16,stop+=16) {
 				uart_hex(a); uart_puts(": ");
 				for(b=0;b<16;b++) {
@@ -282,7 +277,7 @@ int com_file(char* file_name){
 				}
    			}
 
-			
+		*/	
 			
 			copy_process(SERVER_THREAD, (char *)comp_start, 0, 0);
 			
@@ -305,22 +300,79 @@ int com_file(char* file_name){
 }
 
 
-void symbol(char* base,Elf64_Sym* sym,unsigned long size){
-	printf("size:%x\n\r",size);
-	for(int init=0; init < size/24 ;init++){
-		printf("st_name:%x st_other:%x\n\r",(sym+init)->st_name,(sym+init)->st_other);
-		printf("bind:%x type:%x \n\r",(sym+init)->st_info >> 4,(sym+init)->st_info & 0xf);
-		printf("st_shndx:%x st_value:%x st_size:%x\n\r",(sym+init)->st_shndx,(sym+init)->st_value,(sym+init)->st_size);
+int get_ndx(Elf64_Sym* sym){
 
-	}
+	//printf("st_name:%x st_other:%x\n\r",(sym+init)->st_name,(sym+init)->st_other);
+	//printf("bind:%x type:%x \n\r",(sym+init)->st_info >> 4,(sym+init)->st_info & 0xf);
+	//printf("st_shndx:%x st_value:%x st_size:%x\n\r",(sym+init)->st_shndx,(sym+init)->st_value,(sym+init)->st_size);
+
+	return sym->st_shndx;
 
 }
 
+int get_strname(Elf64_Sym* sym){
 
+	//printf("st_name:%x st_other:%x\n\r",(sym+init)->st_name,(sym+init)->st_other);
+	//printf("bind:%x type:%x \n\r",(sym+init)->st_info >> 4,(sym+init)->st_info & 0xf);
+	//printf("st_shndx:%x st_value:%x st_size:%x\n\r",(sym+init)->st_shndx,(sym+init)->st_value,(sym+init)->st_size);
 
-void relocate(char* base,Elf64_Rela* rela,unsigned long size){
-	printf("size:%x\n\r",size);
+	return sym->st_name;
+
+}
+
+void relocate(char* comp_start,unsigned long section_table_start,unsigned long section_size,char* base,Elf64_Rela* rela,unsigned long size){
 	for(int init=0; init < size/24 ;init++){
+
+		if((unsigned int)(rela+init)->r_info==0x113){}
+		else if((unsigned int)(rela+init)->r_info == 0x115){
+		  
+		  int ndx = get_ndx(base + move_sec[5].addr + 24*((rela+init)->r_info >> 32));
+	          int rel_num =	find_sec_addr(base + section_table_start + ndx*(section_size));
+		  unsigned int* ch_test = (comp_start + (rela+init)->r_offset);
+		
+		  if(rel_num == 1){/*rodata*/
+			 *ch_test = (((move_sec[0].size + (rela+init)->r_addend)*4)<<8) + (0x91000000);
+			 
+		  }else if(rel_num==2){/*data*/
+			 *ch_test = (((move_sec[0].size + move_sec[1].size + (rela+init)->r_addend)*4)<<8)+(0x91000000);
+		  }else if(rel_num==3){/*bss*/
+			 *ch_test = (((move_sec[0].size + move_sec[1].size + move_sec[2].size + (rela+init)->r_addend)*4)<<8)+(0x91000000);
+                  }else{
+			  printf("Not data section!");
+		  }
+		}else if((unsigned int)(rela+init)->r_info==0x11b){
+		   int ndx = get_ndx(base + move_sec[5].addr + 24*((rela+init)->r_info >> 32));
+		   if(ndx==0){
+			int strname = get_strname(base + move_sec[5].addr + 24*((rela+init)->r_info >> 32));
+			char str_name[30]={'\0'};
+			int i = 0,ksym_i = 0,flag =0;
+			
+			
+			char* chara =base + move_sec[6].addr+ (int)strname;
+			while(*(chara+i)!='\0'){
+				str_name[i] = *(chara+i);
+				i++;
+				
+			}
+			
+			while(ksym[ksym_i].sym_name[0]!='\0'){
+				if(!memcmp(&ksym[ksym_i++] , &str_name[0] ,i-1)){flag = 1; break;}
+
+			}
+	
+			if(flag==1){
+				unsigned int value = 0x3ffffff -((((int)comp_start + (rela+init)->r_offset) - ksym[ksym_i-1].sym_addr)/4)+1;
+				unsigned int* bl_test = (comp_start + (rela+init)->r_offset);
+				*bl_test = value + 0x94000000;
+			}else{
+				printf("Not componets support this function: %s",str_name);
+			}
+
+		   }else{
+
+			printf("To do list\n\r");
+		   }
+		}
 		//printf("off:%x\n\r",(rela+init)->r_offset);
 		//printf("sym:%x\n\r",(rela+init)->r_info >> 32);
 		//printf("info:%x\n\r",(rela+init)->r_info);
@@ -333,34 +385,40 @@ int find_sec_addr(Elf64_Shdr *header){
 	if(move_sec[0].num == header ->sh_name ){
 	   move_sec[0].addr = header -> sh_offset;
 	   move_sec[0].size =	header -> sh_size;
+	   return 0;
 	
 	}else if(move_sec[1].num == header ->sh_name){
 	   move_sec[1].addr = header -> sh_offset;
 	   move_sec[1].size = header -> sh_size;
+	   return 1;
 
 	}else if(move_sec[2].num == header ->sh_name){
 	   move_sec[2].addr = header -> sh_offset;
 	   move_sec[2].size =	header -> sh_size;
-
+	   return 2;
 	}else if(move_sec[3].num == header ->sh_name){
 
 	   move_sec[3].addr = header -> sh_offset;
 	   move_sec[3].size =	header -> sh_size;
+	   return 3;
 	}else if(move_sec[4].num == header ->sh_name){
 
 	   move_sec[4].addr = header -> sh_offset;
 	   move_sec[4].size =	header -> sh_size;
+	   return 4;
 	}else if(move_sec[5].num == header ->sh_name){
 
 	   move_sec[5].addr = header -> sh_offset;
 	   move_sec[5].size =	header -> sh_size;
+	   return 5;
 	}else if(move_sec[6].num == header ->sh_name){
 
 	   move_sec[6].addr = header -> sh_offset;
 	   move_sec[6].size =	header -> sh_size;
+	   return 6;
 	}				
 	
-	return 0;
+	return -1;
 }
 
 int check_file_format(Elf64_Ehdr *header,unsigned long *section_table_start ,unsigned long *section_num, unsigned long *section_size,unsigned long *name_index)
@@ -439,13 +497,7 @@ void get_string(char* addr,unsigned long size){
 	}
 }
 
-struct symbol_struct{
-	unsigned char sym_name[30];
-	unsigned int sym_addr;
-};
- 
-extern void * const sys_call_table[];
-struct symbol_struct ksym[100];
+
 int read_ksymbol(){
 	unsigned int clust =0;
         unsigned long base =0;
