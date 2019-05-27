@@ -1,6 +1,6 @@
+#ifdef GPIO
 #include "mini_uart.h"
 #include "utils.h"
-
 
 void led_blink(void){
      for(int b=0;b<30;b++){
@@ -10,3 +10,4 @@ void led_blink(void){
      	delay(5000000);
      }
 }
+#endif

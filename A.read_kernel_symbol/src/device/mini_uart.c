@@ -1,7 +1,6 @@
 #include "utils.h"
 #include "peripherals/mini_uart.h"
 #include "peripherals/gpio.h"
-
 void uart_send ( char c )
 {
 	while(1) {
@@ -55,6 +54,7 @@ void uart_init ( void )
 }
 
 //set_gpio
+#ifdef GPIO 
 void set_gpio(unsigned long gpio,int on_off){
         put32(GPPUD,on_off);
         delay(150);
@@ -62,6 +62,7 @@ void set_gpio(unsigned long gpio,int on_off){
         delay(150);
         put32(GPPUDCLK0,0);
 }
+#endif
 
 void uart_puts(char *s) {
     while(*s) {

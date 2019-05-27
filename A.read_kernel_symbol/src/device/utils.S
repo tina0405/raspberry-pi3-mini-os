@@ -82,3 +82,10 @@ error_unlock:
 	mov      w0, #1
 	ret
 
+.globl bl_init
+bl_init:
+	mov     x8, x30	
+	blr	x0
+	mov     x30, x8
+	ret
+

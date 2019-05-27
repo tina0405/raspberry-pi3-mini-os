@@ -4,19 +4,29 @@
 #include "pm.h"
 #include <mm.h>
 #include "sched.h"
+#include "utils.h"
 
 extern unsigned char _end;
 extern fatdir_t *dir;
 extern char directory[20];
 extern unsigned long mod_process;
 fatdir_t *origin;
+
+void bl_init(unsigned long a);
 struct symbol_struct{
-	unsigned char sym_name[30];
+	unsigned char sym_name[32];
 	unsigned int sym_addr;
 };
  
+struct text_func{
+	char name[16];
+	int size;
+};
+
+struct text_func text_function[16];
+
 extern void * const sys_call_table[];
-struct symbol_struct ksym[100];
+struct symbol_struct ksym[64];
 struct user_fs;
 /*
 struct user_fs{
@@ -249,7 +259,15 @@ int com_file(char* file_name){
 			/*relocate*/
 
 			relocate(comp_start,section_table_start,section_size,(char *)base,(char *)(base + move_sec[4].addr),move_sec[4].size);
-	/*
+			int init_addr = use_init_compt(base,(char *)(base + move_sec[5].addr),move_sec[5].size);/*find initial*/
+
+			if(init_addr<0){
+				printf("Without init_comp function!");
+			}else{
+				bl_init(comp_start+init_addr);
+				
+			}
+	/*		
 			unsigned long a,b,d,stop;
                         unsigned char c;
 			for(a = (char *)comp_start,stop = 0;a < (char *)comp_start +load_size;a+=16,stop+=16) {
@@ -279,7 +297,7 @@ int com_file(char* file_name){
 
 		*/	
 			
-			copy_process(SERVER_THREAD, (char *)comp_start, 0, 0);
+			//copy_process(SERVER_THREAD, (char *)comp_start, 0, 0);
 			
 						
 
@@ -299,7 +317,6 @@ int com_file(char* file_name){
 
 }
 
-
 int get_ndx(Elf64_Sym* sym){
 
 	//printf("st_name:%x st_other:%x\n\r",(sym+init)->st_name,(sym+init)->st_other);
@@ -310,12 +327,41 @@ int get_ndx(Elf64_Sym* sym){
 
 }
 
-int get_strname(Elf64_Sym* sym){
+/*init*//*cleanup*//*operation*/
+int use_init_compt(char* base,Elf64_Sym* sym,int size){
+	int num =0;
+	for(int init=0; init < size/24 ;init++){
+		if((unsigned int)(sym+init)->st_shndx == 1 && (unsigned int)(sym+init)->st_size != 0){
+                        
+			int i = 0;	
+			char* chara = base + move_sec[6].addr+ (unsigned int)(sym+init)->st_name;
+			while(*(chara+i)!='\0'){
+				text_function[num].name[i] = *(chara+i);
+				i++;
+			}
+		
+			text_function[num].size = (sym+init)->st_size;
+			if(!memcmp(&text_function[num].name[0],"init_compt",10)){
+				printf("find init_compt\n\r");
+				int reduc = 0;				
+				unsigned int init = 0;				
+				while(num-reduc){
+					init = init + text_function[num-1].size;
+					reduc++;
+				}
+				return init;
+			}
+			num++;
+		}
 
+	}
+	return -1;
 	//printf("st_name:%x st_other:%x\n\r",(sym+init)->st_name,(sym+init)->st_other);
 	//printf("bind:%x type:%x \n\r",(sym+init)->st_info >> 4,(sym+init)->st_info & 0xf);
 	//printf("st_shndx:%x st_value:%x st_size:%x\n\r",(sym+init)->st_shndx,(sym+init)->st_value,(sym+init)->st_size);
+}
 
+int get_strname(Elf64_Sym* sym){
 	return sym->st_name;
 
 }
@@ -330,18 +376,19 @@ void relocate(char* comp_start,unsigned long section_table_start,unsigned long s
 	          int rel_num =	find_sec_addr(base + section_table_start + ndx*(section_size));
 		  unsigned int* ch_test = (comp_start + (rela+init)->r_offset);
 		
-		  if(rel_num == 1){/*rodata*/
+		  if(rel_num == 1){ /*rodata*/
 			 *ch_test = (((move_sec[0].size + (rela+init)->r_addend)*4)<<8) + (0x91000000);
 			 
-		  }else if(rel_num==2){/*data*/
+		  }else if(rel_num==2){ /*data*/
 			 *ch_test = (((move_sec[0].size + move_sec[1].size + (rela+init)->r_addend)*4)<<8)+(0x91000000);
-		  }else if(rel_num==3){/*bss*/
+		  }else if(rel_num==3){ /*bss*/
 			 *ch_test = (((move_sec[0].size + move_sec[1].size + move_sec[2].size + (rela+init)->r_addend)*4)<<8)+(0x91000000);
                   }else{
 			  printf("Not data section!");
 		  }
 		}else if((unsigned int)(rela+init)->r_info==0x11b){
-		   int ndx = get_ndx(base + move_sec[5].addr + 24*((rela+init)->r_info >> 32));
+		   int ndx = get_ndx(base + move_sec[5].addr + 24*((rela+init)->r_info >> 32));/*hi->symbol name*/
+			/*0.text 1.rodata 2.data 3.bss 4.rela.text 5.symtab 6.strtab*/
 		   if(ndx==0){
 			int strname = get_strname(base + move_sec[5].addr + 24*((rela+init)->r_info >> 32));
 			char str_name[30]={'\0'};
@@ -352,14 +399,11 @@ void relocate(char* comp_start,unsigned long section_table_start,unsigned long s
 			while(*(chara+i)!='\0'){
 				str_name[i] = *(chara+i);
 				i++;
-				
 			}
 			
-			while(ksym[ksym_i].sym_name[0]!='\0'){
+			while(ksym[ksym_i].sym_name[0]!='\0')
 				if(!memcmp(&ksym[ksym_i++] , &str_name[0] ,i-1)){flag = 1; break;}
 
-			}
-	
 			if(flag==1){
 				unsigned int value = 0x3ffffff -((((int)comp_start + (rela+init)->r_offset) - ksym[ksym_i-1].sym_addr)/4)+1;
 				unsigned int* bl_test = (comp_start + (rela+init)->r_offset);

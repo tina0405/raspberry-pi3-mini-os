@@ -31,7 +31,9 @@ void  kservice_exit(){
 }
 
 void  kservice_led_blink(void){
+#ifdef GPIO
 	led_blink();
+#endif
 }
 
 char  kservice_uart_read(void){
@@ -126,7 +128,9 @@ void  kservice_schedule(){
 	schedule();
 }
 
-void * const sys_call_table[] = {kservice_uart_write, kservice_fork, kservice_exit, kservice_led_blink, kservice_uart_read,  /*0-4*/ 
+void * const sys_call_table[] = {kservice_uart_write, kservice_fork, kservice_exit, 
+kservice_led_blink, 
+kservice_uart_read,  /*0-4*/ 
 kservice_create_thread, kservice_thread_self,kservice_thread_join,kservice_thread_exit,kservice_thread_signal,/*5-9*/
 kservice_list_file,kservice_cd_folder,kservice_dump_file,kservice_root_file,kservice_run_file,kservice_send_msg,/*10-15*/
 kservice_recieve_msg,kservice_mutex_trylock,kservice_mutex_lock,kservice_mutex_unlock,kservice_com_file,/*16-20*/

@@ -7,5 +7,7 @@ extern unsigned int get32 ( unsigned long );
 extern unsigned long get_el ( void );
 extern void set_pgd(unsigned long pgd);
 extern unsigned long get_pgd();
+extern unsigned long get_pgd();
+extern void bl_init(unsigned long a);
 
 #endif  /*_UTILS_H */
