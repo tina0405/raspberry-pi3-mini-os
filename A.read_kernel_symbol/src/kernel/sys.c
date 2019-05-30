@@ -109,7 +109,7 @@ void  kservice_mutex_unlock(struct thread_mutex *mutex){
 }
 
 void  kservice_com_file(char* file_name){
-	com_file(file_name);
+	compt_file(file_name);
 }
 
 unsigned long  kservice_allocate_upage(){
@@ -120,6 +120,11 @@ void kservice_free_page(unsigned long p){
 	free_page(p);
 }
 
+
+void  kservice_rm_compt(char* compt_name){
+	rm_compt_file(compt_name);
+}
+
 unsigned long  kservice_allocate_kpage(){
 	return allocate_kernel_page();
 }
@@ -128,11 +133,40 @@ void  kservice_schedule(){
 	schedule();
 }
 
-void * const sys_call_table[] = {kservice_uart_write, kservice_fork, kservice_exit, 
-kservice_led_blink, 
-kservice_uart_read,  /*0-4*/ 
-kservice_create_thread, kservice_thread_self,kservice_thread_join,kservice_thread_exit,kservice_thread_signal,/*5-9*/
-kservice_list_file,kservice_cd_folder,kservice_dump_file,kservice_root_file,kservice_run_file,kservice_send_msg,/*10-15*/
-kservice_recieve_msg,kservice_mutex_trylock,kservice_mutex_lock,kservice_mutex_unlock,kservice_com_file,/*16-20*/
-kservice_allocate_upage, kservice_free_page/*21-22*//*below for symbol table*/,kservice_allocate_kpage,kservice_schedule
-};
+int  kservice_reg_compt(char* compt_name){
+	return reg_compt(compt_name);
+}
+
+int kservice_unreg_compt(char* compt_name){
+	return unreg_compt(compt_name);
+}
+
+void * const sys_call_table[] = {kservice_uart_write, /*0*/
+kservice_fork, /*1*/
+kservice_exit, /*2*/
+kservice_led_blink, /*3*/
+kservice_uart_read, /*4*/  
+kservice_create_thread, /*5*/
+kservice_thread_self, /*6*/
+kservice_thread_join, /*7*/
+kservice_thread_exit, /*8*/
+kservice_thread_signal, /*9*/
+kservice_list_file, /*10*/
+kservice_cd_folder, /*11*/
+kservice_dump_file, /*12*/
+kservice_root_file, /*13*/
+kservice_run_file, /*14*/
+kservice_send_msg, /*15*/
+kservice_recieve_msg, /*16*/
+kservice_mutex_trylock, /*17*/
+kservice_mutex_lock, /*18*/
+kservice_mutex_unlock, /*19*/
+kservice_com_file, /*20 for terminal*/
+kservice_allocate_upage, /*21*/
+kservice_free_page, /*22*/
+kservice_rm_compt, /*23 for terminal*/
+/*below for symbol table*/
+kservice_allocate_kpage, /*24*/
+kservice_schedule, /*25*/
+kservice_reg_compt,
+kservice_unreg_compt}; /*26*/

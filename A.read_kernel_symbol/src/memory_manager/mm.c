@@ -58,7 +58,8 @@ unsigned long get_free_page()
 }
 
 void free_page(unsigned long p){
-	mem_map[(p - LOW_MEMORY) / PAGE_SIZE] = 0;
+	int a = ((p - LOW_MEMORY) / PAGE_SIZE);
+	mem_map[a] = 0;
 }
 
 void map_table_entry(unsigned long *pte, unsigned long va, unsigned long pa) {

@@ -11,11 +11,15 @@ extern fatdir_t *dir;
 extern char directory[20];
 extern unsigned long mod_process;
 fatdir_t *origin;
-
+int opera_addr = 0;
+int rmcom_addr = 0;
 void bl_init(unsigned long a);
+char* comp_start=0;
 struct symbol_struct{
 	unsigned char sym_name[32];
-	unsigned int sym_addr;
+	unsigned long sym_addr;
+        char filename[8];
+	unsigned long rmcom;
 };
  
 struct text_func{
@@ -27,6 +31,7 @@ struct text_func text_function[16];
 
 extern void * const sys_call_table[];
 struct symbol_struct ksym[64];
+int ksym_index = 26;
 struct user_fs;
 /*
 struct user_fs{
@@ -208,8 +213,8 @@ int run_file(char* file_name){
 
 
 
-
-int com_file(char* file_name){
+char compt_filename[8];
+int compt_file(char* file_name){
 
 	unsigned int clust =0;
         unsigned long base =0;
@@ -221,11 +226,12 @@ int com_file(char* file_name){
 		if(clust){
 
 			printf("\n\r");
-
+			memcpy(file_name,&compt_filename[0],8);
 			base = fat_readfile(clust);
 			
 			unsigned long size_u = file_dir[k].size;
 			printf("Component: read file OK!\n\r");
+			printf("----------------------Component initial----------------------\n\r");
 			
 
 			unsigned long section_table_start;
@@ -242,7 +248,7 @@ int com_file(char* file_name){
 			}
 			
 			unsigned long section = allocate_kernel_page();
-			char* comp_start = section;			
+			comp_start = section;			
 
 
 			memcpy((char *)(base + move_sec[0].addr),(char *) section,move_sec[0].size);/*.text*/
@@ -257,16 +263,20 @@ int com_file(char* file_name){
 			
 
 			/*relocate*/
-
-			relocate(comp_start,section_table_start,section_size,(char *)base,(char *)(base + move_sec[4].addr),move_sec[4].size);
-			int init_addr = use_init_compt(base,(char *)(base + move_sec[5].addr),move_sec[5].size);/*find initial*/
-
-			if(init_addr<0){
-				printf("Without init_comp function!");
-			}else{
-				bl_init(comp_start+init_addr);
-				
+			int rela_err = relocate(comp_start,section_table_start,section_size,(char *)base,(char *)(base + move_sec[4].addr),move_sec[4].size);
+			if(!rela_err){
+				int init_addr = use_compt_func(base,(char *)(base + move_sec[5].addr),move_sec[5].size,"init_compt");/*find initial*/
+				opera_addr = use_compt_func(base,(char *)(base + move_sec[5].addr),move_sec[5].size,"oper_compt");
+				rmcom_addr = use_compt_func(base,(char *)(base + move_sec[5].addr),move_sec[5].size,"exit_compt");
+				if(init_addr<0){
+					printf("Without init_comp function!");
+				}else if(rmcom_addr<0){
+					printf("Without exit_comp function!");
+				}else{
+					bl_init(comp_start+init_addr);
+				}
 			}
+			
 	/*		
 			unsigned long a,b,d,stop;
                         unsigned char c;
@@ -317,6 +327,80 @@ int com_file(char* file_name){
 
 }
 
+
+
+int rm_compt_file(char* file_name){
+
+	unsigned int clust =0;
+        unsigned long base =0;
+        
+	for(int k = 0;file_dir[k].name[0]!='\0';k++){
+	 
+	   if(!memcmp(file_dir[k].name,file_name,8)){
+		for(int num = 26; num<64; num++){
+			if(ksym[num].sym_name[0]!='\0'){
+				if(!memcmp(&ksym[num].filename[0] , file_name ,8)){ 
+					printf("\n\r----------------------Component exit----------------------\n\r");
+					bl_init(ksym[num].rmcom); 
+					ksym[num].sym_name[0] ='\0';/*force*/
+					free_page(ksym[num].rmcom);
+					return 1;}
+			}
+		}
+	   }
+	   
+
+        }
+
+	printf("\n\rNot file");
+	return 0;
+
+}
+
+int unreg_compt(char* compt_name){
+	int length = strlength(compt_name);
+	int ksym_i = 9,compt_i=0;
+	for(int num = 26; num<64; num++){
+			if(!memcmp(&ksym[num].sym_name[9],compt_name,length)){
+				return 0;/*succeed*/
+			}
+	}
+	printf("kservice_%s was not in symbol table!",compt_name);
+	return 1;/**/
+
+}
+
+int strlength(char* string){
+	int length =0;
+	while(*(string + length) !='\0'){length++;}
+	return length;
+}
+
+int reg_compt(char* compt_name){
+	int ksym_i = 9,compt_i=0;
+	int length = strlength(compt_name);
+	for(int num = 0; num<64; num++){
+		if(!memcmp(&ksym[num].sym_name[9],compt_name,length)){
+			printf("Cannot register! kservice_%s has existed!",compt_name);
+			return 1;/*fail*/
+		}
+
+		if(ksym[num].sym_name[0] == '\0'){
+			memcpy("kservice_",&ksym[num].sym_name[0],9);
+			while(*(compt_name + compt_i)!= '\0'){
+				ksym[num].sym_name[ksym_i++] = *(compt_name + (compt_i++));		
+			}
+			ksym[num].sym_addr = comp_start + opera_addr;
+			ksym[num].rmcom = comp_start + rmcom_addr;
+			memcpy(&compt_filename[0],&ksym[num].filename[0],8);
+			printf("Register component function: %s\n\r",ksym[num].sym_name);
+			return 0; /*succeed*/
+		}
+	}
+	printf("Cannot register! Symbol table is full!");
+	return 1;/**/
+}
+
 int get_ndx(Elf64_Sym* sym){
 
 	//printf("st_name:%x st_other:%x\n\r",(sym+init)->st_name,(sym+init)->st_other);
@@ -328,8 +412,9 @@ int get_ndx(Elf64_Sym* sym){
 }
 
 /*init*//*cleanup*//*operation*/
-int use_init_compt(char* base,Elf64_Sym* sym,int size){
+int use_compt_func(char* base,Elf64_Sym* sym,int size,char* fun_name){
 	int num =0;
+	unsigned int initial = 0;
 	for(int init=0; init < size/24 ;init++){
 		if((unsigned int)(sym+init)->st_shndx == 1 && (unsigned int)(sym+init)->st_size != 0){
                         
@@ -341,16 +426,11 @@ int use_init_compt(char* base,Elf64_Sym* sym,int size){
 			}
 		
 			text_function[num].size = (sym+init)->st_size;
-			if(!memcmp(&text_function[num].name[0],"init_compt",10)){
-				printf("find init_compt\n\r");
-				int reduc = 0;				
-				unsigned int init = 0;				
-				while(num-reduc){
-					init = init + text_function[num-1].size;
-					reduc++;
-				}
-				return init;
+			if(!memcmp(&text_function[num].name[0],fun_name,10)){
+				return  initial;
 			}
+			
+			initial =  initial + (sym+init)->st_size;
 			num++;
 		}
 
@@ -366,7 +446,8 @@ int get_strname(Elf64_Sym* sym){
 
 }
 
-void relocate(char* comp_start,unsigned long section_table_start,unsigned long section_size,char* base,Elf64_Rela* rela,unsigned long size){
+int relocate(char* comp_start,unsigned long section_table_start,unsigned long section_size,char* base,Elf64_Rela* rela,unsigned long size){
+
 	for(int init=0; init < size/24 ;init++){
 
 		if((unsigned int)(rela+init)->r_info==0x113){}
@@ -409,7 +490,8 @@ void relocate(char* comp_start,unsigned long section_table_start,unsigned long s
 				unsigned int* bl_test = (comp_start + (rela+init)->r_offset);
 				*bl_test = value + 0x94000000;
 			}else{
-				printf("Not componets support this function: %s",str_name);
+				printf("Not componets support this function: %s\n\r",str_name);
+				return -1;
 			}
 
 		   }else{
@@ -422,6 +504,7 @@ void relocate(char* comp_start,unsigned long section_table_start,unsigned long s
 		//printf("info:%x\n\r",(rela+init)->r_info);
 		//printf("addend:%x\n\r",(rela+init)->r_addend);
 	}
+	return 0;
 
 }
 

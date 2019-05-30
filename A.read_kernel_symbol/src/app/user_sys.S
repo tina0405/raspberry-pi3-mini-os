@@ -23,6 +23,7 @@
 .set SYS_COM_NUMBER, 20
 .set SYS_ALLOCP_NUMBER, 21
 .set SYS_FREEP_NUMBER, 22
+.set SYS_RMCOM_NUMBER, 23
 
 .globl user_delay
 user_delay:
@@ -160,6 +161,12 @@ call_sys_allocate_page:
 .globl call_sys_free_page
 call_sys_free_page:
 	mov w8, #SYS_FREEP_NUMBER
+	svc #0
+	ret
+
+.globl call_sys_rmcom
+call_sys_rmcom:
+	mov w8, #SYS_RMCOM_NUMBER
 	svc #0
 	ret
 

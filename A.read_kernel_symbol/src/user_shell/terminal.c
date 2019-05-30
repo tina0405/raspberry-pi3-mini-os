@@ -124,15 +124,15 @@ void shell_user_process()
 					call_sys_write(directory);
 					call_sys_write("$");
 				}
-			}else if(output[0]=='c'&& output[1]=='o' && output[2]=='m'){ 
+			}else if(output[0]=='i'&& output[1]=='n' && output[2]=='c' && output[3]=='o' && output[4]=='m'){ 
 				/*to_do_list*/			
-				if(output[3]=='\r'){
+				if(output[5]=='\r'){
 					call_sys_write("\n\rWithout input file!");
 					call_sys_write("\n\rtkernel@user_name:");
 					
 				}
-				else if(output[3]==' '){
-					for(int f = 4,n=0;f < 14;f++,n++){
+				else if(output[5]==' '){
+					for(int f = 6,n=0;f < 20;f++,n++){
 					   if(output[f]=='\r'){
 						break;
 					   }
@@ -142,6 +142,35 @@ void shell_user_process()
 					}
 		    			
 					call_sys_com(file_name);
+					call_sys_write("\n\rtkernel@user_name:");
+					call_sys_write(directory);
+					call_sys_write("$");
+				}
+				else
+				{
+					call_sys_write("\n\rNot support this command!");
+					call_sys_write("\n\rtkernel@user_name:");
+					call_sys_write(directory);
+					call_sys_write("$");
+				}
+			}else if(output[0]=='r'&& output[1]=='m' && output[2]=='c' && output[3]=='o' && output[4]=='m'){ 
+				/*to_do_list*/			
+				if(output[5]=='\r'){
+					call_sys_write("\n\rWithout input file!");
+					call_sys_write("\n\rtkernel@user_name:");
+					
+				}
+				else if(output[5]==' '){
+					for(int f = 6,n=0;f < 20;f++,n++){
+					   if(output[f]=='\r'){
+						break;
+					   }
+					   file_name[n] = output[f];
+					   
+		                           
+					}
+		    			
+					call_sys_rmcom(file_name);
 					call_sys_write("\n\rtkernel@user_name:");
 					call_sys_write(directory);
 					call_sys_write("$");
