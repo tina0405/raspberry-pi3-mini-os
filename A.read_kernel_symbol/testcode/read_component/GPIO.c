@@ -25,14 +25,14 @@ void led_20_blink(int a){
 */
 
 void init_compt(void){ /*initial*/
-	kservice_uart_write("Initial component!\n\r");
+	kservice_uart_write("Initial GPIO component!\n\r");
 	kservice_reg_compt("set_gpio");
 }
 
 
 
 void oper_compt(unsigned long gpio,int on_off){ /*operation*/
-	kservice_uart_write("Operation!\n\r");        
+	kservice_uart_write("GPIO Operation!\n\r");        
 	/*
 	put32(GPPUD,on_off);
         delay(150);

@@ -140,7 +140,11 @@ int  kservice_reg_compt(char* compt_name){
 int kservice_unreg_compt(char* compt_name){
 	return unreg_compt(compt_name);
 }
-
+/*
+void  kservice_use_compt(char* compt_name,void * arg){
+	use_compt(file_name,arg);
+}
+*/
 void * const sys_call_table[] = {kservice_uart_write, /*0*/
 kservice_fork, /*1*/
 kservice_exit, /*2*/

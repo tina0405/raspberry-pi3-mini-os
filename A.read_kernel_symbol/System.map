@@ -1,0 +1,606 @@
+
+Allocating common symbols
+Common symbol       size              file
+
+prev_childregs      0x8               build/proc_manager/sched_c.o
+cfile               0x300             build/file_system/fs_c.o
+text_function       0x140             build/file_system/fs_c.o
+map_array           0x1000            build/file_system/fs_c.o
+origin              0x8               build/file_system/fs_c.o
+page_prev           0x8               build/proc_manager/sched_c.o
+fat_addr            0x4               build/kernel/kernel_c.o
+user_page_start     0x8               build/kernel/kernel_c.o
+prev_real_regs      0x8               build/proc_manager/sched_c.o
+ksym                0xa00             build/file_system/fs_c.o
+page_next           0x8               build/proc_manager/sched_c.o
+next_real_regs      0x8               build/proc_manager/sched_c.o
+sd_ocr              0x8               build/device/sd_c.o
+move_sec            0xa8              build/file_system/fs_c.o
+compt_filename      0x8               build/file_system/fs_c.o
+sd_err              0x8               build/device/sd_c.o
+user_ipc_mail       0x600             build/proc_manager/pm_deamon_c.o
+prev_real           0x8               build/proc_manager/sched_c.o
+sd_rca              0x8               build/device/sd_c.o
+next_real           0x8               build/proc_manager/sched_c.o
+sd_scr              0x10              build/device/sd_c.o
+task                0x200             build/file_system/fs_deamon_c.o
+prev                0x8               build/proc_manager/sched_c.o
+file_dir            0x320             build/file_system/fs_c.o
+dir                 0x8               build/file_system/fat_c.o
+init_page           0x8               build/proc_manager/sched_c.o
+next_childregs      0x8               build/proc_manager/sched_c.o
+sd_hv               0x8               build/device/sd_c.o
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+                0xffff000000000000                . = 0xffff000000000000
+
+.text.boot      0xffff000000000000      0x1d0
+ *(.text.boot)
+ .text.boot     0xffff000000000000      0x1d0 build/kernel/boot_s.o
+                0xffff000000000000                _start
+                0xffff000000000018                enable_cache
+                0xffff000000001000                . = ALIGN (0x1000)
+                0xffff000000001000                user_begin = .
+
+.text.user      0xffff000000001000      0x950
+ build/user*(.text)
+ .text          0xffff000000001000      0x818 build/user_shell/terminal_c.o
+                0xffff000000001000                shell_user_process
+ .text.user     0xffff000000001818      0x138 build/app/user_sys_s.o
+                0xffff000000001818                user_delay
+                0xffff000000001824                call_sys_write
+                0xffff000000001830                call_sys_exit
+                0xffff00000000183c                call_sys_fork
+                0xffff000000001848                call_sys_led
+                0xffff000000001854                call_sys_read
+                0xffff000000001860                thread_create
+                0xffff00000000186c                thread_self
+                0xffff000000001878                thread_join
+                0xffff000000001884                thread_cond_signal
+                0xffff000000001890                call_sys_list
+                0xffff00000000189c                call_sys_cd
+                0xffff0000000018a8                call_sys_dump
+                0xffff0000000018b4                call_sys_root
+                0xffff0000000018c0                call_sys_run
+                0xffff0000000018cc                call_sys_com
+                0xffff0000000018d8                call_sys_send
+                0xffff0000000018e4                call_sys_recv
+                0xffff0000000018f0                thread_mutex_trylock
+                0xffff0000000018fc                thread_mutex_lock
+                0xffff000000001908                thread_mutex_unlock
+                0xffff000000001914                call_sys_allocate_page
+                0xffff000000001920                call_sys_free_page
+                0xffff00000000192c                call_sys_rmcom
+                0xffff000000001938                thread_equal
+
+.rodata.user    0xffff000000001950       0xac
+ build/user*(.rodata)
+ .rodata        0xffff000000001950       0xac build/user_shell/terminal_c.o
+
+.data.user      0xffff0000000019fc        0x0
+ build/user*(.data)
+ .data          0xffff0000000019fc        0x0 build/user_shell/terminal_c.o
+
+.bss.user       0xffff0000000019fc        0x4
+ build/user*(.bss)
+ .bss           0xffff0000000019fc        0x4 build/user_shell/terminal_c.o
+                0xffff000000001a00                user_end = .
+
+.text           0xffff000000002000     0x91ec
+ *(.text)
+ .text          0xffff000000002000       0xc8 build/file_system/fs_deamon_c.o
+                0xffff000000002000                fs_daemon
+ .text          0xffff0000000020c8      0x694 build/file_system/fat_c.o
+                0xffff0000000020c8                fat_getpartition
+                0xffff0000000022a4                fat_getcluster
+                0xffff000000002434                fat_readfile
+                0xffff000000002678                fat_listdirectory
+ .text          0xffff00000000275c     0x26e4 build/file_system/fs_c.o
+                0xffff00000000275c                build_root
+                0xffff00000000277c                search_file
+                0xffff000000002930                list
+                0xffff000000002ba8                dump
+                0xffff000000002ea8                cd
+                0xffff000000002f24                cd_root
+                0xffff000000002f74                run_file
+                0xffff000000003158                compt_file
+                0xffff00000000372c                rm_compt_file
+                0xffff000000003970                unreg_compt
+                0xffff000000003a28                strlength
+                0xffff000000003a68                reg_compt
+                0xffff000000003c4c                get_ndx
+                0xffff000000003c64                use_compt_func
+                0xffff000000003e5c                get_strname
+                0xffff000000003e74                relocate
+                0xffff000000004368                find_sec_addr
+                0xffff0000000045c8                check_file_format
+                0xffff0000000046f4                string_table
+                0xffff000000004734                get_string
+                0xffff000000004c40                read_ksymbol
+ .text          0xffff000000004e40       0xac build/proc_manager/irq_c.o
+                0xffff000000004e40                enable_interrupt_controller
+                0xffff000000004e68                show_invalid_entry_message
+                0xffff000000004eac                handle_irq
+ .text          0xffff000000004eec      0x554 build/proc_manager/sched_c.o
+                0xffff000000004eec                preempt_disable
+                0xffff000000004f20                preempt_enable
+                0xffff000000004f54                _schedule
+                0xffff0000000051b0                schedule
+                0xffff0000000051dc                switch_to
+                0xffff000000005354                schedule_tail
+                0xffff00000000536c                timer_tick
+                0xffff0000000053f8                timer3_tick
+                0xffff000000005400                exit_process
+ .text          0xffff000000005440      0x750 build/proc_manager/pm_deamon_c.o
+                0xffff000000005440                pm_daemon
+                0xffff0000000058c8                reply
+                0xffff0000000058f0                accept_reply
+                0xffff000000005934                recieve_msg
+                0xffff000000005a2c                send_msg
+ .text          0xffff000000005b90      0x1cc build/proc_manager/timer_c.o
+                0xffff000000005b90                timer_init
+                0xffff000000005c08                handle_timer_irq
+                0xffff000000005c78                get_system_timer
+                0xffff000000005d10                wait_msec_st
+ .text          0xffff000000005d5c      0x700 build/memory_manager/mm_c.o
+                0xffff000000005d5c                allocate_kernel_page
+                0xffff000000005d94                allocate_pcb_space
+                0xffff000000005e58                allocate_user_page
+                0xffff000000005ea8                get_free_page
+                0xffff000000005f40                free_page
+                0xffff000000005f74                map_table_entry
+                0xffff000000005fd0                map_table
+                0xffff00000000608c                map_page
+                0xffff0000000062c0                copy_virt_memory
+                0xffff0000000063c8                do_mem_abort
+ .text          0xffff00000000645c       0x14 build/proc_manager/thread/thread_exit_c.o
+                0xffff00000000645c                pthread_exit
+ .text          0xffff000000006470       0xe8 build/proc_manager/thread/thread_mutex_lock_c.o
+                0xffff000000006470                _thread_mutex_lock
+                0xffff000000006504                thread_enqueue
+ .text          0xffff000000006558       0x2c build/proc_manager/thread/thread_cond_timewait_c.o
+                0xffff000000006558                thread_cond_timewait
+ .text          0xffff000000006584       0x18 build/proc_manager/thread/thread_yield_c.o
+                0xffff000000006584                thread_yield
+ .text          0xffff00000000659c       0x14 build/proc_manager/thread/thread_self_c.o
+                0xffff00000000659c                thread_id_self
+ .text          0xffff0000000065b0       0x94 build/proc_manager/thread/thread_cond_wait_c.o
+                0xffff0000000065b0                thread_cond_wait
+                0xffff0000000065d8                thread_cond_timedwait_internal
+                0xffff000000006614                thread_block
+ .text          0xffff000000006644       0xbc build/proc_manager/thread/thread_mutex_unlock_c.o
+                0xffff000000006644                _thread_mutex_unlock
+                0xffff00000000668c                thread_dequeue
+ .text          0xffff000000006700       0x34 build/proc_manager/thread/thread_cond_signal_c.o
+                0xffff000000006700                _thread_cond_signal
+ .text          0xffff000000006734       0x28 build/proc_manager/thread/thread_mutex_trylock_c.o
+                0xffff000000006734                _thread_mutex_trylock
+ .text          0xffff00000000675c      0x2e4 build/proc_manager/thread/thread_create_c.o
+                0xffff00000000675c                thread_end
+                0xffff00000000677c                error
+                0xffff0000000067ac                _thread_create
+ .text          0xffff000000006a40       0xa0 build/proc_manager/thread/thread_join_c.o
+                0xffff000000006a40                _thread_join
+ .text          0xffff000000006ae0      0x978 build/kernel/printf_c.o
+                0xffff000000006e6c                tfp_format
+                0xffff0000000072b4                init_printf
+                0xffff0000000072ec                tfp_printf
+                0xffff0000000073c0                tfp_sprintf
+ .text          0xffff000000007458       0x38 build/kernel/kernel_mod_ipc_test_c.o
+                0xffff000000007458                ipc_test
+ .text          0xffff000000007490      0x450 build/kernel/sys_c.o
+                0xffff000000007490                kservice_uart_write
+                0xffff0000000074b0                kservice_fork
+                0xffff0000000074d4                kservice_exit
+                0xffff0000000074ec                kservice_led_blink
+                0xffff0000000074f4                kservice_uart_read
+                0xffff00000000750c                kservice_create_thread
+                0xffff000000007540                kservice_thread_self
+                0xffff000000007554                kservice_thread_join
+                0xffff00000000757c                kservice_thread_exit
+                0xffff000000007590                kservice_thread_signal
+                0xffff0000000075b0                kservice_list_file
+                0xffff0000000075c8                kservice_cd_folder
+                0xffff0000000075e8                kservice_dump_file
+                0xffff000000007608                kservice_root_file
+                0xffff000000007624                kservice_run_file
+                0xffff000000007644                kservice_send_msg
+                0xffff00000000775c                kservice_recieve_msg
+                0xffff000000007794                kservice_mutex_trylock
+                0xffff0000000077b4                kservice_mutex_lock
+                0xffff0000000077d4                kservice_mutex_unlock
+                0xffff0000000077f4                kservice_com_file
+                0xffff000000007814                kservice_allocate_upage
+                0xffff00000000783c                kservice_free_page
+                0xffff00000000785c                kservice_rm_compt
+                0xffff00000000787c                kservice_allocate_kpage
+                0xffff000000007890                kservice_schedule
+                0xffff0000000078a8                kservice_reg_compt
+                0xffff0000000078c4                kservice_unreg_compt
+ .text          0xffff0000000078e0      0x2ac build/kernel/kernel_c.o
+                0xffff0000000078e0                kernel_process
+                0xffff000000007964                mod_process
+                0xffff0000000079a8                kernel_main
+ .text          0xffff000000007b8c      0x3ec build/device/mini_uart_c.o
+                0xffff000000007b8c                uart_send
+                0xffff000000007be0                uart_recv
+                0xffff000000007c28                uart_send_string
+                0xffff000000007c80                uart_init
+                0xffff000000007dc4                uart_puts
+                0xffff000000007e1c                uart_hex
+                0xffff000000007e9c                putc
+                0xffff000000007ec0                pr_int
+ .text          0xffff000000007f78       0xb4 build/device/delays_c.o
+                0xffff000000007f78                wait_cycles
+                0xffff000000007fb4                wait_msec
+ .text          0xffff00000000802c        0x0 build/device/led_blink_c.o
+ .text          0xffff00000000802c     0x1384 build/device/sd_c.o
+                0xffff00000000802c                sd_status
+                0xffff0000000080ec                sd_int
+                0xffff000000008208                sd_cmd
+                0xffff00000000854c                sd_readblock
+                0xffff000000008808                sd_clk
+                0xffff000000008b2c                sd_init
+ .text          0xffff0000000093b0      0x440 build/app/fork_c.o
+                0xffff0000000093b0                copy_process
+                0xffff000000009718                move_to_user_mode
+                0xffff0000000097d0                task_pt_regs
+ .text          0xffff0000000097f0       0x1c build/proc_manager/irq_s.o
+                0xffff0000000097f0                irq_vector_init
+                0xffff0000000097fc                enable_irq
+                0xffff000000009804                disable_irq
+ .text          0xffff00000000980c       0x50 build/proc_manager/sched_s.o
+                0xffff00000000980c                cpu_switch_to
+ .text          0xffff00000000985c       0x4c build/memory_manager/mm_s.o
+                0xffff00000000985c                memcpy
+                0xffff000000009870                memcmp
+                0xffff000000009898                memzero
+ *fill*         0xffff0000000098a8      0x758 
+ .text          0xffff00000000a000     0x1138 build/kernel/entry_s.o
+                0xffff00000000a000                vectors
+                0xffff00000000b0c4                ret_from_fork
+                0xffff00000000b134                err_hang
+ .text          0xffff00000000b138        0x0 build/kernel/boot_s.o
+ .text          0xffff00000000b138       0xb4 build/device/utils_s.o
+                0xffff00000000b138                get_el
+                0xffff00000000b144                put32
+                0xffff00000000b14c                get32
+                0xffff00000000b154                delay
+                0xffff00000000b160                set_pgd
+                0xffff00000000b174                get_pgd
+                0xffff00000000b198                try_lock
+                0xffff00000000b1b8                unlock
+                0xffff00000000b1d4                error_unlock
+                0xffff00000000b1dc                bl_init
+ .text          0xffff00000000b1ec        0x0 build/app/user_sys_s.o
+
+.iplt           0xffff00000000b1ec        0x0
+ .iplt          0xffff00000000b1ec        0x0 build/file_system/fs_deamon_c.o
+
+.rodata         0xffff00000000b1f0      0xc33
+ *(.rodata)
+ .rodata        0xffff00000000b1f0       0xa4 build/file_system/fs_deamon_c.o
+ *fill*         0xffff00000000b294        0x4 
+ .rodata        0xffff00000000b298       0xb6 build/file_system/fat_c.o
+ *fill*         0xffff00000000b34e        0x2 
+ .rodata        0xffff00000000b350      0x32d build/file_system/fs_c.o
+ *fill*         0xffff00000000b67d        0x3 
+ .rodata        0xffff00000000b680      0x1bb build/proc_manager/irq_c.o
+ *fill*         0xffff00000000b83b        0x5 
+ .rodata        0xffff00000000b840       0xa6 build/proc_manager/pm_deamon_c.o
+ *fill*         0xffff00000000b8e6        0x2 
+ .rodata        0xffff00000000b8e8        0x4 build/proc_manager/timer_c.o
+                0xffff00000000b8e8                interval
+ *fill*         0xffff00000000b8ec        0x4 
+ .rodata        0xffff00000000b8f0       0x5b build/memory_manager/mm_c.o
+ *fill*         0xffff00000000b94b        0x5 
+ .rodata        0xffff00000000b950       0x51 build/proc_manager/thread/thread_create_c.o
+ *fill*         0xffff00000000b9a1        0x7 
+ .rodata        0xffff00000000b9a8        0x5 build/proc_manager/thread/thread_join_c.o
+ *fill*         0xffff00000000b9ad        0x3 
+ .rodata        0xffff00000000b9b0       0x51 build/kernel/kernel_mod_ipc_test_c.o
+ *fill*         0xffff00000000ba01        0x7 
+ .rodata        0xffff00000000ba08       0xe0 build/kernel/sys_c.o
+                0xffff00000000ba08                sys_call_table
+ .rodata        0xffff00000000bae8      0x121 build/kernel/kernel_c.o
+ *fill*         0xffff00000000bc09        0x7 
+ .rodata        0xffff00000000bc10      0x1fc build/device/sd_c.o
+ *fill*         0xffff00000000be0c        0x4 
+ .rodata        0xffff00000000be10       0x13 build/app/fork_c.o
+
+.rela.dyn       0xffff00000000be28        0x0
+ .rela.iplt     0xffff00000000be28        0x0 build/file_system/fs_deamon_c.o
+
+.data           0xffff00000000be28      0x6bc
+ *(.data)
+ .data          0xffff00000000be28        0x0 build/file_system/fs_deamon_c.o
+ .data          0xffff00000000be28        0x0 build/file_system/fat_c.o
+ .data          0xffff00000000be28        0x4 build/file_system/fs_c.o
+                0xffff00000000be28                ksym_index
+ *fill*         0xffff00000000be2c        0x4 
+ .data          0xffff00000000be30       0x90 build/proc_manager/irq_c.o
+                0xffff00000000be30                entry_error_messages
+ .data          0xffff00000000bec0      0x61c build/proc_manager/sched_c.o
+                0xffff00000000bec0                init_priority
+                0xffff00000000bec8                init_flags
+                0xffff00000000bed0                init_task_0
+                0xffff00000000c040                init_task_1
+                0xffff00000000c1b0                init_task_2
+                0xffff00000000c320                init_task_3
+                0xffff00000000c490                current
+                0xffff00000000c498                task_prio_table
+                0xffff00000000c4b8                head
+                0xffff00000000c4d8                nr_tasks
+ .data          0xffff00000000c4dc        0x0 build/proc_manager/pm_deamon_c.o
+ .data          0xffff00000000c4dc        0x0 build/proc_manager/timer_c.o
+ .data          0xffff00000000c4dc        0x4 build/memory_manager/mm_c.o
+ .data          0xffff00000000c4e0        0x0 build/proc_manager/thread/thread_exit_c.o
+ .data          0xffff00000000c4e0        0x0 build/proc_manager/thread/thread_mutex_lock_c.o
+ .data          0xffff00000000c4e0        0x0 build/proc_manager/thread/thread_cond_timewait_c.o
+ .data          0xffff00000000c4e0        0x0 build/proc_manager/thread/thread_yield_c.o
+ .data          0xffff00000000c4e0        0x0 build/proc_manager/thread/thread_self_c.o
+ .data          0xffff00000000c4e0        0x0 build/proc_manager/thread/thread_cond_wait_c.o
+ .data          0xffff00000000c4e0        0x0 build/proc_manager/thread/thread_mutex_unlock_c.o
+ .data          0xffff00000000c4e0        0x0 build/proc_manager/thread/thread_cond_signal_c.o
+ .data          0xffff00000000c4e0        0x0 build/proc_manager/thread/thread_mutex_trylock_c.o
+ .data          0xffff00000000c4e0        0x0 build/proc_manager/thread/thread_create_c.o
+ .data          0xffff00000000c4e0        0x0 build/proc_manager/thread/thread_join_c.o
+ .data          0xffff00000000c4e0        0x0 build/kernel/printf_c.o
+ .data          0xffff00000000c4e0        0x0 build/kernel/kernel_mod_ipc_test_c.o
+ .data          0xffff00000000c4e0        0x0 build/kernel/sys_c.o
+ .data          0xffff00000000c4e0        0x4 build/kernel/kernel_c.o
+                0xffff00000000c4e0                c
+ .data          0xffff00000000c4e4        0x0 build/device/mini_uart_c.o
+ .data          0xffff00000000c4e4        0x0 build/device/delays_c.o
+ .data          0xffff00000000c4e4        0x0 build/device/led_blink_c.o
+ .data          0xffff00000000c4e4        0x0 build/device/sd_c.o
+ .data          0xffff00000000c4e4        0x0 build/app/fork_c.o
+ .data          0xffff00000000c4e4        0x0 build/proc_manager/irq_s.o
+ .data          0xffff00000000c4e4        0x0 build/proc_manager/sched_s.o
+ .data          0xffff00000000c4e4        0x0 build/memory_manager/mm_s.o
+ .data          0xffff00000000c4e4        0x0 build/kernel/entry_s.o
+ .data          0xffff00000000c4e4        0x0 build/kernel/boot_s.o
+ .data          0xffff00000000c4e4        0x0 build/device/utils_s.o
+ .data          0xffff00000000c4e4        0x0 build/app/user_sys_s.o
+
+.igot.plt       0xffff00000000c4e8        0x0
+ .igot.plt      0xffff00000000c4e8        0x0 build/file_system/fs_deamon_c.o
+                0xffff00000000c4e8                . = ALIGN (0x8)
+                0xffff00000000c4e8                bss_begin = .
+
+.bss            0xffff00000000c4e8    0x88c50
+ *(.bss*)
+ .bss           0xffff00000000c4e8      0x104 build/file_system/fs_deamon_c.o
+                0xffff00000000c4e8                fs_mail
+ .bss           0xffff00000000c5ec        0x4 build/file_system/fat_c.o
+ .bss           0xffff00000000c5f0       0x14 build/file_system/fs_c.o
+                0xffff00000000c5f0                opera_addr
+                0xffff00000000c5f4                rmcom_addr
+                0xffff00000000c5f8                comp_start
+                0xffff00000000c600                map_index
+ .bss           0xffff00000000c604        0x0 build/proc_manager/irq_c.o
+ *fill*         0xffff00000000c604        0x4 
+ .bss           0xffff00000000c608      0x224 build/proc_manager/sched_c.o
+                0xffff00000000c608                init_cpu
+                0xffff00000000c670                init_state
+                0xffff00000000c678                init_counter
+                0xffff00000000c680                init_preempt_count
+                0xffff00000000c688                init_mm
+                0xffff00000000c820                next
+ *fill*         0xffff00000000c82c        0x4 
+ .bss           0xffff00000000c830      0x628 build/proc_manager/pm_deamon_c.o
+                0xffff00000000c830                ipc_index_pop
+ .bss           0xffff00000000ce58        0x4 build/proc_manager/timer_c.o
+                0xffff00000000ce58                curVal
+ *fill*         0xffff00000000ce5c        0x4 
+ .bss           0xffff00000000ce60    0x7d808 build/memory_manager/mm_c.o
+ .bss           0xffff00000008a668        0x0 build/proc_manager/thread/thread_exit_c.o
+ .bss           0xffff00000008a668        0x0 build/proc_manager/thread/thread_mutex_lock_c.o
+ .bss           0xffff00000008a668        0x0 build/proc_manager/thread/thread_cond_timewait_c.o
+ .bss           0xffff00000008a668        0x0 build/proc_manager/thread/thread_yield_c.o
+ .bss           0xffff00000008a668        0x0 build/proc_manager/thread/thread_self_c.o
+ .bss           0xffff00000008a668        0x0 build/proc_manager/thread/thread_cond_wait_c.o
+ .bss           0xffff00000008a668        0x0 build/proc_manager/thread/thread_mutex_unlock_c.o
+ .bss           0xffff00000008a668        0x0 build/proc_manager/thread/thread_cond_signal_c.o
+ .bss           0xffff00000008a668        0x0 build/proc_manager/thread/thread_mutex_trylock_c.o
+ .bss           0xffff00000008a668     0x8004 build/proc_manager/thread/thread_create_c.o
+                0xffff00000008a668                thread_id_table
+ .bss           0xffff00000009266c        0x0 build/proc_manager/thread/thread_join_c.o
+ *fill*         0xffff00000009266c        0x4 
+ .bss           0xffff000000092670       0x10 build/kernel/printf_c.o
+ .bss           0xffff000000092680        0x0 build/kernel/kernel_mod_ipc_test_c.o
+ .bss           0xffff000000092680        0x4 build/kernel/sys_c.o
+                0xffff000000092680                ipc_index_push
+ .bss           0xffff000000092684        0x0 build/kernel/kernel_c.o
+ .bss           0xffff000000092684        0x0 build/device/mini_uart_c.o
+ .bss           0xffff000000092684        0x0 build/device/delays_c.o
+ .bss           0xffff000000092684        0x0 build/device/led_blink_c.o
+ .bss           0xffff000000092684        0x0 build/device/sd_c.o
+ .bss           0xffff000000092684        0x0 build/app/fork_c.o
+ .bss           0xffff000000092684        0x0 build/proc_manager/irq_s.o
+ .bss           0xffff000000092684        0x0 build/proc_manager/sched_s.o
+ .bss           0xffff000000092684        0x0 build/memory_manager/mm_s.o
+ .bss           0xffff000000092684        0x0 build/kernel/entry_s.o
+ .bss           0xffff000000092684        0x0 build/kernel/boot_s.o
+ .bss           0xffff000000092684        0x0 build/device/utils_s.o
+ .bss           0xffff000000092684        0x0 build/app/user_sys_s.o
+ *fill*         0xffff000000092684        0x4 
+ COMMON         0xffff000000092688      0x200 build/file_system/fs_deamon_c.o
+                0xffff000000092688                task
+ COMMON         0xffff000000092888        0x8 build/file_system/fat_c.o
+                0xffff000000092888                dir
+ COMMON         0xffff000000092890     0x2218 build/file_system/fs_c.o
+                0xffff000000092890                cfile
+                0xffff000000092b90                text_function
+                0xffff000000092cd0                map_array
+                0xffff000000093cd0                origin
+                0xffff000000093cd8                ksym
+                0xffff0000000946d8                move_sec
+                0xffff000000094780                compt_filename
+                0xffff000000094788                file_dir
+ COMMON         0xffff000000094aa8       0x50 build/proc_manager/sched_c.o
+                0xffff000000094aa8                prev_childregs
+                0xffff000000094ab0                page_prev
+                0xffff000000094ab8                prev_real_regs
+                0xffff000000094ac0                page_next
+                0xffff000000094ac8                next_real_regs
+                0xffff000000094ad0                prev_real
+                0xffff000000094ad8                next_real
+                0xffff000000094ae0                prev
+                0xffff000000094ae8                init_page
+                0xffff000000094af0                next_childregs
+ COMMON         0xffff000000094af8      0x600 build/proc_manager/pm_deamon_c.o
+                0xffff000000094af8                user_ipc_mail
+ COMMON         0xffff0000000950f8       0x10 build/kernel/kernel_c.o
+                0xffff0000000950f8                fat_addr
+                0xffff000000095100                user_page_start
+ COMMON         0xffff000000095108       0x30 build/device/sd_c.o
+                0xffff000000095108                sd_ocr
+                0xffff000000095110                sd_err
+                0xffff000000095118                sd_rca
+                0xffff000000095120                sd_scr
+                0xffff000000095130                sd_hv
+                0xffff000000095138                bss_end = .
+                0xffff000000096000                . = ALIGN (0x1000)
+                0xffff000000096000                pg_dir = .
+
+.data.pgd       0xffff000000096000     0x3000
+                0xffff000000099000                . = (. + 0x3000)
+ *fill*         0xffff000000096000     0x3000 
+                0xffff000000099000                _end = .
+LOAD build/file_system/fs_deamon_c.o
+LOAD build/file_system/fat_c.o
+LOAD build/file_system/fs_c.o
+LOAD build/proc_manager/irq_c.o
+LOAD build/proc_manager/sched_c.o
+LOAD build/proc_manager/pm_deamon_c.o
+LOAD build/proc_manager/timer_c.o
+LOAD build/memory_manager/mm_c.o
+LOAD build/proc_manager/thread/thread_exit_c.o
+LOAD build/proc_manager/thread/thread_mutex_lock_c.o
+LOAD build/proc_manager/thread/thread_cond_timewait_c.o
+LOAD build/proc_manager/thread/thread_yield_c.o
+LOAD build/proc_manager/thread/thread_self_c.o
+LOAD build/proc_manager/thread/thread_cond_wait_c.o
+LOAD build/proc_manager/thread/thread_mutex_unlock_c.o
+LOAD build/proc_manager/thread/thread_cond_signal_c.o
+LOAD build/proc_manager/thread/thread_mutex_trylock_c.o
+LOAD build/proc_manager/thread/thread_create_c.o
+LOAD build/proc_manager/thread/thread_join_c.o
+LOAD build/kernel/printf_c.o
+LOAD build/kernel/kernel_mod_ipc_test_c.o
+LOAD build/kernel/sys_c.o
+LOAD build/kernel/kernel_c.o
+LOAD build/device/mini_uart_c.o
+LOAD build/device/delays_c.o
+LOAD build/device/led_blink_c.o
+LOAD build/device/sd_c.o
+LOAD build/app/fork_c.o
+LOAD build/user_shell/terminal_c.o
+LOAD build/proc_manager/irq_s.o
+LOAD build/proc_manager/sched_s.o
+LOAD build/memory_manager/mm_s.o
+LOAD build/kernel/entry_s.o
+LOAD build/kernel/boot_s.o
+LOAD build/device/utils_s.o
+LOAD build/app/user_sys_s.o
+OUTPUT(build/kernel8.elf elf64-littleaarch64)
+
+.comment        0x0000000000000000       0x3b
+ .comment       0x0000000000000000       0x3b build/file_system/fs_deamon_c.o
+                                         0x3c (size before relaxing)
+ .comment       0x000000000000003b       0x3c build/file_system/fat_c.o
+ .comment       0x000000000000003b       0x3c build/file_system/fs_c.o
+ .comment       0x000000000000003b       0x3c build/proc_manager/irq_c.o
+ .comment       0x000000000000003b       0x3c build/proc_manager/sched_c.o
+ .comment       0x000000000000003b       0x3c build/proc_manager/pm_deamon_c.o
+ .comment       0x000000000000003b       0x3c build/proc_manager/timer_c.o
+ .comment       0x000000000000003b       0x3c build/memory_manager/mm_c.o
+ .comment       0x000000000000003b       0x3c build/proc_manager/thread/thread_exit_c.o
+ .comment       0x000000000000003b       0x3c build/proc_manager/thread/thread_mutex_lock_c.o
+ .comment       0x000000000000003b       0x3c build/proc_manager/thread/thread_cond_timewait_c.o
+ .comment       0x000000000000003b       0x3c build/proc_manager/thread/thread_yield_c.o
+ .comment       0x000000000000003b       0x3c build/proc_manager/thread/thread_self_c.o
+ .comment       0x000000000000003b       0x3c build/proc_manager/thread/thread_cond_wait_c.o
+ .comment       0x000000000000003b       0x3c build/proc_manager/thread/thread_mutex_unlock_c.o
+ .comment       0x000000000000003b       0x3c build/proc_manager/thread/thread_cond_signal_c.o
+ .comment       0x000000000000003b       0x3c build/proc_manager/thread/thread_mutex_trylock_c.o
+ .comment       0x000000000000003b       0x3c build/proc_manager/thread/thread_create_c.o
+ .comment       0x000000000000003b       0x3c build/proc_manager/thread/thread_join_c.o
+ .comment       0x000000000000003b       0x3c build/kernel/printf_c.o
+ .comment       0x000000000000003b       0x3c build/kernel/kernel_mod_ipc_test_c.o
+ .comment       0x000000000000003b       0x3c build/kernel/sys_c.o
+ .comment       0x000000000000003b       0x3c build/kernel/kernel_c.o
+ .comment       0x000000000000003b       0x3c build/device/mini_uart_c.o
+ .comment       0x000000000000003b       0x3c build/device/delays_c.o
+ .comment       0x000000000000003b       0x3c build/device/led_blink_c.o
+ .comment       0x000000000000003b       0x3c build/device/sd_c.o
+ .comment       0x000000000000003b       0x3c build/app/fork_c.o
+ .comment       0x000000000000003b       0x3c build/user_shell/terminal_c.o
+
+.note.GNU-stack
+                0x0000000000000000        0x0
+ .note.GNU-stack
+                0x0000000000000000        0x0 build/file_system/fs_deamon_c.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 build/file_system/fat_c.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 build/file_system/fs_c.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 build/proc_manager/irq_c.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 build/proc_manager/sched_c.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 build/proc_manager/pm_deamon_c.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 build/proc_manager/timer_c.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 build/memory_manager/mm_c.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 build/proc_manager/thread/thread_exit_c.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 build/proc_manager/thread/thread_mutex_lock_c.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 build/proc_manager/thread/thread_cond_timewait_c.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 build/proc_manager/thread/thread_yield_c.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 build/proc_manager/thread/thread_self_c.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 build/proc_manager/thread/thread_cond_wait_c.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 build/proc_manager/thread/thread_mutex_unlock_c.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 build/proc_manager/thread/thread_cond_signal_c.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 build/proc_manager/thread/thread_mutex_trylock_c.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 build/proc_manager/thread/thread_create_c.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 build/proc_manager/thread/thread_join_c.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 build/kernel/printf_c.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 build/kernel/kernel_mod_ipc_test_c.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 build/kernel/sys_c.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 build/kernel/kernel_c.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 build/device/mini_uart_c.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 build/device/delays_c.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 build/device/led_blink_c.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 build/device/sd_c.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 build/app/fork_c.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 build/user_shell/terminal_c.o

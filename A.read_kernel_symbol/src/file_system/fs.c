@@ -18,8 +18,6 @@ char* comp_start=0;
 struct symbol_struct{
 	unsigned char sym_name[32];
 	unsigned long sym_addr;
-        char filename[8];
-	unsigned long rmcom;
 };
  
 struct text_func{
@@ -27,9 +25,17 @@ struct text_func{
 	int size;
 };
 
+struct com_file{
+	char filename[8];
+	int ksym_index;
+	unsigned long rmcom;
+};
+
+
 struct text_func text_function[16];
 
 extern void * const sys_call_table[];
+struct com_file cfile[32];
 struct symbol_struct ksym[64];
 int ksym_index = 26;
 struct user_fs;
@@ -214,11 +220,10 @@ int run_file(char* file_name){
 
 
 char compt_filename[8];
-int compt_file(char* file_name){
+int compt_file(char* file_name){/*incom*/
 
-	unsigned int clust =0;
-        unsigned long base =0;
-        
+	unsigned int clust = 0;
+        unsigned long base = 0;
 	for(int k = 0;file_dir[k].name[0]!='\0';k++){
 	 
 	   if(!memcmp(file_dir[k].name,file_name,8)){
@@ -226,7 +231,17 @@ int compt_file(char* file_name){
 		if(clust){
 
 			printf("\n\r");
-			memcpy(file_name,&compt_filename[0],8);
+			int for_i=0;
+			while(for_i<32){
+				if(cfile[for_i].filename[0]=='\0')
+				{
+					memcpy(file_name, &cfile[for_i].filename[0],8);
+					break;
+				}
+				
+				/*full not solve*/
+				for_i++;
+			}
 			base = fat_readfile(clust);
 			
 			unsigned long size_u = file_dir[k].size;
@@ -268,6 +283,8 @@ int compt_file(char* file_name){
 				int init_addr = use_compt_func(base,(char *)(base + move_sec[5].addr),move_sec[5].size,"init_compt");/*find initial*/
 				opera_addr = use_compt_func(base,(char *)(base + move_sec[5].addr),move_sec[5].size,"oper_compt");
 				rmcom_addr = use_compt_func(base,(char *)(base + move_sec[5].addr),move_sec[5].size,"exit_compt");
+				cfile[for_i].rmcom = rmcom_addr + comp_start;
+								
 				if(init_addr<0){
 					printf("Without init_comp function!");
 				}else if(rmcom_addr<0){
@@ -337,15 +354,28 @@ int rm_compt_file(char* file_name){
 	for(int k = 0;file_dir[k].name[0]!='\0';k++){
 	 
 	   if(!memcmp(file_dir[k].name,file_name,8)){
-		for(int num = 26; num<64; num++){
-			if(ksym[num].sym_name[0]!='\0'){
-				if(!memcmp(&ksym[num].filename[0] , file_name ,8)){ 
+		for(int num = 0; num<32; num++){
+			if(!memcmp(cfile[num].filename,file_name,8)){ 
 					printf("\n\r----------------------Component exit----------------------\n\r");
-					bl_init(ksym[num].rmcom); 
-					ksym[num].sym_name[0] ='\0';/*force*/
-					free_page(ksym[num].rmcom);
-					return 1;}
+					bl_init(cfile[num].rmcom); 
+					memzero(cfile[num].filename,8);
+					free_page(cfile[num].rmcom);
+					int page_num = ((cfile[num].rmcom - LOW_MEMORY) / PAGE_SIZE);	
+							
+					for(int rm_i = 26;rm_i<64;rm_i++){
+						if(ksym[rm_i].sym_name[0] != '\0'){
+							int page_num_1 = ((ksym[rm_i].sym_addr - LOW_MEMORY) / PAGE_SIZE);
+							if(page_num == page_num_1){
+								memzero(&ksym[rm_i].sym_name[0],32);/*force rmcom*/
+								break;
+							}
+						}						
+					}
+									
+					/*free k*/
+					return 1;
 			}
+			
 		}
 	   }
 	   
@@ -362,6 +392,7 @@ int unreg_compt(char* compt_name){
 	int ksym_i = 9,compt_i=0;
 	for(int num = 26; num<64; num++){
 			if(!memcmp(&ksym[num].sym_name[9],compt_name,length)){
+				printf("Succeed to unregister symbol!\n\r");				
 				return 0;/*succeed*/
 			}
 	}
@@ -376,7 +407,7 @@ int strlength(char* string){
 	return length;
 }
 
-int reg_compt(char* compt_name){
+int reg_compt(char* compt_name){/*回傳 num*/
 	int ksym_i = 9,compt_i=0;
 	int length = strlength(compt_name);
 	for(int num = 0; num<64; num++){
@@ -391,8 +422,6 @@ int reg_compt(char* compt_name){
 				ksym[num].sym_name[ksym_i++] = *(compt_name + (compt_i++));		
 			}
 			ksym[num].sym_addr = comp_start + opera_addr;
-			ksym[num].rmcom = comp_start + rmcom_addr;
-			memcpy(&compt_filename[0],&ksym[num].filename[0],8);
 			printf("Register component function: %s\n\r",ksym[num].sym_name);
 			return 0; /*succeed*/
 		}
