@@ -1,0 +1,80 @@
+
+Allocating common symbols
+Common symbol       size              file
+
+mutex               0x20              user.o
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+
+.text           0x0000000000000000      0x180
+ *(.text)
+ .text          0x0000000000000000       0x6c user.o
+                0x0000000000000000                main
+                0x0000000000000048                thread_run
+ .text          0x000000000000006c      0x114 user_sys.o
+                0x000000000000006c                user_delay
+                0x0000000000000078                call_sys_write
+                0x0000000000000084                call_sys_write_int
+                0x0000000000000090                call_sys_exit
+                0x000000000000009c                call_sys_fork
+                0x00000000000000a8                call_sys_led
+                0x00000000000000b4                call_sys_read
+                0x00000000000000c0                thread_create
+                0x00000000000000cc                thread_self
+                0x00000000000000d8                thread_join
+                0x00000000000000e4                thread_cond_signal
+                0x00000000000000f0                call_sys_list
+                0x00000000000000fc                call_sys_cd
+                0x0000000000000108                call_sys_dump
+                0x0000000000000114                call_sys_root
+                0x0000000000000120                call_sys_mod
+                0x000000000000012c                call_sys_send
+                0x0000000000000138                call_sys_recv
+                0x0000000000000144                thread_mutex_trylock
+                0x0000000000000150                thread_mutex_lock
+                0x000000000000015c                thread_mutex_unlock
+                0x0000000000000168                thread_equal
+
+.iplt           0x0000000000000180        0x0
+ .iplt          0x0000000000000180        0x0 user.o
+
+.rela.dyn       0x0000000000000180        0x0
+ .rela.iplt     0x0000000000000180        0x0 user.o
+
+.rodata
+ *(.rodata)
+
+.data           0x0000000000000180        0x0
+ *(.data)
+ .data          0x0000000000000180        0x0 user.o
+ .data          0x0000000000000180        0x0 user_sys.o
+
+.igot.plt       0x0000000000000180        0x0
+ .igot.plt      0x0000000000000180        0x0 user.o
+
+.bss            0x0000000000000180       0x28
+ *(.bss*)
+ .bss           0x0000000000000180        0x4 user.o
+                0x0000000000000180                count
+ .bss           0x0000000000000184        0x0 user_sys.o
+ *fill*         0x0000000000000184        0x4 
+ COMMON         0x0000000000000188       0x20 user.o
+                0x0000000000000188                mutex
+LOAD user.o
+LOAD user_sys.o
+OUTPUT(test.elf elf64-littleaarch64)
+
+.comment        0x0000000000000000       0x3b
+ .comment       0x0000000000000000       0x3b user.o
+                                         0x3c (size before relaxing)
+
+.note.GNU-stack
+                0x0000000000000000        0x0
+ .note.GNU-stack
+                0x0000000000000000        0x0 user.o

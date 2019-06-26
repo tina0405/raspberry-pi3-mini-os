@@ -1,0 +1,82 @@
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+
+.text           0x0000000000000000       0x5c
+ *(.text)
+ .text          0x0000000000000000       0x18 user.o
+                0x0000000000000000                user_ipc_test
+ .text          0x0000000000000018        0x0 user_sys.o
+ .text          0x0000000000000018       0x44 user_sys_ipc.o
+                0x0000000000000018                call_send_msg
+
+.iplt           0x000000000000005c        0x0
+ .iplt          0x000000000000005c        0x0 user.o
+
+.text.user      0x000000000000005c      0x114
+ .text.user     0x000000000000005c      0x114 user_sys.o
+                0x000000000000005c                user_delay
+                0x0000000000000068                call_sys_write
+                0x0000000000000074                call_sys_write_int
+                0x0000000000000080                call_sys_exit
+                0x000000000000008c                call_sys_fork
+                0x0000000000000098                call_sys_led
+                0x00000000000000a4                call_sys_read
+                0x00000000000000b0                thread_create
+                0x00000000000000bc                thread_self
+                0x00000000000000c8                thread_join
+                0x00000000000000d4                thread_cond_signal
+                0x00000000000000e0                call_sys_list
+                0x00000000000000ec                call_sys_cd
+                0x00000000000000f8                call_sys_dump
+                0x0000000000000104                call_sys_root
+                0x0000000000000110                call_sys_mod
+                0x000000000000011c                call_sys_send
+                0x0000000000000128                call_sys_recv
+                0x0000000000000134                thread_mutex_trylock
+                0x0000000000000140                thread_mutex_lock
+                0x000000000000014c                thread_mutex_unlock
+                0x0000000000000158                thread_equal
+
+.rodata         0x0000000000000170       0x23
+ *(.rodata)
+ .rodata        0x0000000000000170       0x23 user.o
+
+.rela.dyn       0x0000000000000198        0x0
+ .rela.iplt     0x0000000000000198        0x0 user.o
+
+.data           0x0000000000000193        0x0
+ *(.data)
+ .data          0x0000000000000193        0x0 user.o
+ .data          0x0000000000000193        0x0 user_sys.o
+ .data          0x0000000000000193        0x0 user_sys_ipc.o
+
+.igot.plt       0x0000000000000198        0x0
+ .igot.plt      0x0000000000000198        0x0 user.o
+
+.bss            0x0000000000000193        0x0
+ *(.bss*)
+ .bss           0x0000000000000193        0x0 user.o
+ .bss           0x0000000000000193        0x0 user_sys.o
+ .bss           0x0000000000000193        0x0 user_sys_ipc.o
+LOAD user.o
+LOAD user_sys.o
+LOAD user_sys_ipc.o
+OUTPUT(test.elf elf64-littleaarch64)
+
+.comment        0x0000000000000000       0x3b
+ .comment       0x0000000000000000       0x3b user.o
+                                         0x3c (size before relaxing)
+ .comment       0x000000000000003b       0x3c user_sys_ipc.o
+
+.note.GNU-stack
+                0x0000000000000000        0x0
+ .note.GNU-stack
+                0x0000000000000000        0x0 user.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 user_sys_ipc.o
