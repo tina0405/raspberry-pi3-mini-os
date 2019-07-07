@@ -18,5 +18,10 @@ struct mod_section{
 	unsigned long num;
 	unsigned long addr;
 	int size;
+};
+
+struct sd_dev{
+	unsigned int partitionlba;
+	int type;	
 }; 
 #endif

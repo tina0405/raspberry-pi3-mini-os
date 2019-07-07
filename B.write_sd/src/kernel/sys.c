@@ -146,7 +146,7 @@ int kservice_ls_dev(void){
 }
 
 int kservice_ls_compt(void){
-	ls_compt();
+	//ls_compt();
 }
 /*
 void  kservice_use_compt(char* compt_name,void * arg){

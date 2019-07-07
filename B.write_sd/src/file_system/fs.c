@@ -60,7 +60,8 @@ struct user_fs{
     struct user_fs* folder;
 };
 void build_root(void){
-	origin = dir;	
+	origin = dir;
+       
 }
 struct user_fs file_dir[20];
 
@@ -115,10 +116,11 @@ unsigned int clust =0;
 	for(int k = 0;file_dir[k].name[0]!='\0';k++){
 	 
 	   if(!memcmp(file_dir[k].name,file_name,8)){
+
+		/*get cluster for*/
 		clust =((unsigned int)file_dir[k].ch)<<16|file_dir[k].cl;
 		if(clust){
-			printf("\n\r");
-			addr = fat_readfile(clust);
+			addr = fat_readfile(clust);	
 			unsigned long a,b,d,stop;
                         unsigned char c;
 			
@@ -175,7 +177,41 @@ void cd(char* file_name){
 		search_file();
 
 }
+extern struct sd_dev partition[4];
+extern int support_type[4];
+void ls_dev(void){
+	/*sd_card*/
+	printf("\n\rdevice     type     support     mounted\n\r");
+	for(int dev_num=0;dev_num < 4 ;dev_num++){
+		if(partition[dev_num].partitionlba > 0){
+			printf("sda%d       ",dev_num+1);
+			switch(partition[dev_num].type){
+				case 0xC:					
+					printf("FAT32    yes         root(reserved by system)\n\r");
+					
+					break;
+				case 0xE:
+					printf("FAT16    ");
+					if(support_type[0]==1){printf("yes");
+					}else{printf("no ");}
+					printf("         no\n\r");	
+					break;
+			        default:
+					printf("UNKNOWN  no          no\n\r");
+					break;
+				
+			}			
+			
+		}else{
+			break;
+		
+		}
+	}
+}
+void ls_compt(void){
 
+
+}
 void cd_root(void){
 		
 		unsigned int adr = fat_readfile(2);

@@ -4,12 +4,16 @@
 #include <sched.h>
 
 int fs_mail[64] = {0};
-
+int support_type[4] = {0}; /*0:fat16*/
 void fs_daemon(void)
 {	
 	static int read_mail_index = 0;
 	//printf("File System send a message (int 3) to ipc_test (use pid as an address)\n\r");
 	//send_msg(Rendezvous, 2, 3);
+
+#ifdef FAT16
+	support_type[0] = 1;
+#endif
 	printf("\n\rFile System Starts running....\n\r");
 	printf("File System Starts receiving messages....\n\r");
 

@@ -52,12 +52,14 @@ void kernel_main()
 	
 
         unsigned int cluster;
-	if(sdInitCard (&printf, &printf, true) == SD_OK) {
+	//sdInitCard (&printf, &printf, true)
+	if(sd_init() == SD_OK) {
 		// read the master boot record and find our partition
 		if(fat_getpartition()) {
 		    /*root directory*/
 		    fat_addr= fat_readfile(2);	
 		    /*list root directory*/
+		    //fat_listdirectory_16();
 		    fat_listdirectory(&_end+(fat_addr-(unsigned int)&_end));
 		    build_root();
 		    search_file();

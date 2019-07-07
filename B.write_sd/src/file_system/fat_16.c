@@ -29,8 +29,8 @@
 #include "fs.h" 
 // get the end of bss segment from linker
 extern unsigned char _end;
+extern struct sd_dev partition[4];
 
-static unsigned int partitionlba = 0;
 extern unsigned int t;	
 // the BIOS Parameter Block (in Volume Boot Record)
 
@@ -62,62 +62,18 @@ typedef struct {
 
 
 /**
- * Get the starting LBA address of the first partition
- * so that we know where our FAT file system starts, and
- * read that volume's BIOS Parameter Block
- */
-int fat_getpartition_16(void)
-{
-    unsigned char *mbr=&_end;
-    bpb_t *bpb=(bpb_t*)&_end;
-    // read the partitioning table
-    if(sd_readblock(0,&_end,1)) {
-        // check magic
-        if(mbr[510]!=0x55 || mbr[511]!=0xAA) {
-            uart_puts("ERROR: Bad magic in MBR\n");
-            return 0;
-        }
-        // check partition type
-        if(mbr[0x1C2]!=0xE/*FAT16 LBA*/ && mbr[0x1C2]!=0xC/*FAT32 LBA*/) {
-            uart_puts("ERROR: Wrong partition type\n");
-            return 0;
-        }
-        // should be this, but compiler generates bad code...
-        //partitionlba=*((unsigned int*)((unsigned long)&_end+0x1C6));
-        partitionlba=mbr[0x1C6] + (mbr[0x1C7]<<8) + (mbr[0x1C8]<<16) + (mbr[0x1C9]<<24);
-        // read the boot record
-        if(!sd_readblock(partitionlba,&_end,1)) {
-            uart_puts("ERROR: Unable to read boot record\n");
-            return 0;
-        }
-        // check file system type. We don't use cluster numbers for that, but magic bytes
-        if( !(bpb->fst[0]=='F' && bpb->fst[1]=='A' && bpb->fst[2]=='T') &&
-            !(bpb->fst2[0]=='F' && bpb->fst2[1]=='A' && bpb->fst2[2]=='T')) {
-            uart_puts("ERROR: Unknown file system type\n");
-            return 0;
-        }
-        return 1;
-    }
-    return 0;
-}
-
-/**
  * Find a file in root directory entries
  */
-unsigned int fat_getcluster_16(char *fn)
+unsigned int fat16_getcluster(char *fn)
 {
     bpb_t *bpb=(bpb_t*)&_end;
     fatdir_t *dir=(fatdir_t*)(&_end+512);
     unsigned int root_sec, s;
     // find the root directory's LBA
-    root_sec=((bpb->spf16?bpb->spf16:bpb->spf32)*bpb->nf)+bpb->rsc;
+    root_sec=((bpb->spf16)*bpb->nf)+bpb->rsc;
     s = (bpb->nr0 + (bpb->nr1 << 8)) * sizeof(fatdir_t);
-    if(bpb->spf16==0) {
-        // adjust for FAT32
-        root_sec+=(bpb->rc-2)*bpb->spc;
-    }
     // add partition LBA
-    root_sec+=partitionlba;
+    root_sec+=partition[1].partitionlba;
     // load the root directory
     if(sd_readblock(root_sec,(unsigned char*)dir,s/512+1)) {
         // iterate on each entry and check if it's the one we're looking for
@@ -125,36 +81,10 @@ unsigned int fat_getcluster_16(char *fn)
             // is it a valid entry?
             if(dir->name[0]==0xE5 || dir->attr[0]==0xF) continue;
             // filename match?
-	    /*
-            uart_send(dir->attr[0]& 1?'R':'.');  // read-only
-            uart_send(dir->attr[0]& 2?'H':'.');  // hidden
-            uart_send(dir->attr[0]& 4?'S':'.');  // system
-            uart_send(dir->attr[0]& 8?'L':'.');  // volume label
-            uart_send(dir->attr[0]&16?'D':'.');  // directory
-            uart_send(dir->attr[0]&32?'A':'.');  // archive
-            uart_send(' ');
-	    
-            // staring cluster
 	   
-            uart_hex(((unsigned int)dir->ch)<<16|dir->cl);
-            uart_send(' ');
-            // size
-            uart_hex(dir->size);
-            uart_send(' ');
-            // filename
-            dir->attr[0]=0;
-            uart_puts(dir->name);
-            uart_puts("\n");
-	    */
-	    //pr_int(memcmp("KERNEL8 IMG","KERNEL8 IMG",11));
+
             if(!memcmp(dir->name,fn,8)) {
-                /*
-		uart_puts("FAT File ");
-                uart_puts(fn);
-                uart_puts(" starts at cluster: ");
-                uart_hex(((unsigned int)dir->ch)<<16|dir->cl);
-                uart_puts("\n");
-		*/
+
                 // if so, return starting cluster
                 return ((unsigned int)dir->ch)<<16|dir->cl;
             }
@@ -169,7 +99,7 @@ unsigned int fat_getcluster_16(char *fn)
 /**
  * Read a file into memory
  */
-char *fat_readfile_16(unsigned int cluster)
+char *fat16_readfile(unsigned int cluster)
 {
     // BIOS Parameter Block
     bpb_t *bpb=(bpb_t*)&_end;
@@ -182,14 +112,12 @@ char *fat_readfile_16(unsigned int cluster)
     // find the LBA of the first data sector
     data_sec=((bpb->spf16?bpb->spf16:bpb->spf32)*bpb->nf)+bpb->rsc;
     s = (bpb->nr0 + (bpb->nr1 << 8)) * sizeof(fatdir_t);
-    if(bpb->spf16>0) {
-        // adjust for FAT16
-        data_sec+=(s+511)>>9;
-    }
+    
+    data_sec+=(s+511)>>9;
+    
     // add partition LBA
-    data_sec+=partitionlba;
+    data_sec+=partition[1].partitionlba;
     // dump important properties
-/*
     uart_puts("FAT Bytes per Sector: ");
     uart_hex(bpb->bps0 + (bpb->bps1 << 8));
     uart_puts("\nFAT Sectors per Cluster: ");
@@ -203,11 +131,10 @@ char *fat_readfile_16(unsigned int cluster)
     uart_puts("\nFAT First data sector: ");
     uart_hex(data_sec);
     uart_puts("\n");
-*/
     // load FAT table
-    s = sd_readblock(partitionlba+1,(unsigned char*)&_end+512,(bpb->spf16?bpb->spf16:bpb->spf32)+bpb->rsc);
+    s=sd_readblock(partition[1].partitionlba+1,(unsigned char*)&_end+512,(bpb->spf16?bpb->spf16:bpb->spf32)+bpb->rsc);
     // end of FAT in memory
-    data = ptr = &_end+512+s;
+    data=ptr=&_end+512+s;
     // iterate on cluster chain
     while(cluster>1 && cluster<0xFFF8) {
         // load all sectors in a cluster
@@ -217,36 +144,8 @@ char *fat_readfile_16(unsigned int cluster)
         // get the next cluster in chain
         cluster=bpb->spf16>0?fat16[cluster]:fat32[cluster];
     }
-    return (char*)data;
+return (char*)data;
 }
-fatdir_t *dir;
-void fat_listdirectory_16(unsigned int* addr)
-{
-    bpb_t *bpb=(bpb_t*)addr;
-    dir=(fatdir_t*)addr;
-    unsigned int root_sec, s;
-    // find the root directory's LBA
-    root_sec=((bpb->spf16?bpb->spf16:bpb->spf32)*bpb->nf)+bpb->rsc;
-    s = (bpb->nr0 + (bpb->nr1 << 8));
-    //uart_puts("FAT number of root diretory entries: ");
-    //uart_hex(s);
-    s *= sizeof(fatdir_t);
-    if(bpb->spf16==0) {
-        // adjust for FAT32
-        root_sec+=(bpb->rc-2)*bpb->spc;
-    }
-    // add partition LBA
-    root_sec+=partitionlba;
-    //uart_puts("\nFAT root directory LBA: ");
-    //uart_hex(root_sec);
-    //uart_puts("\n");
-    // load the root directory 
-    // iterate on each entry and print out
-}
-
-
-
-
 
 
 
