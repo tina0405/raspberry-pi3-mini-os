@@ -1,0 +1,722 @@
+
+a.out:     file format elf64-littleaarch64
+
+
+Disassembly of section .interp:
+
+0000000000400200 <.interp>:
+  400200:	62696c2f 	.inst	0x62696c2f ; undefined
+  400204:	2d646c2f 	ldp	s15, s27, [x1,#-224]
+  400208:	756e696c 	.inst	0x756e696c ; undefined
+  40020c:	61612d78 	.inst	0x61612d78 ; undefined
+  400210:	36686372 	tbz	w18, #13, 400e7c <__FRAME_END__+0x470>
+  400214:	6f732e34 	.inst	0x6f732e34 ; undefined
+  400218:	Address 0x0000000000400218 is out of bounds.
+
+
+Disassembly of section .note.ABI-tag:
+
+000000000040021c <.note.ABI-tag>:
+  40021c:	00000004 	.word	0x00000004
+  400220:	00000010 	.word	0x00000010
+  400224:	00000001 	.word	0x00000001
+  400228:	00554e47 	.word	0x00554e47
+  40022c:	00000000 	.word	0x00000000
+  400230:	00000003 	.word	0x00000003
+  400234:	00000007 	.word	0x00000007
+  400238:	00000000 	.word	0x00000000
+
+Disassembly of section .note.gnu.build-id:
+
+000000000040023c <.note.gnu.build-id>:
+  40023c:	00000004 	.word	0x00000004
+  400240:	00000014 	.word	0x00000014
+  400244:	00000003 	.word	0x00000003
+  400248:	00554e47 	.word	0x00554e47
+  40024c:	69f625d4 	.word	0x69f625d4
+  400250:	abd11b92 	.word	0xabd11b92
+  400254:	b39afbe9 	.word	0xb39afbe9
+  400258:	5c1f17c9 	.word	0x5c1f17c9
+  40025c:	3cb237a4 	.word	0x3cb237a4
+
+Disassembly of section .gnu.hash:
+
+0000000000400260 <.gnu.hash>:
+  400260:	00000003 	.word	0x00000003
+  400264:	00000005 	.word	0x00000005
+  400268:	00000002 	.word	0x00000002
+  40026c:	00000007 	.word	0x00000007
+  400270:	58000081 	.word	0x58000081
+  400274:	89204000 	.word	0x89204000
+  400278:	65800448 	.word	0x65800448
+  40027c:	20600589 	.word	0x20600589
+  400280:	00000005 	.word	0x00000005
+  400284:	00000008 	.word	0x00000008
+  400288:	0000000e 	.word	0x0000000e
+  40028c:	e834af00 	.word	0xe834af00
+  400290:	ecd54542 	.word	0xecd54542
+  400294:	7c92e3bb 	.word	0x7c92e3bb
+  400298:	604f4ec2 	.word	0x604f4ec2
+  40029c:	1b57dabe 	.word	0x1b57dabe
+  4002a0:	0f11ed7c 	.word	0x0f11ed7c
+  4002a4:	1c5871d8 	.word	0x1c5871d8
+  4002a8:	7ad03ac6 	.word	0x7ad03ac6
+  4002ac:	0ef18db9 	.word	0x0ef18db9
+  4002b0:	943c5476 	.word	0x943c5476
+  4002b4:	0eefd3ea 	.word	0x0eefd3ea
+  4002b8:	f63d4e2e 	.word	0xf63d4e2e
+  4002bc:	7997ef58 	.word	0x7997ef58
+  4002c0:	3caaebe1 	.word	0x3caaebe1
+
+Disassembly of section .dynsym:
+
+00000000004002c8 <.dynsym>:
+	...
+  4002e0:	0000000c 	.word	0x0000000c
+  4002e4:	00000020 	.word	0x00000020
+	...
+  4002f8:	00000028 	.word	0x00000028
+  4002fc:	00000020 	.word	0x00000020
+	...
+  400310:	00000037 	.word	0x00000037
+  400314:	00000020 	.word	0x00000020
+	...
+  400328:	0000004b 	.word	0x0000004b
+  40032c:	00000020 	.word	0x00000020
+	...
+  400340:	000000f1 	.word	0x000000f1
+  400344:	00180010 	.word	0x00180010
+  400348:	00411048 	.word	0x00411048
+	...
+  400358:	000000cf 	.word	0x000000cf
+  40035c:	00170010 	.word	0x00170010
+  400360:	00411040 	.word	0x00411040
+	...
+  400370:	00000104 	.word	0x00000104
+  400374:	00180010 	.word	0x00180010
+  400378:	00411048 	.word	0x00411048
+	...
+  400388:	00000065 	.word	0x00000065
+  40038c:	00000012 	.word	0x00000012
+	...
+  4003a0:	000000f0 	.word	0x000000f0
+  4003a4:	00180010 	.word	0x00180010
+  4003a8:	00411048 	.word	0x00411048
+	...
+  4003b8:	000000b7 	.word	0x000000b7
+  4003bc:	00000012 	.word	0x00000012
+	...
+  4003d0:	000000d6 	.word	0x000000d6
+  4003d4:	00180010 	.word	0x00180010
+  4003d8:	00411040 	.word	0x00411040
+	...
+  4003e8:	0000007a 	.word	0x0000007a
+  4003ec:	00000012 	.word	0x00000012
+	...
+  400400:	0000008e 	.word	0x0000008e
+  400404:	000b0012 	.word	0x000b0012
+  400408:	00400698 	.word	0x00400698
+	...
+  400418:	000000e2 	.word	0x000000e2
+  40041c:	00180010 	.word	0x00180010
+  400420:	00411040 	.word	0x00411040
+	...
+  400430:	00000094 	.word	0x00000094
+  400434:	000e0012 	.word	0x000e0012
+  400438:	0040098c 	.word	0x0040098c
+	...
+  400448:	000000bd 	.word	0x000000bd
+  40044c:	00000012 	.word	0x00000012
+	...
+  400460:	000000fc 	.word	0x000000fc
+  400464:	00180010 	.word	0x00180010
+  400468:	00411048 	.word	0x00411048
+	...
+  400478:	0000009a 	.word	0x0000009a
+  40047c:	00000012 	.word	0x00000012
+	...
+
+Disassembly of section .dynstr:
+
+0000000000400490 <.dynstr>:
+  400490:	62696c00 	.word	0x62696c00
+  400494:	7265736b 	.word	0x7265736b
+  400498:	006f732e 	.word	0x006f732e
+  40049c:	4d54495f 	.word	0x4d54495f
+  4004a0:	7265645f 	.word	0x7265645f
+  4004a4:	73696765 	.word	0x73696765
+  4004a8:	54726574 	.word	0x54726574
+  4004ac:	6f6c434d 	.word	0x6f6c434d
+  4004b0:	6154656e 	.word	0x6154656e
+  4004b4:	00656c62 	.word	0x00656c62
+  4004b8:	6d675f5f 	.word	0x6d675f5f
+  4004bc:	735f6e6f 	.word	0x735f6e6f
+  4004c0:	74726174 	.word	0x74726174
+  4004c4:	5f005f5f 	.word	0x5f005f5f
+  4004c8:	525f764a 	.word	0x525f764a
+  4004cc:	73696765 	.word	0x73696765
+  4004d0:	43726574 	.word	0x43726574
+  4004d4:	7373616c 	.word	0x7373616c
+  4004d8:	5f007365 	.word	0x5f007365
+  4004dc:	5f4d5449 	.word	0x5f4d5449
+  4004e0:	69676572 	.word	0x69676572
+  4004e4:	72657473 	.word	0x72657473
+  4004e8:	6c434d54 	.word	0x6c434d54
+  4004ec:	54656e6f 	.word	0x54656e6f
+  4004f0:	656c6261 	.word	0x656c6261
+  4004f4:	65736b00 	.word	0x65736b00
+  4004f8:	63697672 	.word	0x63697672
+  4004fc:	6e755f65 	.word	0x6e755f65
+  400500:	5f676572 	.word	0x5f676572
+  400504:	706d6f63 	.word	0x706d6f63
+  400508:	736b0074 	.word	0x736b0074
+  40050c:	69767265 	.word	0x69767265
+  400510:	755f6563 	.word	0x755f6563
+  400514:	5f747261 	.word	0x5f747261
+  400518:	74697277 	.word	0x74697277
+  40051c:	695f0065 	.word	0x695f0065
+  400520:	0074696e 	.word	0x0074696e
+  400524:	6e69665f 	.word	0x6e69665f
+  400528:	736b0069 	.word	0x736b0069
+  40052c:	69767265 	.word	0x69767265
+  400530:	725f6563 	.word	0x725f6563
+  400534:	635f6765 	.word	0x635f6765
+  400538:	74706d6f 	.word	0x74706d6f
+  40053c:	62696c00 	.word	0x62696c00
+  400540:	6f732e63 	.word	0x6f732e63
+  400544:	6100362e 	.word	0x6100362e
+  400548:	74726f62 	.word	0x74726f62
+  40054c:	6c5f5f00 	.word	0x6c5f5f00
+  400550:	5f636269 	.word	0x5f636269
+  400554:	72617473 	.word	0x72617473
+  400558:	616d5f74 	.word	0x616d5f74
+  40055c:	5f006e69 	.word	0x5f006e69
+  400560:	74616465 	.word	0x74616465
+  400564:	5f5f0061 	.word	0x5f5f0061
+  400568:	5f737362 	.word	0x5f737362
+  40056c:	72617473 	.word	0x72617473
+  400570:	5f5f0074 	.word	0x5f5f0074
+  400574:	5f737362 	.word	0x5f737362
+  400578:	72617473 	.word	0x72617473
+  40057c:	005f5f74 	.word	0x005f5f74
+  400580:	73625f5f 	.word	0x73625f5f
+  400584:	6e655f73 	.word	0x6e655f73
+  400588:	005f5f64 	.word	0x005f5f64
+  40058c:	6e655f5f 	.word	0x6e655f5f
+  400590:	005f5f64 	.word	0x005f5f64
+  400594:	646e655f 	.word	0x646e655f
+  400598:	494c4700 	.word	0x494c4700
+  40059c:	325f4342 	.word	0x325f4342
+  4005a0:	0037312e 	.word	0x0037312e
+
+Disassembly of section .gnu.version:
+
+00000000004005a4 <.gnu.version>:
+	...
+  4005ac:	00010000 	.word	0x00010000
+  4005b0:	00010001 	.word	0x00010001
+  4005b4:	00010000 	.word	0x00010000
+  4005b8:	00010002 	.word	0x00010002
+  4005bc:	00010000 	.word	0x00010000
+  4005c0:	00010001 	.word	0x00010001
+  4005c4:	00010002 	.word	0x00010002
+	...
+
+Disassembly of section .gnu.version_r:
+
+00000000004005d0 <.gnu.version_r>:
+  4005d0:	00010001 	.word	0x00010001
+  4005d4:	000000ad 	.word	0x000000ad
+  4005d8:	00000010 	.word	0x00000010
+  4005dc:	00000000 	.word	0x00000000
+  4005e0:	06969197 	.word	0x06969197
+  4005e4:	00020000 	.word	0x00020000
+  4005e8:	00000109 	.word	0x00000109
+  4005ec:	00000000 	.word	0x00000000
+
+Disassembly of section .rela.dyn:
+
+00000000004005f0 <.rela.dyn>:
+  4005f0:	00410fe0 	.word	0x00410fe0
+  4005f4:	00000000 	.word	0x00000000
+  4005f8:	00000401 	.word	0x00000401
+  4005fc:	00000002 	.word	0x00000002
+	...
+
+Disassembly of section .rela.plt:
+
+0000000000400608 <.rela.plt>:
+  400608:	00411000 	.word	0x00411000
+  40060c:	00000000 	.word	0x00000000
+  400610:	00000402 	.word	0x00000402
+  400614:	00000008 	.word	0x00000008
+	...
+  400620:	00411008 	.word	0x00411008
+  400624:	00000000 	.word	0x00000000
+  400628:	00000402 	.word	0x00000402
+  40062c:	00000010 	.word	0x00000010
+	...
+  400638:	00411010 	.word	0x00411010
+  40063c:	00000000 	.word	0x00000000
+  400640:	00000402 	.word	0x00000402
+  400644:	00000002 	.word	0x00000002
+	...
+  400650:	00411018 	.word	0x00411018
+  400654:	00000000 	.word	0x00000000
+  400658:	00000402 	.word	0x00000402
+  40065c:	0000000a 	.word	0x0000000a
+	...
+  400668:	00411020 	.word	0x00411020
+  40066c:	00000000 	.word	0x00000000
+  400670:	00000402 	.word	0x00000402
+  400674:	00000012 	.word	0x00000012
+	...
+  400680:	00411028 	.word	0x00411028
+  400684:	00000000 	.word	0x00000000
+  400688:	00000402 	.word	0x00000402
+  40068c:	0000000c 	.word	0x0000000c
+	...
+
+Disassembly of section .init:
+
+0000000000400698 <_init>:
+  400698:	a9bf7bfd 	stp	x29, x30, [sp,#-16]!
+  40069c:	910003fd 	mov	x29, sp
+  4006a0:	94000036 	bl	400778 <call_weak_fn>
+  4006a4:	a8c17bfd 	ldp	x29, x30, [sp],#16
+  4006a8:	d65f03c0 	ret
+
+Disassembly of section .plt:
+
+00000000004006b0 <kservice_unreg_compt@plt-0x20>:
+  4006b0:	a9bf7bf0 	stp	x16, x30, [sp,#-16]!
+  4006b4:	90000090 	adrp	x16, 410000 <__FRAME_END__+0xf5f4>
+  4006b8:	f947fe11 	ldr	x17, [x16,#4088]
+  4006bc:	913fe210 	add	x16, x16, #0xff8
+  4006c0:	d61f0220 	br	x17
+  4006c4:	d503201f 	nop
+  4006c8:	d503201f 	nop
+  4006cc:	d503201f 	nop
+
+00000000004006d0 <kservice_unreg_compt@plt>:
+  4006d0:	b0000090 	adrp	x16, 411000 <_GLOBAL_OFFSET_TABLE_+0x28>
+  4006d4:	f9400211 	ldr	x17, [x16]
+  4006d8:	91000210 	add	x16, x16, #0x0
+  4006dc:	d61f0220 	br	x17
+
+00000000004006e0 <__libc_start_main@plt>:
+  4006e0:	b0000090 	adrp	x16, 411000 <_GLOBAL_OFFSET_TABLE_+0x28>
+  4006e4:	f9400611 	ldr	x17, [x16,#8]
+  4006e8:	91002210 	add	x16, x16, #0x8
+  4006ec:	d61f0220 	br	x17
+
+00000000004006f0 <__gmon_start__@plt>:
+  4006f0:	b0000090 	adrp	x16, 411000 <_GLOBAL_OFFSET_TABLE_+0x28>
+  4006f4:	f9400a11 	ldr	x17, [x16,#16]
+  4006f8:	91004210 	add	x16, x16, #0x10
+  4006fc:	d61f0220 	br	x17
+
+0000000000400700 <abort@plt>:
+  400700:	b0000090 	adrp	x16, 411000 <_GLOBAL_OFFSET_TABLE_+0x28>
+  400704:	f9400e11 	ldr	x17, [x16,#24]
+  400708:	91006210 	add	x16, x16, #0x18
+  40070c:	d61f0220 	br	x17
+
+0000000000400710 <kservice_reg_compt@plt>:
+  400710:	b0000090 	adrp	x16, 411000 <_GLOBAL_OFFSET_TABLE_+0x28>
+  400714:	f9401211 	ldr	x17, [x16,#32]
+  400718:	91008210 	add	x16, x16, #0x20
+  40071c:	d61f0220 	br	x17
+
+0000000000400720 <kservice_uart_write@plt>:
+  400720:	b0000090 	adrp	x16, 411000 <_GLOBAL_OFFSET_TABLE_+0x28>
+  400724:	f9401611 	ldr	x17, [x16,#40]
+  400728:	9100a210 	add	x16, x16, #0x28
+  40072c:	d61f0220 	br	x17
+
+Disassembly of section .text:
+
+0000000000400730 <_start>:
+  400730:	d280001d 	mov	x29, #0x0                   	// #0
+  400734:	d280001e 	mov	x30, #0x0                   	// #0
+  400738:	aa0003e5 	mov	x5, x0
+  40073c:	f94003e1 	ldr	x1, [sp]
+  400740:	910023e2 	add	x2, sp, #0x8
+  400744:	910003e6 	mov	x6, sp
+  400748:	580000c0 	ldr	x0, 400760 <_start+0x30>
+  40074c:	580000e3 	ldr	x3, 400768 <_start+0x38>
+  400750:	58000104 	ldr	x4, 400770 <_start+0x40>
+  400754:	97ffffe3 	bl	4006e0 <__libc_start_main@plt>
+  400758:	97ffffea 	bl	400700 <abort@plt>
+  40075c:	00000000 	.word	0x00000000
+  400760:	004008ac 	.word	0x004008ac
+  400764:	00000000 	.word	0x00000000
+  400768:	00400910 	.word	0x00400910
+  40076c:	00000000 	.word	0x00000000
+  400770:	00400988 	.word	0x00400988
+  400774:	00000000 	.word	0x00000000
+
+0000000000400778 <call_weak_fn>:
+  400778:	90000080 	adrp	x0, 410000 <__FRAME_END__+0xf5f4>
+  40077c:	f947f000 	ldr	x0, [x0,#4064]
+  400780:	b4000040 	cbz	x0, 400788 <call_weak_fn+0x10>
+  400784:	17ffffdb 	b	4006f0 <__gmon_start__@plt>
+  400788:	d65f03c0 	ret
+  40078c:	00000000 	.inst	0x00000000 ; undefined
+
+0000000000400790 <deregister_tm_clones>:
+  400790:	b0000081 	adrp	x1, 411000 <_GLOBAL_OFFSET_TABLE_+0x28>
+  400794:	b0000080 	adrp	x0, 411000 <_GLOBAL_OFFSET_TABLE_+0x28>
+  400798:	91010021 	add	x1, x1, #0x40
+  40079c:	91010000 	add	x0, x0, #0x40
+  4007a0:	91001c21 	add	x1, x1, #0x7
+  4007a4:	cb000021 	sub	x1, x1, x0
+  4007a8:	f100383f 	cmp	x1, #0xe
+  4007ac:	540000a9 	b.ls	4007c0 <deregister_tm_clones+0x30>
+  4007b0:	580000c1 	ldr	x1, 4007c8 <deregister_tm_clones+0x38>
+  4007b4:	b4000061 	cbz	x1, 4007c0 <deregister_tm_clones+0x30>
+  4007b8:	d61f0020 	br	x1
+  4007bc:	d503201f 	nop
+  4007c0:	d65f03c0 	ret
+  4007c4:	d503201f 	nop
+	...
+
+00000000004007d0 <register_tm_clones>:
+  4007d0:	b0000081 	adrp	x1, 411000 <_GLOBAL_OFFSET_TABLE_+0x28>
+  4007d4:	b0000080 	adrp	x0, 411000 <_GLOBAL_OFFSET_TABLE_+0x28>
+  4007d8:	91010021 	add	x1, x1, #0x40
+  4007dc:	91010000 	add	x0, x0, #0x40
+  4007e0:	cb000021 	sub	x1, x1, x0
+  4007e4:	9343fc21 	asr	x1, x1, #3
+  4007e8:	8b41fc21 	add	x1, x1, x1, lsr #63
+  4007ec:	9341fc21 	asr	x1, x1, #1
+  4007f0:	b4000081 	cbz	x1, 400800 <register_tm_clones+0x30>
+  4007f4:	580000a2 	ldr	x2, 400808 <register_tm_clones+0x38>
+  4007f8:	b4000042 	cbz	x2, 400800 <register_tm_clones+0x30>
+  4007fc:	d61f0040 	br	x2
+  400800:	d65f03c0 	ret
+  400804:	d503201f 	nop
+	...
+
+0000000000400810 <__do_global_dtors_aux>:
+  400810:	a9be7bfd 	stp	x29, x30, [sp,#-32]!
+  400814:	910003fd 	mov	x29, sp
+  400818:	f9000bf3 	str	x19, [sp,#16]
+  40081c:	b0000093 	adrp	x19, 411000 <_GLOBAL_OFFSET_TABLE_+0x28>
+  400820:	39410260 	ldrb	w0, [x19,#64]
+  400824:	35000080 	cbnz	w0, 400834 <__do_global_dtors_aux+0x24>
+  400828:	97ffffda 	bl	400790 <deregister_tm_clones>
+  40082c:	52800020 	mov	w0, #0x1                   	// #1
+  400830:	39010260 	strb	w0, [x19,#64]
+  400834:	f9400bf3 	ldr	x19, [sp,#16]
+  400838:	a8c27bfd 	ldp	x29, x30, [sp],#32
+  40083c:	d65f03c0 	ret
+
+0000000000400840 <frame_dummy>:
+  400840:	90000080 	adrp	x0, 410000 <__FRAME_END__+0xf5f4>
+  400844:	9137c000 	add	x0, x0, #0xdf0
+  400848:	f9400001 	ldr	x1, [x0]
+  40084c:	b5000061 	cbnz	x1, 400858 <frame_dummy+0x18>
+  400850:	17ffffe0 	b	4007d0 <register_tm_clones>
+  400854:	d503201f 	nop
+  400858:	58000101 	ldr	x1, 400878 <frame_dummy+0x38>
+  40085c:	b4ffffa1 	cbz	x1, 400850 <frame_dummy+0x10>
+  400860:	a9bf7bfd 	stp	x29, x30, [sp,#-16]!
+  400864:	910003fd 	mov	x29, sp
+  400868:	d63f0020 	blr	x1
+  40086c:	a8c17bfd 	ldp	x29, x30, [sp],#16
+  400870:	17ffffd8 	b	4007d0 <register_tm_clones>
+  400874:	d503201f 	nop
+	...
+
+0000000000400880 <init_compt>:
+  400880:	a9bf7bfd 	stp	x29, x30, [sp,#-16]!
+  400884:	910003fd 	mov	x29, sp
+  400888:	90000000 	adrp	x0, 400000 <_init-0x698>
+  40088c:	9126a000 	add	x0, x0, #0x9a8
+  400890:	97ffffa4 	bl	400720 <kservice_uart_write@plt>
+  400894:	90000000 	adrp	x0, 400000 <_init-0x698>
+  400898:	91272000 	add	x0, x0, #0x9c8
+  40089c:	97ffff9d 	bl	400710 <kservice_reg_compt@plt>
+  4008a0:	d503201f 	nop
+  4008a4:	a8c17bfd 	ldp	x29, x30, [sp],#16
+  4008a8:	d65f03c0 	ret
+
+00000000004008ac <main>:
+  4008ac:	a9bd7bfd 	stp	x29, x30, [sp,#-48]!
+  4008b0:	910003fd 	mov	x29, sp
+  4008b4:	f90017a0 	str	x0, [x29,#40]
+  4008b8:	b90027a1 	str	w1, [x29,#36]
+  4008bc:	b90023a2 	str	w2, [x29,#32]
+  4008c0:	39007fa3 	strb	w3, [x29,#31]
+  4008c4:	f9000ba4 	str	x4, [x29,#16]
+  4008c8:	90000000 	adrp	x0, 400000 <_init-0x698>
+  4008cc:	91276000 	add	x0, x0, #0x9d8
+  4008d0:	97ffff94 	bl	400720 <kservice_uart_write@plt>
+  4008d4:	d503201f 	nop
+  4008d8:	a8c37bfd 	ldp	x29, x30, [sp],#48
+  4008dc:	d65f03c0 	ret
+
+00000000004008e0 <exit_compt>:
+  4008e0:	a9bf7bfd 	stp	x29, x30, [sp,#-16]!
+  4008e4:	910003fd 	mov	x29, sp
+  4008e8:	90000000 	adrp	x0, 400000 <_init-0x698>
+  4008ec:	91272000 	add	x0, x0, #0x9c8
+  4008f0:	97ffff78 	bl	4006d0 <kservice_unreg_compt@plt>
+  4008f4:	90000000 	adrp	x0, 400000 <_init-0x698>
+  4008f8:	9127c000 	add	x0, x0, #0x9f0
+  4008fc:	97ffff89 	bl	400720 <kservice_uart_write@plt>
+  400900:	d503201f 	nop
+  400904:	a8c17bfd 	ldp	x29, x30, [sp],#16
+  400908:	d65f03c0 	ret
+  40090c:	00000000 	.inst	0x00000000 ; undefined
+
+0000000000400910 <__libc_csu_init>:
+  400910:	a9bc7bfd 	stp	x29, x30, [sp,#-64]!
+  400914:	910003fd 	mov	x29, sp
+  400918:	a9025bf5 	stp	x21, x22, [sp,#32]
+  40091c:	90000095 	adrp	x21, 410000 <__FRAME_END__+0xf5f4>
+  400920:	a90153f3 	stp	x19, x20, [sp,#16]
+  400924:	90000094 	adrp	x20, 410000 <__FRAME_END__+0xf5f4>
+  400928:	913782b5 	add	x21, x21, #0xde0
+  40092c:	9137a294 	add	x20, x20, #0xde8
+  400930:	cb150294 	sub	x20, x20, x21
+  400934:	a90363f7 	stp	x23, x24, [sp,#48]
+  400938:	aa0203f6 	mov	x22, x2
+  40093c:	2a0003f8 	mov	w24, w0
+  400940:	aa0103f7 	mov	x23, x1
+  400944:	97ffff55 	bl	400698 <_init>
+  400948:	9343fe94 	asr	x20, x20, #3
+  40094c:	b4000154 	cbz	x20, 400974 <__libc_csu_init+0x64>
+  400950:	d2800013 	mov	x19, #0x0                   	// #0
+  400954:	f8737aa3 	ldr	x3, [x21,x19,lsl #3]
+  400958:	aa1603e2 	mov	x2, x22
+  40095c:	aa1703e1 	mov	x1, x23
+  400960:	2a1803e0 	mov	w0, w24
+  400964:	91000673 	add	x19, x19, #0x1
+  400968:	d63f0060 	blr	x3
+  40096c:	eb14027f 	cmp	x19, x20
+  400970:	54ffff21 	b.ne	400954 <__libc_csu_init+0x44>
+  400974:	a94153f3 	ldp	x19, x20, [sp,#16]
+  400978:	a9425bf5 	ldp	x21, x22, [sp,#32]
+  40097c:	a94363f7 	ldp	x23, x24, [sp,#48]
+  400980:	a8c47bfd 	ldp	x29, x30, [sp],#64
+  400984:	d65f03c0 	ret
+
+0000000000400988 <__libc_csu_fini>:
+  400988:	d65f03c0 	ret
+
+Disassembly of section .fini:
+
+000000000040098c <_fini>:
+  40098c:	a9bf7bfd 	stp	x29, x30, [sp,#-16]!
+  400990:	910003fd 	mov	x29, sp
+  400994:	a8c17bfd 	ldp	x29, x30, [sp],#16
+  400998:	d65f03c0 	ret
+
+Disassembly of section .rodata:
+
+00000000004009a0 <_IO_stdin_used>:
+  4009a0:	00020001 	.word	0x00020001
+  4009a4:	00000000 	.word	0x00000000
+  4009a8:	74696e49 	.word	0x74696e49
+  4009ac:	206c6169 	.word	0x206c6169
+  4009b0:	4f495047 	.word	0x4f495047
+  4009b4:	6d6f6320 	.word	0x6d6f6320
+  4009b8:	656e6f70 	.word	0x656e6f70
+  4009bc:	0a21746e 	.word	0x0a21746e
+  4009c0:	0000000d 	.word	0x0000000d
+  4009c4:	00000000 	.word	0x00000000
+  4009c8:	5f746573 	.word	0x5f746573
+  4009cc:	6f697067 	.word	0x6f697067
+	...
+  4009d8:	4f495047 	.word	0x4f495047
+  4009dc:	65704f20 	.word	0x65704f20
+  4009e0:	69746172 	.word	0x69746172
+  4009e4:	0a216e6f 	.word	0x0a216e6f
+  4009e8:	0000000d 	.word	0x0000000d
+  4009ec:	00000000 	.word	0x00000000
+  4009f0:	61656c43 	.word	0x61656c43
+  4009f4:	7075206e 	.word	0x7075206e
+  4009f8:	49504720 	.word	0x49504720
+  4009fc:	6f63204f 	.word	0x6f63204f
+  400a00:	6e6f706d 	.word	0x6e6f706d
+  400a04:	21746e65 	.word	0x21746e65
+  400a08:	Address 0x0000000000400a08 is out of bounds.
+
+
+Disassembly of section .eh_frame:
+
+0000000000400a0c <__FRAME_END__>:
+  400a0c:	00000000 	.word	0x00000000
+
+Disassembly of section .init_array:
+
+0000000000410de0 <__frame_dummy_init_array_entry>:
+  410de0:	00400840 	.word	0x00400840
+  410de4:	00000000 	.word	0x00000000
+
+Disassembly of section .fini_array:
+
+0000000000410de8 <__do_global_dtors_aux_fini_array_entry>:
+  410de8:	00400810 	.word	0x00400810
+  410dec:	00000000 	.word	0x00000000
+
+Disassembly of section .jcr:
+
+0000000000410df0 <__JCR_END__>:
+	...
+
+Disassembly of section .dynamic:
+
+0000000000410df8 <_DYNAMIC>:
+  410df8:	00000001 	.word	0x00000001
+  410dfc:	00000000 	.word	0x00000000
+  410e00:	00000001 	.word	0x00000001
+  410e04:	00000000 	.word	0x00000000
+  410e08:	00000001 	.word	0x00000001
+  410e0c:	00000000 	.word	0x00000000
+  410e10:	000000ad 	.word	0x000000ad
+  410e14:	00000000 	.word	0x00000000
+  410e18:	0000000c 	.word	0x0000000c
+  410e1c:	00000000 	.word	0x00000000
+  410e20:	00400698 	.word	0x00400698
+  410e24:	00000000 	.word	0x00000000
+  410e28:	0000000d 	.word	0x0000000d
+  410e2c:	00000000 	.word	0x00000000
+  410e30:	0040098c 	.word	0x0040098c
+  410e34:	00000000 	.word	0x00000000
+  410e38:	00000019 	.word	0x00000019
+  410e3c:	00000000 	.word	0x00000000
+  410e40:	00410de0 	.word	0x00410de0
+  410e44:	00000000 	.word	0x00000000
+  410e48:	0000001b 	.word	0x0000001b
+  410e4c:	00000000 	.word	0x00000000
+  410e50:	00000008 	.word	0x00000008
+  410e54:	00000000 	.word	0x00000000
+  410e58:	0000001a 	.word	0x0000001a
+  410e5c:	00000000 	.word	0x00000000
+  410e60:	00410de8 	.word	0x00410de8
+  410e64:	00000000 	.word	0x00000000
+  410e68:	0000001c 	.word	0x0000001c
+  410e6c:	00000000 	.word	0x00000000
+  410e70:	00000008 	.word	0x00000008
+  410e74:	00000000 	.word	0x00000000
+  410e78:	6ffffef5 	.word	0x6ffffef5
+  410e7c:	00000000 	.word	0x00000000
+  410e80:	00400260 	.word	0x00400260
+  410e84:	00000000 	.word	0x00000000
+  410e88:	00000005 	.word	0x00000005
+  410e8c:	00000000 	.word	0x00000000
+  410e90:	00400490 	.word	0x00400490
+  410e94:	00000000 	.word	0x00000000
+  410e98:	00000006 	.word	0x00000006
+  410e9c:	00000000 	.word	0x00000000
+  410ea0:	004002c8 	.word	0x004002c8
+  410ea4:	00000000 	.word	0x00000000
+  410ea8:	0000000a 	.word	0x0000000a
+  410eac:	00000000 	.word	0x00000000
+  410eb0:	00000114 	.word	0x00000114
+  410eb4:	00000000 	.word	0x00000000
+  410eb8:	0000000b 	.word	0x0000000b
+  410ebc:	00000000 	.word	0x00000000
+  410ec0:	00000018 	.word	0x00000018
+  410ec4:	00000000 	.word	0x00000000
+  410ec8:	00000015 	.word	0x00000015
+	...
+  410ed8:	00000003 	.word	0x00000003
+  410edc:	00000000 	.word	0x00000000
+  410ee0:	00410fe8 	.word	0x00410fe8
+  410ee4:	00000000 	.word	0x00000000
+  410ee8:	00000002 	.word	0x00000002
+  410eec:	00000000 	.word	0x00000000
+  410ef0:	00000090 	.word	0x00000090
+  410ef4:	00000000 	.word	0x00000000
+  410ef8:	00000014 	.word	0x00000014
+  410efc:	00000000 	.word	0x00000000
+  410f00:	00000007 	.word	0x00000007
+  410f04:	00000000 	.word	0x00000000
+  410f08:	00000017 	.word	0x00000017
+  410f0c:	00000000 	.word	0x00000000
+  410f10:	00400608 	.word	0x00400608
+  410f14:	00000000 	.word	0x00000000
+  410f18:	00000007 	.word	0x00000007
+  410f1c:	00000000 	.word	0x00000000
+  410f20:	004005f0 	.word	0x004005f0
+  410f24:	00000000 	.word	0x00000000
+  410f28:	00000008 	.word	0x00000008
+  410f2c:	00000000 	.word	0x00000000
+  410f30:	00000018 	.word	0x00000018
+  410f34:	00000000 	.word	0x00000000
+  410f38:	00000009 	.word	0x00000009
+  410f3c:	00000000 	.word	0x00000000
+  410f40:	00000018 	.word	0x00000018
+  410f44:	00000000 	.word	0x00000000
+  410f48:	6ffffffe 	.word	0x6ffffffe
+  410f4c:	00000000 	.word	0x00000000
+  410f50:	004005d0 	.word	0x004005d0
+  410f54:	00000000 	.word	0x00000000
+  410f58:	6fffffff 	.word	0x6fffffff
+  410f5c:	00000000 	.word	0x00000000
+  410f60:	00000001 	.word	0x00000001
+  410f64:	00000000 	.word	0x00000000
+  410f68:	6ffffff0 	.word	0x6ffffff0
+  410f6c:	00000000 	.word	0x00000000
+  410f70:	004005a4 	.word	0x004005a4
+	...
+
+Disassembly of section .got:
+
+0000000000410fd8 <_GLOBAL_OFFSET_TABLE_>:
+  410fd8:	00410df8 	.word	0x00410df8
+	...
+
+Disassembly of section .got.plt:
+
+0000000000410fe8 <.got.plt>:
+	...
+  411000:	004006b0 	.word	0x004006b0
+  411004:	00000000 	.word	0x00000000
+  411008:	004006b0 	.word	0x004006b0
+  41100c:	00000000 	.word	0x00000000
+  411010:	004006b0 	.word	0x004006b0
+  411014:	00000000 	.word	0x00000000
+  411018:	004006b0 	.word	0x004006b0
+  41101c:	00000000 	.word	0x00000000
+  411020:	004006b0 	.word	0x004006b0
+  411024:	00000000 	.word	0x00000000
+  411028:	004006b0 	.word	0x004006b0
+  41102c:	00000000 	.word	0x00000000
+
+Disassembly of section .data:
+
+0000000000411030 <__data_start>:
+	...
+
+0000000000411038 <__dso_handle>:
+	...
+
+Disassembly of section .bss:
+
+0000000000411040 <__bss_start>:
+	...
+
+Disassembly of section .comment:
+
+0000000000000000 <.comment>:
+   0:	3a434347 	ccmn	w26, w3, #0x7, mi
+   4:	62552820 	.inst	0x62552820 ; undefined
+   8:	75746e75 	.inst	0x75746e75 ; undefined
+   c:	6e694c2f 	uqshl	v15.8h, v1.8h, v9.8h
+  10:	206f7261 	.inst	0x206f7261 ; undefined
+  14:	2e342e35 	uqsub	v21.8b, v17.8b, v20.8b
+  18:	75362d30 	.inst	0x75362d30 ; undefined
+  1c:	746e7562 	.inst	0x746e7562 ; undefined
+  20:	317e3175 	adds	w21, w11, #0xf8c, lsl #12
+  24:	34302e36 	cbz	w22, 605e8 <_init-0x3a00b0>
+  28:	2029392e 	.inst	0x2029392e ; undefined
+  2c:	2e342e35 	uqsub	v21.8b, v17.8b, v20.8b
+  30:	30322030 	adr	x16, 64435 <_init-0x39c263>
+  34:	36303631 	tbz	w17, #6, 6f8 <_init-0x3fffa0>
+  38:	Address 0x0000000000000038 is out of bounds.
+
