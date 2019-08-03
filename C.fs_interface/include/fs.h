@@ -3,6 +3,18 @@
 #include <stdint.h>
 #include <elf.h>
 void list(void);
+void build_kernel_directory(void);
+char* search_file(void);
+void build_root(void);
+void ls_dev(void);
+int unreg_compt(char* compt_name);
+int reg_compt(char* compt_name);
+int rm_compt_file(char* file_name);
+int compt_file(char* file_name);
+int run_file(char* file_name);
+int dump(char* file_name);
+void cd(char* file_name);
+void cd_root(void);
 // directory entry structure
 typedef struct {
     char            name[8];

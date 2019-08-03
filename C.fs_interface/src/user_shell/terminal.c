@@ -6,7 +6,10 @@
 #include "mini_uart.h"
 
 extern unsigned long _end;
-char directory[11] = {"root/boot"};
+char directory[20] = {"root/boot"};
+void invalid(void){
+	call_sys_write("\n\rNot support this command!\n\rtkernel@user_name:%s$",directory);
+}
 void shell_user_process() 
 {	
 	call_sys_write("Shell start\n\r");
@@ -230,6 +233,4 @@ void shell_user_process()
 
 }
 
-void invalid(void){
-	call_sys_write("\n\rNot support this command!\n\rtkernel@user_name:%s$",directory);
-}
+

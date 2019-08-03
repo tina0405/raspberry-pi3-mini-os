@@ -9,5 +9,6 @@ void pr_int(int n);
 void pr_T(void);
 void set_gpio(unsigned long gpio,int on_off);
 void uart_puts(char *s);
-void uart_hex(unsigned int d);
+void uart_hex(unsigned long d);
+void uart_dump(void *ptr);
 #endif  /*_MINI_UART_H */

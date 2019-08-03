@@ -69,8 +69,8 @@ void _schedule(void)
 {
 	preempt_disable();
 	
-	int c;
-	struct pcb_struct* pcb;
+	//int c;
+	//struct pcb_struct* pcb;
 	//struct pcb_struct pcb;
 	//printf("scheduler\n\r");
 	static int index = 0;/*3 priority highest*/

@@ -1,7 +1,6 @@
 #include <printf.h>
 #include <sched.h>
-
-
+extern thread_t thread_id_self(void);
 void _thread_exit (void *status){	
 	/*status*/
 	struct pcb_struct *now = current;

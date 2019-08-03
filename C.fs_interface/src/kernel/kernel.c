@@ -12,6 +12,8 @@
 #include "fat.h"
 #include "pm.h"
 #include "fs.h"
+#include "sd.h"
+#include "boot.h"
 #include "SDCard.h"	
 extern unsigned char _end;/*in linker script*/
 unsigned long user_page_start;
@@ -37,7 +39,7 @@ void kernel_process(){
 void mod_process(unsigned long* start,unsigned long size){
 	printf("\r\nUser process start to set. EL %d\r\n", get_el());
 
-	unsigned long user_page_2 = move_to_user_mode(start, size, 0);
+	unsigned long user_page_2 = move_to_user_mode((unsigned long)start, size, 0);
 	if (user_page_2 < 0){
 		printf("Error while moving process to user mode\n\r");
 	} 
@@ -50,16 +52,12 @@ void kernel_main()
 	uart_init();
 	init_printf(NULL, putc);
 	irq_vector_init(); 
-	
-
-        unsigned int cluster;
 	//sdInitCard (&printf, &printf, true)
 	if(sd_init() == SD_OK) {
 		// read the master boot record and find our partition
 		if(fat_getpartition()) {
 		      /*root directory*/
-		      fat32_read_directory(partition[0]);
-		      //fat16_read_directory(partition[1]);
+                      build_kernel_directory();
 		} else {
 		    uart_puts("FAT partition not found???\n\r");
 		}

@@ -26,7 +26,8 @@
 #include "sd.h"
 #include "mini_uart.h"
 #include "printf.h"
-#include "fs.h" 
+#include "fs.h"
+#include "fat.h" 
 // get the end of bss segment from linker
 extern unsigned char _end;
 extern unsigned int t;	
@@ -103,8 +104,7 @@ char *fat16_readfile( int cluster,struct dev sd_num)
     }
     return (char*)data;
 }
-
-void fat16_read_directory(struct dev sd_num)
+char* fat16_read_directory(struct dev sd_num)
 {
     bpb_t *bpb=(bpb_t*)(&_end+sd_num.record);
     unsigned int root_sec, s;
@@ -119,5 +119,6 @@ void fat16_read_directory(struct dev sd_num)
     unsigned int addr = (unsigned int)(&_end+2048);
     fat_listdirectory(&_end+(addr-(unsigned int)&_end));
     build_root();
-    search_file();  
+    char* name = search_file(); 
+    return name;
 }

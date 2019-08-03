@@ -1,5 +1,12 @@
+#ifndef	_THREADTYPE_H
+#define	_THREADTYPE_H
 # define PTHREAD_MUTEX_DEFAULT __PTHREAD_MUTEX_NORMAL
-
+struct thread_attr_t {
+	int a;
+	int b;
+};
+typedef int __thread_t;
+typedef __thread_t thread_t;
 enum __pthread_process_shared
 {
   __PTHREAD_PROCESS_PRIVATE = 0,
@@ -61,3 +68,4 @@ struct __pthread_condattr
 };
 
 */
+#endif

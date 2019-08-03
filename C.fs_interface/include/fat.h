@@ -22,8 +22,8 @@
  * DEALINGS IN THE SOFTWARE.
  *
  */
-
+#ifndef	_FAT_H
+#define	_FAT_H
 int fat_getpartition(void);
-unsigned int fat_getcluster(char *fn);
-char *fat_readfile(unsigned int cluster);
-
+void fat_listdirectory(unsigned int* addr);
+#endif

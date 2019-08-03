@@ -1,3 +1,5 @@
+#ifndef	_PM_H
+#define	_PM_H
 #define mail_size 64
 #define Rendezvous 1
 #define Mailbox 2
@@ -8,3 +10,5 @@ typedef __thread_t thread_t;
 
 void send_msg(unsigned int type, int pid, int msg);
 struct mailbox recieve_msg(unsigned int type);
+void accept_reply(void);
+#endif

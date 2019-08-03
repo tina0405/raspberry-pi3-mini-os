@@ -7,7 +7,7 @@
 #include <mm.h>
 #include "sched.h"
 #include "utils.h"
-
+#include "fat.h"
 
 extern unsigned char _end;
 extern fatdir_t *dir;
@@ -59,6 +59,32 @@ struct user_fs{
     unsigned short  cl;
     struct user_fs* folder;
 };
+char sd_p[4][11]; 
+extern char* fat16_read_directory(struct dev sd_num);
+extern char* fat32_read_directory(struct dev sd_num);
+void build_kernel_directory(void){
+    char* tmp;
+    for(int pnum=1; pnum<4; pnum++){
+	 switch(partition[pnum].type){
+		case 0x0:
+			break;
+		case 0x0e:/*fat16*/
+			memcpy( fat16_read_directory(partition[pnum]), (&sd_p[pnum][0]), 11);
+			printf("A:%s ",(&sd_p[pnum][0]));
+			break;	
+		case 0x0c:/*fat32*/
+			memcpy(fat32_read_directory(partition[pnum]), (&sd_p[pnum][0]), 11);
+			break;	
+		default:
+		     	printf("Not support %x type in File system",partition[pnum].type);
+			break;
+
+       	 }
+    }
+    memcpy(fat32_read_directory(partition[0]), (&sd_p[0][0]), 11);
+    printf("B: %s ",(&sd_p[0][0]));
+}
+
 void build_root(void){
 	origin = dir;
 	
@@ -66,7 +92,7 @@ void build_root(void){
 }
 
 struct user_fs file_dir[20];
-void search_file(void){
+char* search_file(void){
         int index = 0;
         memzero(file_dir,sizeof(struct user_fs)*20);
         for(;origin->name[0]!=0;origin++) {
@@ -81,7 +107,7 @@ void search_file(void){
 		index++;
 		
 	}
-	
+	return file_dir[0].name;
 
 }
 
@@ -108,7 +134,6 @@ void list(){
      }
 
 }
-extern int sect;
 int dump(char* file_name){
 	for(int k = 0;file_dir[k].name[0]!='\0';k++){
 	 
@@ -166,17 +191,17 @@ int dump(char* file_name){
 
 void cd(char* file_name){
 		//char directory[20]
+		/*relative*/
 		unsigned int clu = fat16_getcluster(file_name, partition[1]);
-		if(clu ==0){
+		if(clu == 0){
 		       	printf("\n\rNot know this file!");
 		}else{
-		       				 // read into memory
-		       	unsigned int adr = fat16_readfile(clu, partition[1]);
-			fat_listdirectory(&_end+(adr-(unsigned int)&_end));
+		     // read into memory
+		     unsigned int adr = fat16_readfile(clu, partition[1]);
+		     fat_listdirectory(&_end+(adr-(unsigned int)&_end));
 		}
-		build_root();
-		search_file();
-
+		     build_root();
+		     search_file();
 }
 
 extern int support_type[4];

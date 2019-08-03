@@ -42,7 +42,7 @@ int copy_process(unsigned long clone_flags, unsigned long fn,unsigned long arg,u
 		p->cpu_context.x20 = arg;
 		p->cpu_context.x21 = arg_2;
 	} else if(clone_flags == FORK_THREAD){ /*user fork*/
-		struct pt_regs * cur_regs = task_pt_regs(&(current->cpu_context->x19));
+		struct pt_regs * cur_regs = task_pt_regs((struct task_struct *)&(current->cpu_context->x19));
 		*cur_regs = *childregs;
 		childregs->regs[0] = 0;
 		copy_virt_memory(p);
@@ -134,19 +134,19 @@ int copy_process(unsigned long clone_flags, unsigned long fn,unsigned long arg,u
 unsigned long move_to_user_mode(unsigned long start, unsigned long size, unsigned long pc)
 {
 
-	struct pt_regs *regs = task_pt_regs(&(current->cpu_context->x19));
+	struct pt_regs *regs = task_pt_regs((struct task_struct *)&(current->cpu_context->x19));
 	regs->pstate = PSR_MODE_EL0t;
 	regs->pc = pc;
 	regs->sp = 1 *  PAGE_SIZE; 
 
-	unsigned long code_page = allocate_user_page(&(current->cpu_context->x19), 0);
+	unsigned long code_page = allocate_user_page((struct task_struct *)&(current->cpu_context->x19), 0);
 	if (code_page == 0)	{
 		return -1;
 	}
 	
 	memcpy(start, code_page, size);
 	
-	struct task_struct *now = &(current->cpu_context->x19);
+	struct task_struct *now = (struct task_struct *)&(current->cpu_context->x19);
 	//printf("pgd:%x\n\r",now->mm.pgd);
 	set_pgd(now->mm.pgd);
 	return code_page;

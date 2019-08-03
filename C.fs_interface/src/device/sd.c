@@ -24,6 +24,7 @@
  */
 
 #include "gpio.h"
+#include "utils.h"
 #include "delays.h"
 #include "sd.h"
 #include "mini_uart.h"

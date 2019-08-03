@@ -5,9 +5,10 @@
 #include "mm.h"
 #include "mini_uart.h"
 #include "led_blink.h"
-#include "user_sys.h"
 #include "sys.h"
+#include "threadtype.h"
 #include "fs.h"
+#include "thread.h"
 extern struct mailbox user_ipc_mail[mail_size];
 int add_thread(thread_t *thread, const struct thread_attr_t *attr,void * (*start_routine)(void *),void* arg);
 thread_t thread_id_self(void);
@@ -93,11 +94,11 @@ void kservice_send_msg(unsigned int type, int pid, int msg){
 }
 
 struct mailbox kservice_recieve_msg(unsigned int ipc_type){
-	recieve_msg(ipc_type);
+	return recieve_msg(ipc_type);
 }
 
 void  kservice_mutex_trylock(struct thread_mutex *mutex){
-	thread_mutex_trylock(mutex);
+	_thread_mutex_trylock(mutex);
 }
 
 void  kservice_mutex_lock(struct thread_mutex *mutex){
@@ -105,7 +106,7 @@ void  kservice_mutex_lock(struct thread_mutex *mutex){
 }
 
 void  kservice_mutex_unlock(struct thread_mutex *mutex){
-	thread_mutex_unlock(mutex);
+	_thread_mutex_unlock(mutex);
 }
 
 void  kservice_com_file(char* file_name){
@@ -113,7 +114,7 @@ void  kservice_com_file(char* file_name){
 }
 
 unsigned long  kservice_allocate_upage(){
-	return allocate_user_page(&(current->cpu_context->x19),0);
+	return allocate_user_page((struct task_struct *)&(current->cpu_context->x19),0);
 }
 
 void kservice_free_page(unsigned long p){
@@ -141,11 +142,11 @@ int kservice_unreg_compt(char* compt_name){
 	return unreg_compt(compt_name);
 }
 
-int kservice_ls_dev(void){
+void kservice_ls_dev(void){
 	ls_dev();
 }
 
-int kservice_ls_compt(void){
+void kservice_ls_compt(void){
 	//ls_compt();
 }
 /*

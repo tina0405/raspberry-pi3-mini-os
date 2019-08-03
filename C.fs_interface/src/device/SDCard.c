@@ -5,7 +5,7 @@
 #include "delays.h"
 #include "printf.h"							// This units header
 char *strchr(const char *str, int c){
-     int i =0,a = 0;
+     int i =0;
      while(str[i]!=c){
 	if(str[i]=='\0'){break;}
 	i++;
@@ -693,7 +693,7 @@ static EMMCCommand sdCommandTable[IX_SEND_SCR + 1] =  {
 											   .code.CMD_ISDATA = 1  , .code.TM_DAT_DIR = 1,					   .use_rca = 0 , .delay = 0},
 };
 
-static const char* SD_TYPE_NAME[] = { "Unknown", "MMC", "Type 1", "Type 2 SC", "Type 2 HC" };
+//static const char* SD_TYPE_NAME[] = { "Unknown", "MMC", "Type 1", "Type 2 SC", "Type 2 HC" };
 
 /*--------------------------------------------------------------------------}
 {						  SD CARD DESCRIPTION RECORD					    }

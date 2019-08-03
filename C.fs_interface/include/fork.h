@@ -2,7 +2,7 @@
 #define _FORK_H
 
 #include "sched.h"
-#include "sys.h"
+
 /*
  * PSR bits
  */
