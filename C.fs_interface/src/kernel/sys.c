@@ -19,8 +19,8 @@ void signal(thread_t thread);
 extern unsigned long user_page_start;
 
 
-void kservice_uart_write(char * buf){	
-	printf(buf);
+void kservice_uart_write(char* s,char *fmt, ...){	
+	printf(s,fmt);
 }
 
 int  kservice_fork(){

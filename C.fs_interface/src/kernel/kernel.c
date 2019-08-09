@@ -60,10 +60,8 @@ void kernel_main()
                       build_kernel_directory();
 		} else {
 		    uart_puts("FAT partition not found???\n\r");
-		}
-		
+		}	
        } 
-      
 	enable_cache();
 	
 	

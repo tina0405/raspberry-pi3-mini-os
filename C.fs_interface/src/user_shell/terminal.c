@@ -4,9 +4,9 @@
 #include "sched.h"
 //#include "terminal_cmd.h"
 #include "mini_uart.h"
-
+#include "fs.h"
 extern unsigned long _end;
-char directory[20] = {"root/boot"};
+char directory[30] = {"root"};
 void invalid(void){
 	call_sys_write("\n\rNot support this command!\n\rtkernel@user_name:%s$",directory);
 }
@@ -19,7 +19,7 @@ void shell_user_process()
 	
 	char file_name[11] = {""};	
 	call_sys_write("tkernel@user_name:");
-	call_sys_write(directory);
+	call_sys_write("%s",directory);
 	call_sys_write("$");
 	for(int nope = 0;nope<8;nope++){
 		call_sys_read();
@@ -71,18 +71,32 @@ void shell_user_process()
 			        if(output[2]=='\r' || (output[2]==' ' && output[3]=='r' && output[4]=='o' && output[5]=='o' && output[6]=='t' && output[7]=='\r') ){
 					call_sys_root();
 					/*go to root*/
+					/*here clear directory*/
+					directory[0] = 'r';directory[1] = 'o';directory[2] = 'o';directory[3] = 't';directory[4] = '\0';
+					for(int cdr=5;cdr<30;cdr++){ directory[cdr] = '\0'; }
+					
 				}
 				else if(output[2]==' '){
 					for(int f = 3,n=0;f < 15;f++,n++){
 					   if(output[f]=='\r'){
+						file_name[n] = '\0';
 						break;
 					   }
 					   file_name[n] = output[f];
-					   
-		                           
 					}
-		    			
-					call_sys_cd(file_name);
+		    			int parse_i = 0,file_i =0;
+					if(call_sys_cd(file_name)){
+						while(directory[parse_i] !='\0' && directory[parse_i] != (char)8){
+							parse_i++;
+						}
+                                                directory[parse_i++] = '/';
+						while(file_name[file_i]!='\0'&& file_name[file_i]!=' '){
+							directory[parse_i+file_i] = file_name[file_i];
+							file_i++;
+						}
+						file_name[file_i] = '\0';
+					}
+		
 					call_sys_write("\n\rtkernel@user_name:");
 					call_sys_write(directory);
 					call_sys_write("$");

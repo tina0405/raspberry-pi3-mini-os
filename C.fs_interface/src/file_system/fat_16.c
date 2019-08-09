@@ -35,17 +35,17 @@ extern unsigned int t;
  * Find a file in root directory entries
  */
 
-unsigned int fat16_getcluster(char *fn,struct dev sd_num)
+unsigned int fat16_getcluster(char *fn,struct dev* sd_num)
 {
 
-    bpb_t *bpb=(bpb_t*)(&_end+ sd_num.record);/*DBR*/
+    bpb_t *bpb=(bpb_t*)(&_end+ sd_num->record);/*DBR*/
     fatdir_t *dir=(fatdir_t*)(&_end+2048);
     unsigned int root_sec, s;
     // find the root directory's LBA
     root_sec=((bpb->spf16)*bpb->nf)+bpb->rsc;
     s = (bpb->nr0 + (bpb->nr1 << 8)) * sizeof(fatdir_t);
     // add partition LBA
-    root_sec+= sd_num.partitionlba;  
+    root_sec+= sd_num->partitionlba;  
     // load the root directory
     if(sd_readblock(root_sec,(unsigned char*)dir,s/512+1)) {
         // iterate on each entry and check if it's the one we're looking for
@@ -67,12 +67,12 @@ unsigned int fat16_getcluster(char *fn,struct dev sd_num)
 /**
  * Read a file into memory
  */
-char *fat16_readfile( int cluster,struct dev sd_num)
+char *fat16_readfile( int cluster,struct dev* sd_num)
 {
     // BIOS Parameter Block
-    bpb_t *bpb=(bpb_t*)(&_end+sd_num.record);
+    bpb_t *bpb=(bpb_t*)(&_end+sd_num->record);
     // File allocation tables. We choose between FAT16 and FAT32 dynamically
-    unsigned int *fat32=(unsigned int*)(&_end + (512*3-sd_num.record) + bpb->rsc*512);/*reserved: bpb->rsc*/
+    unsigned int *fat32=(unsigned int*)(&_end + (512*3-sd_num->record) + bpb->rsc*512);/*reserved: bpb->rsc*/
     unsigned short *fat16=(unsigned short*)fat32;
     // unsigned short *fat16=(unsigned short*)fat32;
     // Data pointers
@@ -84,11 +84,11 @@ char *fat16_readfile( int cluster,struct dev sd_num)
 
     data_sec+=(s+511)>>9;//fat16
     // add partition LBA
-    data_sec+= sd_num.partitionlba;
+    data_sec+= sd_num->partitionlba;
     // dump important properties
     // load FAT table
 
-    s = sd_readblock(sd_num.partitionlba+1,(unsigned char*)(&_end+2048),(bpb->spf16)+bpb->rsc);
+    s = sd_readblock(sd_num->partitionlba+1,(unsigned char*)(&_end+2048),(bpb->spf16)+bpb->rsc);
     
     // end of FAT in memory
     data = ptr = (unsigned char*)(&_end+2048+s);
@@ -104,16 +104,16 @@ char *fat16_readfile( int cluster,struct dev sd_num)
     }
     return (char*)data;
 }
-char* fat16_read_directory(struct dev sd_num)
-{
-    bpb_t *bpb=(bpb_t*)(&_end+sd_num.record);
+char* fat16_read_directory(void* nope, struct dev* sd_num)
+{ 
+    bpb_t *bpb=(bpb_t*)(&_end+sd_num->record);
     unsigned int root_sec, s;
     // find the root directory's LBA
     root_sec=((bpb->spf16)*bpb->nf)+bpb->rsc;
     s = (bpb->nr0 + (bpb->nr1 << 8));
     s *= sizeof(fatdir_t);
     // add partition LBA
-    root_sec+=sd_num.partitionlba;
+    root_sec+=sd_num->partitionlba;
     // load the root directory
     sd_readblock(root_sec,(unsigned char*)(&_end+2048),s/512+1);
     unsigned int addr = (unsigned int)(&_end+2048);

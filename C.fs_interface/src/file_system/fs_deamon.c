@@ -2,22 +2,39 @@
 #include <pm.h>
 #include <mm.h>
 #include <sched.h>
+#include <fs.h>
+#include "fat16.h"
+#include "fat32.h"
 
 int fs_mail[64] = {0};
-int support_type[4] = {0}; /*0:fat16*/
+//int support_type[4] = {0}; /*0:fat16*/
+
 void fs_daemon(void)
 {	
 	static int read_mail_index = 0;
 	//printf("File System send a message (int 3) to ipc_test (use pid as an address)\n\r");
 	//send_msg(Rendezvous, 2, 3);
 
-#ifdef FAT16
-	support_type[0] = 1;
-#endif
+	read_ksymbol();
+
+	//register fat32
+	fs_support[0].type = 0x0c;
+	fs_support[0].addr_directory = &fat32_read_directory;
+ 	fs_support[0].addr_getcluster = &fat32_getcluster;
+ 	fs_support[0].addr_readfile = &fat32_readfile;
+	
+//#ifdef FAT16
+	//register fat16
+	fs_support[1].type = 0x0e;
+	fs_support[1].addr_directory = &fat16_read_directory;
+ 	fs_support[1].addr_getcluster = &fat16_getcluster;
+ 	fs_support[1].addr_readfile = &fat16_readfile;
+	//support_type[0] = 1;
+//#endif
 	printf("\n\rFile System Starts running....\n\r");
 	printf("File System Starts receiving messages....\n\r");
 
-	read_ksymbol();
+	
 	
 	/*Rendezvous Message-Passing or Mailbox Message-Passing*/
 	while(1){

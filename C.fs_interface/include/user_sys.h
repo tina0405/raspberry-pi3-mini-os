@@ -4,7 +4,7 @@
 void call_sys_list(void);
 void call_sys_write(char *fmt, ...);
 void call_sys_root(void);
-void call_sys_cd(char* file_name);
+int call_sys_cd(char* file_name);
 void call_sys_run(char* file_name);
 void call_sys_dump(char* file_name);
 void call_sys_root(void);

@@ -13,8 +13,11 @@ int rm_compt_file(char* file_name);
 int compt_file(char* file_name);
 int run_file(char* file_name);
 int dump(char* file_name);
-void cd(char* file_name);
+int cd(char* file_name);
 void cd_root(void);
+struct fs_unit* fs_type_support(int type);
+
+char sd_p[4][11]; 
 // directory entry structure
 typedef struct {
     char            name[8];
@@ -34,7 +37,7 @@ typedef struct {
     unsigned char   bps1;
     unsigned char   spc;/*sector per cluster*/
     unsigned short  rsc;
-    unsigned char   nf;/*number of FAT:2*/
+    unsigned char   nf;/*number of FAT:2(now)*/
     unsigned char   nr0;
     unsigned char   nr1;
     unsigned short  ts16;
@@ -48,7 +51,7 @@ typedef struct {
     unsigned int    flg;
     unsigned int    rc;
     char            vol[6];
-    char            fst[8];
+    char            fst[8]; 
     char            dmy[20];
     char            fst2[8];
 } __attribute__((packed)) bpb_t;
@@ -65,5 +68,21 @@ struct dev{
 	int type;
 	int dev_type; /*nope=0, sd=1*/	
 }; 
+struct user_fs{
+    char           name[11];
+    char            attr[9];
+    unsigned int    size;
+    unsigned short  ch;
+    unsigned short  cl;
+    //struct user_fs* folder;
+};
+struct fs_unit{
+    int type;
+    unsigned int addr_directory;
+    unsigned int addr_getcluster;
+    unsigned int addr_readfile;
+}; 
 struct dev partition[4];
+struct user_fs file_dir[20];
+struct fs_unit fs_support[32];
 #endif
