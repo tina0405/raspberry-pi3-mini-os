@@ -85,4 +85,5 @@ struct fs_unit{
 struct dev partition[4];
 struct user_fs file_dir[20];
 struct fs_unit fs_support[32];
+fatdir_t *dir;
 #endif

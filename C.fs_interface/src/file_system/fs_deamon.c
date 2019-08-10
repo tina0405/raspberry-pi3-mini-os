@@ -15,7 +15,7 @@ void fs_daemon(void)
 	//printf("File System send a message (int 3) to ipc_test (use pid as an address)\n\r");
 	//send_msg(Rendezvous, 2, 3);
 
-	read_ksymbol();
+	
 
 	//register fat32
 	fs_support[0].type = 0x0c;
@@ -23,14 +23,18 @@ void fs_daemon(void)
  	fs_support[0].addr_getcluster = &fat32_getcluster;
  	fs_support[0].addr_readfile = &fat32_readfile;
 	
-//#ifdef FAT16
+#ifdef FAT16
 	//register fat16
 	fs_support[1].type = 0x0e;
 	fs_support[1].addr_directory = &fat16_read_directory;
  	fs_support[1].addr_getcluster = &fat16_getcluster;
  	fs_support[1].addr_readfile = &fat16_readfile;
 	//support_type[0] = 1;
-//#endif
+#endif
+	/*root directory*/
+        build_kernel_directory();
+	read_ksymbol();
+
 	printf("\n\rFile System Starts running....\n\r");
 	printf("File System Starts receiving messages....\n\r");
 

@@ -35,7 +35,7 @@ extern unsigned char _end;
  */
 unsigned int fat32_getcluster(char *fn,struct dev* sd_num)
 {
-    bpb_t *bpb=(bpb_t*)&_end+ sd_num->record;/*DBR*/
+    bpb_t *bpb=(bpb_t*)(&_end+ sd_num->record);/*DBR*/
     fatdir_t *dir_32=(fatdir_t*)(&_end+2048);
     unsigned int root_sec, s;
     // find the root directory's LBA
@@ -70,7 +70,7 @@ char *fat32_readfile( int cluster,struct dev* sd_num)
 {
 
     // BIOS Parameter Block
-    bpb_t *bpb=(bpb_t*)&_end+sd_num->record;
+    bpb_t *bpb=(bpb_t*)(&_end+sd_num->record);
     // File allocation tables. We choose between FAT16 and FAT32 dynamically
     unsigned int *fat32=(unsigned int*)(&_end + (512*3-sd_num->record) + bpb->rsc*512);/*reserved: bpb->rsc*/
    // unsigned short *fat16=(unsigned short*)fat32;
@@ -86,8 +86,9 @@ char *fat32_readfile( int cluster,struct dev* sd_num)
     // dump important properties
 
     // load FAT table
+    //printf("READ: %x %x",sd_num->partitionlba+1,(bpb->spf32)+bpb->rsc);
     s = sd_readblock(sd_num->partitionlba+1,(unsigned char*)&_end+2048,(bpb->spf32)+bpb->rsc);
-
+    //printf("FINISH");
     // end of FAT in memory
     data = ptr = &_end+2048+s;
     // iterate on cluster chain
@@ -104,14 +105,11 @@ char *fat32_readfile( int cluster,struct dev* sd_num)
 
 char* fat32_read_directory(void* nope, struct dev* sd_num)
 {
-    bpb_t *bpb=(bpb_t*)&_end + sd_num->record;
-    unsigned int fat_addr= fat32_readfile(bpb->rc, sd_num);	
-    /*list root directory*/
+    bpb_t *bpb=(bpb_t*)(&_end + sd_num->record);
+    unsigned int fat_addr= fat32_readfile(bpb->rc, sd_num);
     fat_listdirectory(&_end+(fat_addr-(unsigned int)&_end));
     build_root();
     char* name = search_file(); 
-
     return name;
 }
-
 

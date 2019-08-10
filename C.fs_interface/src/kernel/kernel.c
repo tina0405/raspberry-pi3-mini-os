@@ -56,12 +56,12 @@ void kernel_main()
 	if(sd_init() == SD_OK) {
 		// read the master boot record and find our partition
 		if(fat_getpartition()) {
-		      /*root directory*/
-                      build_kernel_directory();
+		    uart_puts("FAT partition could found\n\r");
 		} else {
 		    uart_puts("FAT partition not found???\n\r");
 		}	
        } 
+
 	enable_cache();
 	
 	
@@ -95,7 +95,7 @@ void kernel_main()
 
 	while (1){
 		
-		//printf("kernel\n\r");
+		printf("kernel\n\r");
 		schedule();
 		
 	}	

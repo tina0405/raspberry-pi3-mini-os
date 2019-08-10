@@ -23,11 +23,11 @@ clean :
 
 $(BUILD_DIR)/%_c.o: $(SRC_DIR)/%.c
 	mkdir -p $(@D)
-	$(ARMGNU)-gcc $(COPS) -DFAT16 -MMD -c $< -o $@
+	$(ARMGNU)-gcc $(COPS) -MMD -c $< -DFAT16 -o $@
 
 $(BUILD_DIR)/%_s.o: $(SRC_DIR)/%.S
 	mkdir -p $(@D)	
-	$(ARMGNU)-gcc $(ASMOPS) -MMD -c $< -o $@
+	$(ARMGNU)-gcc $(ASMOPS) -MMD -c $< -DFAT16 -o $@
 
 
 

@@ -10,14 +10,18 @@ void ls_dev(void){
 			switch(partition[dev_num].type){
 				case 0xC:					
 					printf("FAT32    ");
-					printf("yes         ");
-					printf("root/%s/(reserved by system)\n\r",&sd_p[dev_num][0]);
+					printf("yes         ");	
+					if(dev_num == 0){
+						printf("root/%s(reserved by system)\n\r",&sd_p[dev_num][0]);
+					}else{
+						printf("root/%s\n\r",&sd_p[dev_num][0]);
+					}
 					break;
 				case 0xE:
 					printf("FAT16    ");
 					if(fs_type_support(partition[dev_num].type)){
 						printf("yes         ");
-						printf("root/%s/\n\r",&sd_p[dev_num][0]);
+						printf("root/%s\n\r",&sd_p[dev_num][0]);
 					}else{
 						printf("no ");
 						printf("         no\n\r");

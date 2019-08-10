@@ -2,8 +2,9 @@
 #include "mini_uart.h"
 #include "printf.h"
 #include "fs.h"
+#include "fat.h"
 extern unsigned char _end; 
-fatdir_t *dir;
+
 /**
  * Get the starting LBA address of the first partition
  * so that we know where our FAT file system starts, and
@@ -40,7 +41,6 @@ int fat_getpartition(void)
             	uart_puts("ERROR: Unable to read boot record\n");
             	return 0;
             }
-
 	    i++;
 	}
         //uart_dump(&_end);
