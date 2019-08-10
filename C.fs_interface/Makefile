@@ -4,6 +4,7 @@ COPS = -Wall -nostdlib -nostartfiles -ffreestanding -Iinclude -mgeneral-regs-onl
 ASMOPS = -Iinclude -mtune=cortex-a53 -march=armv8-a
 
 BUILD_DIR = build
+BUILD_FS_DIR = build_fat32
 SRC_DIR = src
 FS_DIR = src/file_system
 APP_DIR = src/app
@@ -17,9 +18,18 @@ SHELL_DIR = src/user_shell
 
 all : kernel8.img
 
-clean :
-	rm -rf $(BUILD_DIR) *.img *.map symbol.txt
+only_fat32: kernel8_fs.img
 
+clean :
+	rm -rf $(BUILD_DIR) $(BUILD_FS_DIR) *.img *.map symbol.txt
+
+$(BUILD_FS_DIR)/%_c.o: $(SRC_DIR)/%.c
+	mkdir -p $(@D)
+	$(ARMGNU)-gcc $(COPS) -MMD -c $< -o $@
+
+$(BUILD_FS_DIR)/%_s.o: $(SRC_DIR)/%.S
+	mkdir -p $(@D)	
+	$(ARMGNU)-gcc $(ASMOPS) -MMD -c $< -o $@
 
 $(BUILD_DIR)/%_c.o: $(SRC_DIR)/%.c
 	mkdir -p $(@D)
@@ -36,6 +46,9 @@ ASM_FILES = $(wildcard $(FS_DIR)/*.S $(USER_DIR)/*.S $(PM_DIR)/*.S $(MM_DIR)/*.S
 OBJ_FILES = $(C_FILES:$(SRC_DIR)/%.c=$(BUILD_DIR)/%_c.o)
 OBJ_FILES += $(ASM_FILES:$(SRC_DIR)/%.S=$(BUILD_DIR)/%_s.o)
 
+FS_OBJ_FILES = $(C_FILES:$(SRC_DIR)/%.c=$(BUILD_FS_DIR)/%_c.o)
+FS_OBJ_FILES += $(ASM_FILES:$(SRC_DIR)/%.S=$(BUILD_FS_DIR)/%_s.o)
+
 
 DEP_FILES = $(OBJ_FILES:%.o=%.d)
 -include $(DEP_FILES)
@@ -43,4 +56,9 @@ DEP_FILES = $(OBJ_FILES:%.o=%.d)
 kernel8.img: $(SRC_DIR)/linker.ld $(OBJ_FILES)
 	$(ARMGNU)-ld -T $(SRC_DIR)/linker.ld -o $(BUILD_DIR)/kernel8.elf $(OBJ_FILES) -Map System.map
 	$(ARMGNU)-objcopy $(BUILD_DIR)/kernel8.elf -O binary kernel8.img
+	./symbol.sh
+
+kernel8_fs.img: $(SRC_DIR)/linker.ld $(FS_OBJ_FILES)
+	$(ARMGNU)-ld -T $(SRC_DIR)/linker.ld -o $(BUILD_FS_DIR)/kernel8.elf $(FS_OBJ_FILES) -Map System.map
+	$(ARMGNU)-objcopy $(BUILD_FS_DIR)/kernel8.elf -O binary kernel8.img
 	./symbol.sh
