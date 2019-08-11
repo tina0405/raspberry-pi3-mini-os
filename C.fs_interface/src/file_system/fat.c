@@ -43,8 +43,7 @@ int fat_getpartition(void)
             }
 	    i++;
 	}
-        //uart_dump(&_end);
-	//uart_dump(&_end+512);
+
         // check file system type. We don't use cluster numbers for that, but magic bytes
        
 	 if( !(bpb->fst[0]=='F' && bpb->fst[1]=='A' && bpb->fst[2]=='T') &&

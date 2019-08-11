@@ -132,54 +132,26 @@ void shell_user_process()
 					invalid();
 				}
 
-			}else if(output[0]=='l'&& output[1]=='s' && output[2]=='d' && output[3]=='e' && output[4]=='v' && output[5]=='\r'){ 
-				call_sys_lsdev();								
-				call_sys_write("\n\rtkernel@user_name:");
-				call_sys_write(directory);
-				call_sys_write("$");				
-							
 			}
 			else if(output[0]=='l'&& output[1]=='s' && output[2]=='c' && output[3]=='o' && output[4]=='m'){ 
 				if(output[5]=='\r'){
-					call_sys_write("\n\rWithout input file!");
-					call_sys_write("\n\rtkernel@user_name:");
-					
-				}
-				else if(output[5]==' '){
-					for(int f = 6,n=0;f < 20;f++,n++){
-					   if(output[f]=='\r'){
-						break;
-					   }
-					   file_name[n] = output[f];
-					   
-		                           
-					}
 					call_sys_lscom();
 					call_sys_write("\n\rtkernel@user_name:");
 					call_sys_write(directory);
 					call_sys_write("$");
+					
 				}
 				else{invalid();}				
 			}
 			else if(output[0]=='l'&& output[1]=='s' && output[2]=='d' && output[3]=='e' && output[4]=='v'){ 
 				if(output[5]=='\r'){
-					call_sys_write("\n\rWithout input file!\n\rtkernel@user_name:");
-				}
-				else if(output[5]==' '){
-					for(int f = 6,n=0;f < 20;f++,n++){
-					   if(output[f]=='\r'){
-						break;
-					   }
-					   file_name[n] = output[f];
-					   
-		                           
-					}
 					call_sys_lsdev();
 					call_sys_write("\n\rtkernel@user_name:");
 					call_sys_write(directory);
 					call_sys_write("$");
+					
 				}
-				else{invalid();}				
+				else{invalid();}			
 			}
 			else if(output[0]=='i'&& output[1]=='n' && output[2]=='c' && output[3]=='o' && output[4]=='m'){ 
 				/*to_do_list*/			

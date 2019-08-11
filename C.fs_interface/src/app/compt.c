@@ -36,10 +36,8 @@ extern void * const sys_call_table[];
 struct com_file cfile[32];
 struct symbol_struct ksym[64];
 int ksym_index = 26;
-void ls_compt(void){
 
 
-}
 
 struct mod_section move_sec[7];/*0.text 1.rodata 2.data 3.bss 4.rela.text 5.symtab 6.strtab*/
 
@@ -117,36 +115,6 @@ int compt_file(char* file_name){/*incom*/
 					bl_init(comp_start+init_addr,0);
 				}
 			}
-			
-	/*		
-			unsigned long a,b,d,stop;
-                        unsigned char c;
-			for(a = (char *)comp_start,stop = 0;a < (char *)comp_start +load_size;a+=16,stop+=16) {
-				uart_hex(a); uart_puts(": ");
-				for(b=0;b<16;b++) {
-				    c=*((unsigned char*)(a+b));
-				    d=(unsigned int)c;d>>=4;d&=0xF;d+=d>9?0x37:0x30;
-				    uart_send(d);
-				    d=(unsigned int)c;d&=0xF;d+=d>9?0x37:0x30;
-				    uart_send(d);
-				    uart_send(' ');
-				    if(b%4==3)
-				    uart_send(' ');
-				}
-				for(b=0;b<16;b++) {
-				    c=*((unsigned char*)(a+b));
-				    uart_send(c<32||c>=127?'.':c);
-				}
-				uart_send('\r');
-				uart_send('\n');
-			
-				if(stop==512){
-					stop = 0;
-					while(!uart_recv()){}
-				}
-   			}
-
-		*/	
 			
 			//copy_process(SERVER_THREAD, (char *)comp_start, 0, 0);
 			
@@ -477,6 +445,13 @@ void get_string(char* addr,unsigned long size){
 	}
 }
 
+void ls_compt(void){
+	printf("\n\r");
+	for(int compt_i=0; compt_i<64 && ksym[compt_i].sym_name[0]!='\0'; compt_i++){
+		printf("%s\n\r",ksym[compt_i].sym_name);
+	}
+}
+
 int read_ksymbol(){
 	unsigned int clust =0;
         char* base;
@@ -487,7 +462,6 @@ int read_ksymbol(){
 		if(clust){			
 			base = fat32_readfile(clust, &partition[0]);
 			/*save kernel symbol*/
-                        uart_dump(base);
 			unsigned int name_word=0,aa=0,base_index=0;
 			char* name_addr =(char*)(&_end+((unsigned int)base-(unsigned int)&_end));
 			while(*(name_addr + base_index)!= 0x00){	
