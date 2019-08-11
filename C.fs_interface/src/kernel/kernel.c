@@ -56,7 +56,7 @@ void kernel_main()
 	if(sd_init() == SD_OK) {
 		// read the master boot record and find our partition
 		if(fat_getpartition()) {
-		    uart_puts("FAT partition could found\n\r");
+		     read_ksymbol();
 		} else {
 		    uart_puts("FAT partition not found???\n\r");
 		}	

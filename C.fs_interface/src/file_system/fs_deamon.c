@@ -31,10 +31,9 @@ void fs_daemon(void)
  	fs_support[1].addr_readfile = &fat16_readfile;
 	//support_type[0] = 1;
 #endif
-	/*root directory*/
-        build_kernel_directory();
-	read_ksymbol();
-
+	
+        build_kernel_directory();//root directory
+    
 	printf("\n\rFile System Starts running....\n\r");
 	printf("File System Starts receiving messages....\n\r");
 

@@ -479,27 +479,26 @@ void get_string(char* addr,unsigned long size){
 
 int read_ksymbol(){
 	unsigned int clust =0;
-        unsigned long base =0;
+        char* base;
+        fat32_read_directory(0,&partition[0]);
 	for(int k = 0;file_dir[k].name[0]!='\0';k++){
-	 
-	   if(!memcmp(file_dir[k].name,"SYMBOL  TXT",8)){
-		clust =((unsigned int)file_dir[k].ch)<<16|file_dir[k].cl;
-		
-		if(clust){
-
-			
+	   if(!strcmp(file_dir[k].name,"SYMBOL  TXT")){
+	  	clust =((unsigned int)file_dir[k].ch)<<16|file_dir[k].cl;	
+		if(clust){			
 			base = fat32_readfile(clust, &partition[0]);
 			/*save kernel symbol*/
+                        uart_dump(base);
 			unsigned int name_word=0,aa=0,base_index=0;
-			while(*((unsigned char*)(&_end+(base-(unsigned int)&_end) + base_index))!= 0x00){	
-	
-				if(*((unsigned char*)(&_end+(base-(unsigned int)&_end) + base_index)) != 0xA){
-					ksym[name_word].sym_name[aa++] = *((unsigned char*)(&_end+(base-(unsigned int)&_end) + base_index));
+			char* name_addr =(char*)(&_end+((unsigned int)base-(unsigned int)&_end));
+			while(*(name_addr + base_index)!= 0x00){	
+				if(*(name_addr + base_index) != 0xA){
+					ksym[name_word].sym_name[aa++] = *(name_addr + base_index);
 				}else{
 					ksym[name_word].sym_addr = sys_call_table[name_word];
 					name_word++;
 					aa = 0;			
 				}
+				
 				base_index++;
 			}
 
