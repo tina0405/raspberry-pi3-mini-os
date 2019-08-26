@@ -22,6 +22,8 @@ int cd(char* file_name){
 					if(return_fs){
 						dev_param = &partition[cd_i];
 						bl_init( &_start_+(return_fs->addr_directory-(unsigned int)&_start_),dev_param);
+						build_root();
+   	 					search_file(); 
 						while(file_name[file_i]!='\0'){
 							kdirectory[parse_i+file_i] = file_name[file_i];
 							file_i++;

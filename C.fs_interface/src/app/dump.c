@@ -3,20 +3,13 @@
 #include "fat32.h"
 #include "mini_uart.h"
 #include "printf.h"
-extern unsigned char _end; 
-int dump(char* file_name){
-	for(int k = 0;file_dir[k].name[0]!='\0';k++){
-	 
-	   if(!memcmp(file_dir[k].name,file_name,8)){
+extern unsigned char _end;
 
-		/*get cluster for*/
-		unsigned int clust = ((unsigned int)file_dir[k].ch)<<16|(unsigned int)file_dir[k].cl;
-		if(clust){
-			unsigned long addr = fat16_readfile(clust, &partition[1]);	
-			unsigned long a,b,d,stop;
-                        unsigned char c;
-		
-			for(a = &_end+(addr-(unsigned int)&_end),stop =0;a < &_end+(addr-(unsigned int)&_end)+file_dir[k].size;a+=16,stop+=16) {
+void data_dump(void *ptr, int size)
+{
+    unsigned long a,b,d,stop;
+    unsigned char c;
+    for(a=(unsigned long)ptr;a<(unsigned long)ptr+size;a+=16) {
 				uart_hex(a); uart_puts(": ");
 				for(b=0;b<16;b++) {        
 				    c=*((unsigned char*)(a+b));
@@ -43,7 +36,19 @@ int dump(char* file_name){
 					while(!uart_recv()){}
 				}
    			}
-			
+}
+ 
+int dump(char* file_name){
+	for(int k = 0;file_dir[k].name[0]!='\0';k++){
+	 
+	   if(!memcmp(file_dir[k].name,file_name,8)){
+
+		/*get cluster for*/
+		unsigned int clust = ((unsigned int)file_dir[k].ch)<<16|(unsigned int)file_dir[k].cl;
+		if(clust){
+                        printf("\n\r");
+			unsigned long addr = fat16_readfile(clust, &partition[1]);	
+                        data_dump((char *)addr,file_dir[k].size);
 			//sdTransferBlocks (sect, 1, &_end, 1);
 
 		}
@@ -58,3 +63,4 @@ int dump(char* file_name){
 	printf("\n\rNot file");
 
 }
+

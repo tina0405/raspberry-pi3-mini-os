@@ -19,9 +19,10 @@ void signal(thread_t thread);
 extern unsigned long user_page_start;
 
 
-void kservice_uart_write(char* s,char *fmt, ...){	
-	printf(s,fmt);
+void kservice_uart_write(char *fmt, ...){	
+	printf(fmt);
 }
+
 
 int  kservice_fork(){
 	return copy_process(FORK_THREAD, 0, 0, 0);
@@ -154,6 +155,19 @@ void  kservice_use_compt(char* compt_name,void * arg){
 	use_compt(file_name,arg);
 }
 */
+
+int kservice_dev_read(int dev,unsigned int lba, unsigned char *buffer, unsigned int num){	
+		
+	switch(dev){
+		case 1:
+			return sd_readblock(lba, buffer, num);
+		default:
+			return 0;
+	}
+	
+}
+
+
 void * const sys_call_table[] = {kservice_uart_write, /*0*/
 kservice_fork, /*1*/
 kservice_exit, /*2*/
@@ -184,4 +198,6 @@ kservice_ls_compt, /*25*/
 kservice_allocate_kpage, /*26*/
 kservice_schedule, /*27*/
 kservice_reg_compt, /*28*/
-kservice_unreg_compt}; /*29*/
+kservice_unreg_compt, /*29*/
+kservice_dev_read /*30*/
+}; 

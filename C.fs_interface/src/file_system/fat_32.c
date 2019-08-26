@@ -45,7 +45,7 @@ unsigned int fat32_getcluster(char *fn,struct dev* sd_num)
     // add partition LBA
     root_sec+= sd_num->partitionlba;  //root_sec+=partition[0].partitionlba;
     // load the root directory
-    if(sd_readblock(root_sec,(unsigned char*)dir_32,s/512+1)) {
+    if(kservice_dev_read(1, root_sec,(unsigned char*)dir_32,s/512+1)) {
         // iterate on each entry and check if it's the one we're looking for
         for(;dir_32->name[0]!='U';dir_32++) {
             // is it a valid entry?
@@ -87,14 +87,14 @@ char *fat32_readfile( int cluster,struct dev* sd_num)
 
     // load FAT table
     //printf("READ: %x %x",sd_num->partitionlba+1,(bpb->spf32)+bpb->rsc);
-    s = sd_readblock(sd_num->partitionlba+1,(unsigned char*)&_end+2048,(bpb->spf32)+bpb->rsc);
+    s = kservice_dev_read(1, sd_num->partitionlba+1,(unsigned char*)&_end+2048,(bpb->spf32)+bpb->rsc);
     //printf("FINISH");
     // end of FAT in memory
     data = ptr = &_end+2048+s;
     // iterate on cluster chain
     while(cluster>1 && cluster<0xFFF8) {
 	// load all sectors in a cluster
-        sd_readblock((cluster-2)*bpb -> spc + data_sec, ptr ,bpb->spc);
+        kservice_dev_read(1, (cluster-2)*bpb -> spc + data_sec, ptr ,bpb->spc);
 	// move pointer, sector per cluster * bytes per sector
         ptr+=bpb->spc*(bpb->bps0 + (bpb->bps1 << 8));
         // get the next cluster in chain
@@ -103,13 +103,10 @@ char *fat32_readfile( int cluster,struct dev* sd_num)
     return (char*)data;
 }
 
-char* fat32_read_directory(void* nope, struct dev* sd_num)
+void fat32_read_directory(void* nope, struct dev* sd_num)
 {
     bpb_t *bpb=(bpb_t*)(&_end + sd_num->record);
     unsigned int fat_addr= fat32_readfile(bpb->rc, sd_num);
     fat_listdirectory(&_end+(fat_addr-(unsigned int)&_end));
-    build_root();
-    char* name = search_file(); 
-    return name;
 }
 

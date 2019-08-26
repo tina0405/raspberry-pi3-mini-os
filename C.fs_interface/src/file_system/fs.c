@@ -36,7 +36,9 @@ void build_kernel_directory(void){
 	 return_fs = fs_type_support(partition[pnum].type);
 	 if(return_fs){
 		dev_param = &partition[pnum];
-		pa_name = bl_init( &_start_+(return_fs->addr_directory-(unsigned int)&_start_),dev_param);
+		bl_init( &_start_+(return_fs->addr_directory-(unsigned int)&_start_),dev_param);
+		build_root();
+   	 	pa_name =  search_file(); 
 		pa_in = 0;
 		while(*(pa_name+pa_in)!=(char)8 && *(pa_name+pa_in)!='\0' && *(pa_name+pa_in)!= (char)32){
 			sd_p[pnum][pa_in] = *(pa_name+pa_in);

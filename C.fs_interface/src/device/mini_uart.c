@@ -107,6 +107,7 @@ void uart_dump(void *ptr)
     }
 }
 
+
 // This function is required by printf function
 void putc ( void* p, char c)
 {
