@@ -7,6 +7,15 @@ extern unsigned int t;
 /**
  * Find a file in root directory entries
  */
+int strcmp(char* a,char* b){
+	int cmp_i = 0;
+	while(a[cmp_i]!='\0' && a[cmp_i]!=' '){
+		if(a[cmp_i]!=b[cmp_i]){ return 1;}
+		cmp_i++;
+	}
+	if(b[cmp_i]!='\0' && b[cmp_i]!=(char)8 && b[cmp_i] != (char)32){return 1;}
+	return 0;
+}
 
 unsigned int fat16_getcluster(char *fn,struct dev* sd_num)
 {
@@ -26,7 +35,7 @@ unsigned int fat16_getcluster(char *fn,struct dev* sd_num)
             // is it a valid entry?
             if(dir->name[0]==0xE5 || dir->attr[0]==0xF) continue;
             // filename match?
-            if(!memcmp(dir->name,fn,8)) {
+            if(!strcmp(dir->name,fn)) {
                 return ((unsigned int)dir->ch)<<16|dir->cl;
             }
         }
@@ -89,5 +98,5 @@ void fat16_read_directory(void* nope, struct dev* sd_num)
     // load the root directory
     kservice_dev_read(1, root_sec,(unsigned char*)(&_end+2048),s/512+1);
     unsigned long addr = (unsigned long)(&_end+2048);
-    fat_listdirectory((unsigned int*)(&_end+(addr-(unsigned long)&_end)));
+    kservice_dir_interface((unsigned int*)(&_end+(addr-(unsigned long)&_end)));
 }
