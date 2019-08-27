@@ -167,6 +167,9 @@ int kservice_dev_read(int dev,unsigned int lba, unsigned char *buffer, unsigned 
 	
 }
 
+void kservice_dir_interface(unsigned int* addr){
+	fat_listdirectory(addr);
+}
 
 void * const sys_call_table[] = {kservice_uart_write, /*0*/
 kservice_fork, /*1*/
@@ -199,5 +202,6 @@ kservice_allocate_kpage, /*26*/
 kservice_schedule, /*27*/
 kservice_reg_compt, /*28*/
 kservice_unreg_compt, /*29*/
-kservice_dev_read /*30*/
+kservice_dev_read, /*30*/
+kservice_dir_interface
 }; 
