@@ -1,10 +1,14 @@
+ifeq ("$(origin FAT16)", "command line")
+  FAT_16 = $(FAT16)
+endif
+ifndef  FAT_16
+  FAT_16 = 0
+endif
 ARMGNU ?= aarch64-linux-gnu
 
-COPS = -Wall -nostdlib -nostartfiles -ffreestanding -Iinclude -mgeneral-regs-only -mtune=cortex-a53 -march=armv8-a
+COPS = -w -nostdlib -nostartfiles -ffreestanding -Iinclude -mgeneral-regs-only -mtune=cortex-a53 -march=armv8-a
 ASMOPS = -Iinclude -mtune=cortex-a53 -march=armv8-a
-
 BUILD_DIR = build
-BUILD_FS_DIR = build_fat32
 SRC_DIR = src
 FS_DIR = src/file_system
 APP_DIR = src/app
@@ -17,48 +21,36 @@ USER_DIR = src/testcode
 SHELL_DIR = src/user_shell
 
 all : kernel8.img
-
-only_fat32: kernel8_fs.img
-
+	
 clean :
-	rm -rf $(BUILD_DIR) $(BUILD_FS_DIR) *.img *.map symbol.txt
+	rm -rf $(BUILD_DIR) *.img *.map symbol.txt
 
-$(BUILD_FS_DIR)/%_c.o: $(SRC_DIR)/%.c
-	mkdir -p $(@D)
-	$(ARMGNU)-gcc $(COPS) -MMD -c $< -o $@
-
-$(BUILD_FS_DIR)/%_s.o: $(SRC_DIR)/%.S
-	mkdir -p $(@D)	
-	$(ARMGNU)-gcc $(ASMOPS) -MMD -c $< -o $@
+C_FILES = $(wildcard $(FS_DIR)/*.c $(USER_DIR)/*.c $(PM_DIR)/*.c $(MM_DIR)/*.c $(THREAD_DIR)/*.c $(KERNEL_DIR)/*.c $(DEVICE_DIR)/*.c $(APP_DIR)/*.c $(SHELL_DIR)/*.c)
+ASM_FILES = $(wildcard $(FS_DIR)/*.S $(USER_DIR)/*.S $(PM_DIR)/*.S $(MM_DIR)/*.S $(THREAD_DIR)/*.S $(KERNEL_DIR)/*.S $(DEVICE_DIR)/*.S $(APP_DIR)/*.S $(SHELL_DIR)/*.S)
 
 $(BUILD_DIR)/%_c.o: $(SRC_DIR)/%.c
 	mkdir -p $(@D)
+ifeq ($(FAT_16),1)
 	$(ARMGNU)-gcc $(COPS) -MMD -c $< -DFAT16 -o $@
+else
+	$(ARMGNU)-gcc $(COPS) -MMD -c $<  -o $@
+endif
+
 
 $(BUILD_DIR)/%_s.o: $(SRC_DIR)/%.S
 	mkdir -p $(@D)	
-	$(ARMGNU)-gcc $(ASMOPS) -MMD -c $< -DFAT16 -o $@
-
-
-
-C_FILES = $(wildcard $(FS_DIR)/*.c $(USER_DIR)/*.c $(PM_DIR)/*.c $(MM_DIR)/*.c $(THREAD_DIR)/*.c $(KERNEL_DIR)/*.c $(DEVICE_DIR)/*.c $(APP_DIR)/*.c $(SHELL_DIR)/*.c)
-ASM_FILES = $(wildcard $(FS_DIR)/*.S $(USER_DIR)/*.S $(PM_DIR)/*.S $(MM_DIR)/*.S $(KERNEL_DIR)/*.S $(DEVICE_DIR)/*.S $(APP_DIR)/*.S $(SHELL_DIR)/*.S)
+ifeq ($(FAT_16),1)
+	$(ARMGNU)-gcc $(COPS) -MMD -c $< -DFAT16 -o $@
+else
+	$(ARMGNU)-gcc $(COPS) -MMD -c $< -o $@
+endif
+	
 OBJ_FILES = $(C_FILES:$(SRC_DIR)/%.c=$(BUILD_DIR)/%_c.o)
 OBJ_FILES += $(ASM_FILES:$(SRC_DIR)/%.S=$(BUILD_DIR)/%_s.o)
 
-FS_OBJ_FILES = $(C_FILES:$(SRC_DIR)/%.c=$(BUILD_FS_DIR)/%_c.o)
-FS_OBJ_FILES += $(ASM_FILES:$(SRC_DIR)/%.S=$(BUILD_FS_DIR)/%_s.o)
 
-
-DEP_FILES = $(OBJ_FILES:%.o=%.d)
--include $(DEP_FILES)
 
 kernel8.img: $(SRC_DIR)/linker.ld $(OBJ_FILES)
-	$(ARMGNU)-ld -T $(SRC_DIR)/linker.ld -o $(BUILD_DIR)/kernel8.elf $(OBJ_FILES) -Map System.map
-	$(ARMGNU)-objcopy $(BUILD_DIR)/kernel8.elf -O binary kernel8.img
-	./symbol.sh
-
-kernel8_fs.img: $(SRC_DIR)/linker.ld $(FS_OBJ_FILES)
-	$(ARMGNU)-ld -T $(SRC_DIR)/linker.ld -o $(BUILD_FS_DIR)/kernel8.elf $(FS_OBJ_FILES) -Map System.map
-	$(ARMGNU)-objcopy $(BUILD_FS_DIR)/kernel8.elf -O binary kernel8.img
+	$(ARMGNU)-ld -T $(SRC_DIR)/linker.ld -o kernel8.elf $(OBJ_FILES) -Map System.map
+	$(ARMGNU)-objcopy kernel8.elf -O binary kernel8.img
 	./symbol.sh
