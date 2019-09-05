@@ -13,6 +13,8 @@
 int opera_addr = 0;
 int rmcom_addr = 0;
 char* comp_start=0;
+extern int cd_rem;
+extern unsigned char _start_;
 struct symbol_struct{
 	unsigned char sym_name[32];
 	unsigned long sym_addr;
@@ -46,6 +48,8 @@ int compt_file(char* file_name){/*incom*/
 
 	unsigned int clust = 0;
         unsigned long base = 0;
+        struct dev* dev_param;
+	struct fs_unit* return_fs;
 	for(int k = 0;file_dir[k].name[0]!='\0';k++){
 	 
 	   if(!memcmp(file_dir[k].name,file_name,8)){
@@ -64,7 +68,16 @@ int compt_file(char* file_name){/*incom*/
 				/*full not solve*/
 				for_i++;
 			}
-			base = fat32_readfile(clust, &partition[0]);
+
+			return_fs = fs_type_support(partition[cd_rem].type);
+                        dev_param = &partition[cd_rem];
+               		if(return_fs){
+				base = bl_init( &_start_+(return_fs->addr_readfile -(unsigned int)&_start_), clust, dev_param);
+			}else{
+				printf("Not support %x type in File system",partition[cd_rem].type);
+				return 0;
+			}
+
 			
 			unsigned long size_u = file_dir[k].size;
 			printf("Component: read file OK!\n\r");
@@ -77,7 +90,6 @@ int compt_file(char* file_name){/*incom*/
 			unsigned long name_index;
 			
 			int check = check_file_format(base ,&section_table_start,&section_num,&section_size,&name_index);
-			
 			if(!check){printf("\n\rNot ELF format!"); return 0;} 
 			
 			for(int num_sec = 0 ; num_sec < section_num ; num_sec++){
@@ -136,6 +148,104 @@ int compt_file(char* file_name){/*incom*/
 
 }
 
+int compt_fs_file(char* file_name){/*incom*/
+
+	unsigned int clust = 0;
+        unsigned long base = 0;
+        struct dev* dev_param;
+	struct fs_unit* return_fs;
+	for(int k = 0;file_dir[k].name[0]!='\0';k++){
+	 
+	   if(!memcmp(file_dir[k].name,file_name,8)){
+		clust =((unsigned int)file_dir[k].ch)<<16|file_dir[k].cl;
+		printf("%x",clust);
+		if(clust){
+
+			printf("\n\r");
+			int for_i=0;
+			while(for_i<32){
+				if(cfile[for_i].filename[0]=='\0')
+				{
+					memcpy(file_name, &cfile[for_i].filename[0],8);
+					break;
+				}
+				
+				/*full not solve*/
+				for_i++;
+			}
+			return_fs = fs_type_support(partition[cd_rem].type);
+                        dev_param = &partition[cd_rem];
+               		if(return_fs){
+				base = bl_init( &_start_+(return_fs->addr_readfile -(unsigned int)&_start_), clust, dev_param);
+			}else{
+				printf("Not support %x type in File system",partition[cd_rem].type);
+				return 0;
+			}
+			
+			unsigned long size_u = file_dir[k].size;
+			printf("Component: read file OK!\n\r");
+			printf("----------------------Component initial----------------------\n\r");
+			
+
+			unsigned long section_table_start;
+			unsigned long section_num;
+			unsigned long section_size;
+			unsigned long name_index;
+			
+			int check = check_file_format(base ,&section_table_start,&section_num,&section_size,&name_index);
+			if(!check){printf("\n\rNot ELF format!"); return 0;} 
+			
+			for(int num_sec = 0 ; num_sec < section_num ; num_sec++){
+                        	find_sec_addr(section_table_start + base + num_sec * section_size);
+			}
+			
+			unsigned long section = allocate_kernel_page();
+			comp_start = section;			
+
+
+			memcpy((char *)(base + move_sec[0].addr),(char *) section,move_sec[0].size);/*.text*/
+			section = section + move_sec[0].size;
+			memcpy((char *)(base + move_sec[1].addr),(char *) section, move_sec[1].size);/*.rodata*/
+			section = section + move_sec[1].size;
+			memcpy((char *)(base + move_sec[2].addr), (char *)section,move_sec[2].size);/*.data*/
+			section = section + move_sec[2].size;
+			memzero((char *)section,move_sec[3].size);/*.bss*/
+			section = section + move_sec[3].size;
+			unsigned long load_size = move_sec[0].size + move_sec[1].size + move_sec[2].size + move_sec[3].size;
+			
+
+			/*relocate*/
+			int rela_err = relocate(comp_start,section_table_start,section_size,(char *)base,(char *)(base + move_sec[4].addr),move_sec[4].size);
+			if(!rela_err){
+				int getcluster = use_compt_func(base,(char *)(base + move_sec[5].addr),move_sec[5].size,"getcluster");/*find initial*/
+				int readfile = use_compt_func(base,(char *)(base + move_sec[5].addr),move_sec[5].size,"read_file_f");
+				int directory = use_compt_func(base,(char *)(base + move_sec[5].addr),move_sec[5].size,"read_direct");
+				fs_support[1].type = 0x0e;
+				fs_support[1].addr_directory = comp_start+directory;
+ 				fs_support[1].addr_getcluster = comp_start+getcluster;
+ 				fs_support[1].addr_readfile = comp_start+readfile;	
+                                build_kernel_directory();
+			}
+			
+			//copy_process(SERVER_THREAD, (char *)comp_start, 0, 0);
+			
+						
+
+		}
+		else{
+			printf("\n\rNot file");
+			return 0;		
+		}
+		return 1;
+	   }
+	   
+
+        }
+
+	printf("\n\rNot file");
+	return 0;
+
+}
 
 
 int rm_compt_file(char* file_name){
@@ -152,8 +262,7 @@ int rm_compt_file(char* file_name){
 					bl_init(cfile[num].rmcom,0); 
 					memzero(cfile[num].filename,8);
 					free_page(cfile[num].rmcom);
-					int page_num = ((cfile[num].rmcom - LOW_MEMORY) / PAGE_SIZE);	
-							
+					int page_num = ((cfile[num].rmcom - LOW_MEMORY) / PAGE_SIZE);			
 					for(int rm_i = 26;rm_i<64;rm_i++){
 						if(ksym[rm_i].sym_name[0] != '\0'){
 							int page_num_1 = ((ksym[rm_i].sym_addr - LOW_MEMORY) / PAGE_SIZE);
@@ -250,7 +359,6 @@ int use_compt_func(char* base,Elf64_Sym* sym,int size,char* fun_name){
 			if(!memcmp(&text_function[num].name[0],fun_name,10)){
 				return  initial;
 			}
-			
 			initial =  initial + (sym+init)->st_size;
 			num++;
 		}
@@ -280,7 +388,6 @@ int relocate(char* comp_start,unsigned long section_table_start,unsigned long se
 		
 		  if(rel_num == 1){ /*rodata*/
 			 *ch_test = (((move_sec[0].size + (rela+init)->r_addend)*4)<<8) + (0x91000000);
-			 
 		  }else if(rel_num==2){ /*data*/
 			 *ch_test = (((move_sec[0].size + move_sec[1].size + (rela+init)->r_addend)*4)<<8)+(0x91000000);
 		  }else if(rel_num==3){ /*bss*/
@@ -366,7 +473,7 @@ int find_sec_addr(Elf64_Shdr *header){
 	   return 6;
 	}				
 	
-	return -1;
+	return header ->sh_name;
 }
 
 int check_file_format(Elf64_Ehdr *header,unsigned long *section_table_start ,unsigned long *section_num, unsigned long *section_size,unsigned long *name_index)
@@ -456,11 +563,13 @@ int read_ksymbol(){
 	unsigned int clust =0;
         char* base;
         fat32_read_directory(0,&partition[0]);
+        build_root();
+	search_file();
 	for(int k = 0;file_dir[k].name[0]!='\0';k++){
 	   if(!strcmp(file_dir[k].name,"SYMBOL  TXT")){
 	  	clust =((unsigned int)file_dir[k].ch)<<16|file_dir[k].cl;	
 		if(clust){			
-			base = fat32_readfile(clust, &partition[0]);
+			base = fat32_readfile(0, clust, &partition[0]);/*Putting ksymbol in first partition is regulation*/
 			/*save kernel symbol*/
 			unsigned int name_word=0,aa=0,base_index=0;
 			char* name_addr =(char*)(&_end+((unsigned int)base-(unsigned int)&_end));

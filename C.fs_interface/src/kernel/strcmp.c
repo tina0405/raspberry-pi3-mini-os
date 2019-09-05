@@ -1,3 +1,5 @@
+#include "printf.h"
+/*kernel mode use*/
 int strcmp(char* a,char* b){
 	int cmp_i = 0;
 	while(a[cmp_i]!='\0' && a[cmp_i]!=' '){

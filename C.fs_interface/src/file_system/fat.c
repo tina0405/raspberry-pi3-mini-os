@@ -43,14 +43,15 @@ int fat_getpartition(void)
             }
 	    i++;
 	}
-
+	
         // check file system type. We don't use cluster numbers for that, but magic bytes
        
 	 if( !(bpb->fst[0]=='F' && bpb->fst[1]=='A' && bpb->fst[2]=='T') &&
             !(bpb->fst2[0]=='F' && bpb->fst2[1]=='A' && bpb->fst2[2]=='T')) {
-            uart_puts("ERROR: Unknown file system type\n");
+            uart_puts("ERROR: Unknown file system type for boot\n");
             return 0;
-        }
+         }
+	/*save FAT table*/
 	
         return 1;
     }

@@ -7,6 +7,7 @@ extern unsigned char _end;
 extern unsigned long mod_process;
 char map_array[4096];/*improve*/
 unsigned int map_index= 0;
+extern int cd_rem;
 int run_file(char* file_name){
 	unsigned int clust =0;
         unsigned long base =0;
@@ -18,11 +19,21 @@ int run_file(char* file_name){
 		if(clust){
 
 			printf("\n\r");
-			base = fat32_readfile(clust, &partition[0]);
-			//printf("%x\n\r",base);
-			//printf("%x\n\r",&_end+(base-(unsigned int)&_end));
+			switch(partition[cd_rem].type){
+				case 0xc:
+					base = fat32_readfile(0, clust, &partition[cd_rem]);
+					break;
+#ifdef FAT16
+				case 0xe:
+					base = fat16_readfile(0, clust, &partition[cd_rem]);
+					break;
+#endif
+				default:
+					printf("Not support %x type in File system",partition[cd_rem].type);
+					return 0;			
+			}
 			unsigned long size_u = file_dir[k].size;
-			memcpy(&_end+(base-(unsigned char)&_end) , &map_array[map_index],size_u);
+			memcpy((char *)base , &map_array[map_index],size_u);
 			copy_process(APP_THREAD, (unsigned long)&mod_process, &map_array[map_index], size_u);
 			map_index = map_index + size_u;
 			printf("User application: read file OK!\n\r");

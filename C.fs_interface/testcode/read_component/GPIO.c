@@ -26,7 +26,7 @@ void led_20_blink(int a){
 
 void init_compt(void){ /*initial*/
 	kservice_uart_write("Initial GPIO component!\n\r");
-	kservice_reg_compt("set_gpio");
+	//kservice_reg_compt("set_gpio");
 }
 
 
@@ -44,7 +44,8 @@ void oper_compt(unsigned long gpio,int on_off,int A,char b,char* name){ /*operat
 
 
 void exit_compt(void){ /*exit*/
-	kservice_unreg_compt("set_gpio");
+	//kservice_unreg_compt("set_gpio");
 	kservice_uart_write("Clean up GPIO component!\n\r");
+        kservice_uart_write("BACK!\n\r");
 }
 

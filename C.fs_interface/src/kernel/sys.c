@@ -171,6 +171,12 @@ void kservice_dir_interface(unsigned int* addr){
 	fat_listdirectory(addr);
 }
 
+extern unsigned char _end;
+
+unsigned char* kservice_end(void){
+	return &_end;
+}
+
 void * const sys_call_table[] = {kservice_uart_write, /*0*/
 kservice_fork, /*1*/
 kservice_exit, /*2*/
@@ -203,5 +209,5 @@ kservice_schedule, /*27*/
 kservice_reg_compt, /*28*/
 kservice_unreg_compt, /*29*/
 kservice_dev_read, /*30*/
-kservice_dir_interface
+kservice_dir_interface,
 }; 

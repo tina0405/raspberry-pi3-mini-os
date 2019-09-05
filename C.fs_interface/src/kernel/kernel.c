@@ -48,19 +48,21 @@ void mod_process(unsigned long* start,unsigned long size){
 }
 
 void kernel_main()
-{
+{	
+	
 	uart_init();
 	init_printf(NULL, putc);
 	irq_vector_init(); 
 	if(sd_init() == SD_OK) {
 		// read the master boot record and find our partition
 		if(fat_getpartition()) {
+		     /*compt.c*/
 		     read_ksymbol();
 		} else {
 		    uart_puts("FAT partition not found???\n\r");
 		}	
        } 
-
+        //printf("&_end:%x\n\r",&_end);
 	enable_cache();
 	
 	

@@ -8,6 +8,6 @@ extern unsigned long get_el ( void );
 extern void set_pgd(unsigned long pgd);
 extern unsigned long get_pgd();
 extern unsigned long get_pgd();
-extern void* bl_init( void *(*entry_func) (void *), void *arg );
+extern void* bl_init( void *(*entry_func) (void *), void *arg, ...);
 
 #endif  /*_UTILS_H */

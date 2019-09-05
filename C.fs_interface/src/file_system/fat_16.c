@@ -22,20 +22,21 @@
  * DEALINGS IN THE SOFTWARE.
  *
  */
-
+#ifdef FAT16
 #include "sd.h"
+#include "strcmp.h"
 #include "mini_uart.h"
 #include "printf.h"
 #include "fs.h"
 #include "fat.h" 
 // get the end of bss segment from linker
 extern unsigned char _end;
-extern unsigned int t;	
+
 /**
  * Find a file in root directory entries
  */
 
-unsigned int fat16_getcluster(char *fn,struct dev* sd_num)
+unsigned int fat16_getcluster(void* nope,char *fn,struct dev* sd_num)
 {
 
     bpb_t *bpb=(bpb_t*)(&_end+ sd_num->record);/*DBR*/
@@ -53,7 +54,7 @@ unsigned int fat16_getcluster(char *fn,struct dev* sd_num)
             // is it a valid entry?
             if(dir->name[0]==0xE5 || dir->attr[0]==0xF) continue;
             // filename match?
-            if(!memcmp(dir->name,fn,8)) {
+            if(!strcmp(dir->name,fn)) {
                 return ((unsigned int)dir->ch)<<16|dir->cl;
             }
         }
@@ -67,7 +68,7 @@ unsigned int fat16_getcluster(char *fn,struct dev* sd_num)
 /**
  * Read a file into memory
  */
-char *fat16_readfile( int cluster,struct dev* sd_num)
+char *fat16_readfile(void* nope, int cluster,struct dev* sd_num)
 {
     // BIOS Parameter Block
     bpb_t *bpb=(bpb_t*)(&_end+sd_num->record);
@@ -118,3 +119,4 @@ void fat16_read_directory(void* nope, struct dev* sd_num)
     unsigned long addr = (unsigned long)(&_end+2048);
     fat_listdirectory((unsigned int*)(&_end+(addr-(unsigned long)&_end)));
 }
+#endif

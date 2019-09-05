@@ -2,8 +2,7 @@
 #include "fs.h"
 
 // get the end of bss segment from linker
-extern unsigned char _end;
-extern unsigned int t;	
+unsigned char* kservice_end = 0xa2000;
 /**
  * Find a file in root directory entries
  */
@@ -17,11 +16,11 @@ int strcmp(char* a,char* b){
 	return 0;
 }
 
-unsigned int fat16_getcluster(char *fn,struct dev* sd_num)
+unsigned int getcluster(char *fn,struct dev* sd_num)
 {
-
-    bpb_t *bpb=(bpb_t*)(&_end+ sd_num->record);/*DBR*/
-    fatdir_t *dir=(fatdir_t*)(&_end+2048);
+    kservice_uart_write("Initial FAT16 component! _end:%x\n\r",kservice_end);
+    bpb_t *bpb=(bpb_t*)(kservice_end+ sd_num->record);/*DBR*/
+    fatdir_t *dir=(fatdir_t*)(kservice_end+2048);
     unsigned int root_sec, s;
     // find the root directory's LBA
     root_sec=((bpb->spf16)*bpb->nf)+bpb->rsc;
@@ -49,12 +48,12 @@ unsigned int fat16_getcluster(char *fn,struct dev* sd_num)
 /**
  * Read a file into memory
  */
-char *fat16_readfile( int cluster,struct dev* sd_num)
+char *read_file_f( int cluster,struct dev* sd_num)
 {
     // BIOS Parameter Block
-    bpb_t *bpb=(bpb_t*)(&_end+sd_num->record);
+    bpb_t *bpb=(bpb_t*)(kservice_end+sd_num->record);
     // File allocation tables. We choose between FAT16 and FAT32 dynamically
-    unsigned int *fat32=(unsigned int*)(&_end + (512*3-sd_num->record) + bpb->rsc*512);/*reserved: bpb->rsc*/
+    unsigned int *fat32=(unsigned int*)(kservice_end + (512*3-sd_num->record) + bpb->rsc*512);/*reserved: bpb->rsc*/
     unsigned short *fat16=(unsigned short*)fat32;
     // unsigned short *fat16=(unsigned short*)fat32;
     // Data pointers
@@ -70,10 +69,10 @@ char *fat16_readfile( int cluster,struct dev* sd_num)
     // dump important properties
     // load FAT table
 
-    s = kservice_dev_read(1, sd_num->partitionlba+1,(unsigned char*)(&_end+2048),(bpb->spf16)+bpb->rsc);
+    s = kservice_dev_read(1, sd_num->partitionlba+1,(unsigned char*)(kservice_end+2048),(bpb->spf16)+bpb->rsc);
    
     // end of FAT in memory
-    data = ptr = (unsigned char*)(&_end+2048+s);
+    data = ptr = (unsigned char*)(kservice_end+2048+s);
     // iterate on cluster chain
     while(cluster>1 && cluster<0xFFF8) {
 	// load all sectors in a cluster
@@ -85,9 +84,11 @@ char *fat16_readfile( int cluster,struct dev* sd_num)
     }
     return (char*)data;
 }
-void fat16_read_directory(void* nope, struct dev* sd_num)
+void read_direct(void* nope, struct dev* sd_num)
 { 
-    bpb_t *bpb=(bpb_t*)(&_end+sd_num->record);
+    kservice_uart_write("Initial FAT16 component! _end:%x\n\r",kservice_end);
+    bpb_t *bpb=(bpb_t*)(kservice_end+sd_num->record);
+     kservice_uart_write("bpb:%x\n\r",bpb->spf16);
     unsigned int root_sec, s;
     // find the root directory's LBA
     root_sec=((bpb->spf16)*bpb->nf)+bpb->rsc;
@@ -96,7 +97,7 @@ void fat16_read_directory(void* nope, struct dev* sd_num)
     // add partition LBA
     root_sec+=sd_num->partitionlba;
     // load the root directory
-    kservice_dev_read(1, root_sec,(unsigned char*)(&_end+2048),s/512+1);
-    unsigned long addr = (unsigned long)(&_end+2048);
-    kservice_dir_interface((unsigned int*)(&_end+(addr-(unsigned long)&_end)));
+    kservice_dev_read(1, root_sec,(unsigned char*)(kservice_end+2048),s/512+1);
+    unsigned long addr = (unsigned long)(kservice_end+2048);
+    kservice_dir_interface((unsigned int*)(kservice_end+(addr-(unsigned long)kservice_end)));
 }

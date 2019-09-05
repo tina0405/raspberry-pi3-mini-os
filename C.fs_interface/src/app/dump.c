@@ -3,8 +3,9 @@
 #include "fat32.h"
 #include "mini_uart.h"
 #include "printf.h"
+#include "mm.h"
 extern unsigned char _end;
-
+extern int cd_rem;
 void data_dump(void *ptr, int size)
 {
     unsigned long a,b,d,stop;
@@ -39,16 +40,28 @@ void data_dump(void *ptr, int size)
 }
  
 int dump(char* file_name){
+	unsigned long addr = 0;
 	for(int k = 0;file_dir[k].name[0]!='\0';k++){
-	 
 	   if(!memcmp(file_dir[k].name,file_name,8)){
 
 		/*get cluster for*/
 		unsigned int clust = ((unsigned int)file_dir[k].ch)<<16|(unsigned int)file_dir[k].cl;
 		if(clust){
                         printf("\n\r");
-			unsigned long addr = fat16_readfile(clust, &partition[1]);	
-                        data_dump((char *)addr,file_dir[k].size);
+			switch(partition[cd_rem].type){
+				case 0xc:
+					addr = fat32_readfile(0, clust, &partition[cd_rem]);
+					break;
+#ifdef FAT16
+				case 0xe:
+					addr = fat16_readfile(0, clust, &partition[cd_rem]);
+					break;
+#endif
+				default:
+					printf("Not support %x type in File system",partition[cd_rem].type);
+					return 0;			
+			}
+                        data_dump((char*)addr,file_dir[k].size);
 			//sdTransferBlocks (sect, 1, &_end, 1);
 
 		}

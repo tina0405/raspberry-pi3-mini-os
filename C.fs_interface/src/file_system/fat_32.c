@@ -33,7 +33,7 @@ extern unsigned char _end;
 /**
  * Find a file in root directory entries
  */
-unsigned int fat32_getcluster(char *fn,struct dev* sd_num)
+unsigned int fat32_getcluster(void* nope, char *fn,struct dev* sd_num)
 {
     bpb_t *bpb=(bpb_t*)(&_end+ sd_num->record);/*DBR*/
     fatdir_t *dir_32=(fatdir_t*)(&_end+2048);
@@ -66,7 +66,7 @@ unsigned int fat32_getcluster(char *fn,struct dev* sd_num)
  * Read a file into memory
  */
 //int sect = 0;
-char *fat32_readfile( int cluster,struct dev* sd_num)
+char *fat32_readfile(void* nope, int cluster,struct dev* sd_num)
 {
 
     // BIOS Parameter Block
@@ -106,7 +106,7 @@ char *fat32_readfile( int cluster,struct dev* sd_num)
 void fat32_read_directory(void* nope, struct dev* sd_num)
 {
     bpb_t *bpb=(bpb_t*)(&_end + sd_num->record);
-    unsigned int fat_addr= fat32_readfile(bpb->rc, sd_num);
+    unsigned int fat_addr= fat32_readfile(0,bpb->rc, sd_num);
     fat_listdirectory(&_end+(fat_addr-(unsigned int)&_end));
 }
 

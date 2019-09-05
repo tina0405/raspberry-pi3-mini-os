@@ -33,6 +33,7 @@ void build_kernel_directory(void){
     struct fs_unit* return_fs;
     memzero(&(sd_p[0][0]),44);
     for(int pnum=0; pnum<4; pnum++){
+	
 	 return_fs = fs_type_support(partition[pnum].type);
 	 if(return_fs){
 		dev_param = &partition[pnum];
@@ -55,6 +56,7 @@ void build_kernel_directory(void){
 		file_dir_i++;
 	 }
     }
+    
     //memcpy(fat32_read_directory(partition[0]), (&sd_p[0][0]), 11);
     //printf("A:%s\n\r",&sd_p[0][0]);
 }
