@@ -4,12 +4,23 @@
 
 static unsigned short mem_map [ PAGING_PAGES ] = {0,};
 
-unsigned long allocate_kernel_page() {
-	unsigned long page = get_free_page();
+struct mm_info allocate_kernel_page(int count) {
+	int num;
+	struct mm_info return_mm;	
+	if(count%4096){
+		num = (count/4096)+1;	
+	}else{
+		num = count/4096;
+	}	
+	unsigned long page = get_free_page(num);
 	if (page == 0) {
-		return 0;
+		return_mm.start = 0;
+		return_mm.size = 0;
+		return return_mm;
 	}
-	return page + VA_START;
+	return_mm.start = page + VA_START;
+	return_mm.size = num;
+	return return_mm;
 }
 /*i*/
 unsigned long allocate_pcb_space() {
@@ -18,12 +29,12 @@ unsigned long allocate_pcb_space() {
 	unsigned long page;
 	
 	if(flag == 0){	
-		page = get_free_page();
+		page = get_free_page(1);
 		flag = 1;
 	}
 	
 	if(index==64){	
-		page = get_free_page();
+		page = get_free_page(1);
 		index=0;
 	}
 
@@ -36,7 +47,7 @@ unsigned long allocate_pcb_space() {
 }
 
 unsigned long allocate_user_page(struct task_struct *task, unsigned long va) {	
-	unsigned long page = get_free_page();
+	unsigned long page = get_free_page(1);
 	if (page == 0) {
 		return 0;
 	}
@@ -44,20 +55,31 @@ unsigned long allocate_user_page(struct task_struct *task, unsigned long va) {
 	return page + VA_START;
 }
 
-unsigned long get_free_page()
+unsigned long get_free_page(int count)
 {
+	int succeed = 1;
 	for (int i = 0; i < PAGING_PAGES; i++){
-		if (mem_map[i] == 0){
-			mem_map[i] = 1;
+		succeed = 1;
+		for (int j = 0;j < count;j++){
+			if (mem_map[i+j] != 0){
+				succeed = 0;
+				break;			
+			}
+		}
+		if(succeed == 1){
+			for (int k = 0;k < count;k++){
+				mem_map[i+k] = 1;
+			}
 			unsigned long page = LOW_MEMORY + i*PAGE_SIZE;
-			memzero(page + VA_START, PAGE_SIZE);
+			memzero(page + VA_START, PAGE_SIZE*count);
 			return page;
+		
 		}
 	}
 	return 0;
 }
 
-void free_page(unsigned long p){
+void free_page(unsigned long p){/*need improve*/
 	int a = ((p - LOW_MEMORY) / PAGE_SIZE);
 	mem_map[a] = 0;
 }
@@ -74,7 +96,7 @@ unsigned long map_table(unsigned long *table, unsigned long shift, unsigned long
 	index = index & (PTRS_PER_TABLE - 1);
 	if (!table[index]){
 		*new_table = 1;
-		unsigned long next_level_table = get_free_page();
+		unsigned long next_level_table = get_free_page(1);
 		unsigned long entry = next_level_table | MM_TYPE_PAGE_TABLE;
 		table[index] = entry;
 		return next_level_table;
@@ -87,7 +109,7 @@ unsigned long map_table(unsigned long *table, unsigned long shift, unsigned long
 void map_page(struct task_struct *task, unsigned long va, unsigned long page){
 	unsigned long pgd;
 	if (!task->mm.pgd) {
-		task->mm.pgd = get_free_page();
+		task->mm.pgd = get_free_page(1);
 		task->mm.kernel_pages[++task->mm.kernel_pages_count] = task->mm.pgd;
 	}
 	
@@ -132,7 +154,7 @@ static int ind = 1;
 int do_mem_abort(unsigned long addr, unsigned long esr) {
 	unsigned long dfs = (esr & 0b111111);
 	if ((dfs & 0b111100) == 0b100) {
-		unsigned long page = get_free_page();
+		unsigned long page = get_free_page(1);
 		if (page == 0) {
 
 			return -1;
@@ -141,7 +163,6 @@ int do_mem_abort(unsigned long addr, unsigned long esr) {
 		/*		
 		ind++;
 		if (ind > 3){
-
 			return -1;
 		}
 */
@@ -150,3 +171,4 @@ int do_mem_abort(unsigned long addr, unsigned long esr) {
 	printf("A3");
 	return -1;
 }
+

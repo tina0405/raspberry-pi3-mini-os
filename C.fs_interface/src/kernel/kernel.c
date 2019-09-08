@@ -57,7 +57,7 @@ void kernel_main()
 		// read the master boot record and find our partition
 		if(fat_getpartition()) {
 		     /*compt.c*/
-		     read_ksymbol();
+		     //read_ksymbol();
 		} else {
 		    uart_puts("FAT partition not found???\n\r");
 		}	

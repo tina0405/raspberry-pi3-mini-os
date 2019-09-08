@@ -142,6 +142,8 @@ struct pt_regs *prev_childregs;
 struct pt_regs *prev_real_regs;
 struct pt_regs *next_childregs;
 struct pt_regs *next_real_regs;
+struct mm_info page_next_mm;
+struct mm_info page_prev_mm;
 unsigned long  page_next;
 unsigned long  page_prev;
 struct task_struct *prev_real;
@@ -156,8 +158,10 @@ void switch_to(struct pcb_struct * next)
 	
 
 	if(flag ==0){
-		page_prev = allocate_kernel_page();
-		page_next = allocate_kernel_page();
+		page_prev_mm = allocate_kernel_page(4096);
+		page_next_mm = allocate_kernel_page(4096);
+		page_prev = page_prev_mm.start;
+		page_next = page_next_mm.start;
 		prev_real = (struct task_struct *) page_prev;
 		next_real =(struct task_struct *) page_next;
 		flag = 1;

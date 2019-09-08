@@ -30,6 +30,7 @@
 #include "fat.h"
 // get the end of bss segment from linker
 extern unsigned char _end;
+extern unsigned char _start_;
 /**
  * Find a file in root directory entries
  */
@@ -72,25 +73,20 @@ char *fat32_readfile(void* nope, int cluster,struct dev* sd_num)
     // BIOS Parameter Block
     bpb_t *bpb=(bpb_t*)(&_end+sd_num->record);
     // File allocation tables. We choose between FAT16 and FAT32 dynamically
-    unsigned int *fat32=(unsigned int*)(&_end + (512*3-sd_num->record) + bpb->rsc*512);/*reserved: bpb->rsc*/
-   // unsigned short *fat16=(unsigned short*)fat32;
+    unsigned int *fat32=(unsigned int*)(&_start_ + sd_num-> fat_table_start - 512 + bpb->rsc*512);/*reserved: bpb->rsc*/
+
+
     // Data pointers
     unsigned int data_sec, s;
     unsigned char *data, *ptr;
     // find the LBA of the first data sector
     data_sec = ((bpb->spf32)*bpb->nf)+bpb->rsc;
-
     s = (bpb->nr0 + (bpb->nr1 << 8)) * sizeof(fatdir_t);
     // add partition LBA
     data_sec+= sd_num->partitionlba;
-    // dump important properties
 
-    // load FAT table
-    //printf("READ: %x %x",sd_num->partitionlba+1,(bpb->spf32)+bpb->rsc);
-    s = kservice_dev_read(1, sd_num->partitionlba+1,(unsigned char*)&_end+2048,(bpb->spf32)+bpb->rsc);
-    //printf("FINISH");
     // end of FAT in memory
-    data = ptr = &_end+2048+s;
+    data = ptr = &_end+2048;
     // iterate on cluster chain
     while(cluster>1 && cluster<0xFFF8) {
 	// load all sectors in a cluster

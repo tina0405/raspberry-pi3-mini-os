@@ -66,7 +66,9 @@ struct dev{
 	unsigned int record;
 	unsigned int partitionlba;
 	int type;
-	int dev_type; /*nope=0, sd=1*/	
+	int dev_type; /*nope=0, sd=1*/
+	unsigned int fat_table_start;
+	unsigned int fat_table_end;	
 }; 
 struct user_fs{
     char           name[11];

@@ -41,10 +41,15 @@ int memcmp(unsigned long src, unsigned long dst, unsigned long n);
 void memcpy(unsigned long src, unsigned long dst, unsigned long n);
 
 int copy_virt_memory(struct task_struct *dst); 
-unsigned long allocate_kernel_page(); 
+struct mm_info allocate_kernel_page(int count); 
 unsigned long allocate_user_page(struct task_struct *task, unsigned long va); 
 
 extern unsigned long pg_dir;
+
+struct mm_info{
+	unsigned long  start;
+	unsigned int size;
+}; 
 
 #endif
 

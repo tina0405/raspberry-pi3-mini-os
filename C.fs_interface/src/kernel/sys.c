@@ -127,8 +127,8 @@ void  kservice_rm_compt(char* compt_name){
 	rm_compt_file(compt_name);
 }
 
-unsigned long  kservice_allocate_kpage(){
-	return allocate_kernel_page();
+struct mm_info kservice_allocate_kpage(int count){
+	return allocate_kernel_page(count);
 }
 
 void  kservice_schedule(){

@@ -5,6 +5,7 @@
 #include "printf.h"
 #include "mm.h"
 extern unsigned char _end;
+extern unsigned char _start_;
 extern int cd_rem;
 void data_dump(void *ptr, int size)
 {
@@ -48,20 +49,15 @@ int dump(char* file_name){
 		unsigned int clust = ((unsigned int)file_dir[k].ch)<<16|(unsigned int)file_dir[k].cl;
 		if(clust){
                         printf("\n\r");
-			switch(partition[cd_rem].type){
-				case 0xc:
-					addr = fat32_readfile(0, clust, &partition[cd_rem]);
-					break;
-#ifdef FAT16
-				case 0xe:
-					addr = fat16_readfile(0, clust, &partition[cd_rem]);
-					break;
-#endif
-				default:
-					printf("Not support %x type in File system",partition[cd_rem].type);
-					return 0;			
+			struct fs_unit* return_fs = fs_type_support(partition[cd_rem].type);
+               		if(return_fs){
+				addr = bl_init( &_start_+(return_fs->addr_readfile -(unsigned int)&_start_), clust, &partition[cd_rem]);
+			}else{
+				printf("Not support %x type in File system",partition[cd_rem].type);
+				return 0;
 			}
-                        data_dump((char*)addr,file_dir[k].size);
+			
+                        data_dump((char*)&_start_ + addr,file_dir[k].size);
 			//sdTransferBlocks (sect, 1, &_end, 1);
 
 		}

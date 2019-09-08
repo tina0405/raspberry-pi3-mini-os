@@ -95,8 +95,9 @@ int compt_file(char* file_name){/*incom*/
 			for(int num_sec = 0 ; num_sec < section_num ; num_sec++){
                         	find_sec_addr(section_table_start + base + num_sec * section_size);
 			}
-			
-			unsigned long section = allocate_kernel_page();
+			struct mm_info section_mm;
+			section_mm = allocate_kernel_page(4096);
+			unsigned long section = section_mm.start;
 			comp_start = section;			
 
 
@@ -158,7 +159,6 @@ int compt_fs_file(char* file_name){/*incom*/
 	 
 	   if(!memcmp(file_dir[k].name,file_name,8)){
 		clust =((unsigned int)file_dir[k].ch)<<16|file_dir[k].cl;
-		printf("%x",clust);
 		if(clust){
 
 			printf("\n\r");
@@ -199,7 +199,9 @@ int compt_fs_file(char* file_name){/*incom*/
                         	find_sec_addr(section_table_start + base + num_sec * section_size);
 			}
 			
-			unsigned long section = allocate_kernel_page();
+			struct mm_info section_mm;
+			section_mm = allocate_kernel_page(4096);
+			unsigned long section = section_mm.start;
 			comp_start = section;			
 
 
@@ -562,9 +564,6 @@ void ls_compt(void){
 int read_ksymbol(){
 	unsigned int clust =0;
         char* base;
-        fat32_read_directory(0,&partition[0]);
-        build_root();
-	search_file();
 	for(int k = 0;file_dir[k].name[0]!='\0';k++){
 	   if(!strcmp(file_dir[k].name,"SYMBOL  TXT")){
 	  	clust =((unsigned int)file_dir[k].ch)<<16|file_dir[k].cl;	

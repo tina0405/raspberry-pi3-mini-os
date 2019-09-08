@@ -23,9 +23,13 @@ int copy_process(unsigned long clone_flags, unsigned long fn,unsigned long arg,u
 	preempt_disable();
 	struct pcb_struct *pcb;
 	struct task_struct *p;
-	
-	unsigned long page = allocate_kernel_page();
-	unsigned long page_1 = allocate_kernel_page();
+	struct mm_info page_mm;
+	struct mm_info page_1_mm;
+		
+	page_mm =  allocate_kernel_page(4096);
+	page_1_mm = allocate_kernel_page(4096);
+	unsigned long page = page_mm.start;
+	unsigned long page_1 = page_1_mm.start;
 	
 	p = (struct task_struct *) page;
 	pcb = (struct pcb_struct *) page_1;

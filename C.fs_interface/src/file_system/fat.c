@@ -51,8 +51,7 @@ int fat_getpartition(void)
             uart_puts("ERROR: Unknown file system type for boot\n");
             return 0;
          }
-	/*save FAT table*/
-	
+
         return 1;
     }
     printf("Cannot read sd card block.");

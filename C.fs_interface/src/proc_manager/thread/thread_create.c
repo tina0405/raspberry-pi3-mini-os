@@ -37,9 +37,13 @@ int _thread_create(thread_t *thread, const struct thread_attr_t *attr,void * (*s
 	struct pcb_struct *pcb; /*interface*/
 	struct task_struct *p; /*new space, just need pt_regs*/
 	struct task_struct *now = &(current->cpu_context->x19);	/*now task*/
-	
-	unsigned long page = allocate_kernel_page();
-	unsigned long page_1 = allocate_kernel_page();
+	struct mm_info page_mm;
+	struct mm_info page_1_mm;
+		
+	page_mm =  allocate_kernel_page(4096);
+	page_1_mm = allocate_kernel_page(4096);
+	unsigned long page = page_mm.start;
+	unsigned long page_1 = page_1_mm.start;
 	
 	p = (struct task_struct *) page;
 	pcb = (struct pcb_struct *) page_1;
