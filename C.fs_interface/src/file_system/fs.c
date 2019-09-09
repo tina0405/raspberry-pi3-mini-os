@@ -25,6 +25,7 @@ struct fs_unit* fs_type_support(int type){
 	return (struct fs_unit*)0;
 }
 
+
 void build_kernel_directory(void){
     char* tmp;
     char* pa_name; 
@@ -49,20 +50,39 @@ void build_kernel_directory(void){
 			case 0xc:
 				memory = allocate_kernel_page((bpb->spf32+bpb->rsc)*512);
 				s = kservice_dev_read(1, partition[pnum].partitionlba+1,(unsigned char*)(memory.start),bpb->spf32+bpb->rsc);
+				/*clean empty[16]*/
+				unsigned int *fat32 = (unsigned int*)(memory.start - 512 + bpb->rsc*512);
+				for(int i = 0, k = 0; i < (bpb->spf32 - bpb->rsc + 1)*(512/32) ;i++){
+					if(fat32[i]==0){
+						partition[pnum].empty[k++] = i;
+						if(k == 16){break;}	
+					}
+				}
 				break;
 #ifdef FAT16
 			case 0xe:
 				memory = allocate_kernel_page((bpb->spf16+bpb->rsc)*512);
 				s = kservice_dev_read(1, partition[pnum].partitionlba+1,(unsigned char*)memory.start,bpb->spf16+bpb->rsc);
+				/*clean empty[16]*/				
+				unsigned short *fat16 = (unsigned short*)(memory.start - 512 + bpb->rsc*512);
+				for(int a = 0, b = 0; a < (bpb->spf16 - bpb->rsc + 1)*(512/16);a++){
+					if(fat16[a]==0){
+						partition[pnum].empty[b++] = a;
+						if(b==16){break;}	
+					}
+		
+				}		
 				break;
 #endif	
 		}
-                
+		
                 partition[pnum].fat_table_start = memory.start;
 		bl_init( &_start_+(return_fs->addr_directory-(unsigned int)&_start_),dev_param);		
 		build_root();
    	 	pa_name =  search_file(); 
-		pa_in = 0;	
+		pa_in = 0;
+		/*scanf empty cluster*/
+		//scanf_empty_cluster(partition[pnum].type,(unsigned char*)(memory.start));	
 		if(pnum == 0){
 			read_ksymbol();
 		}
@@ -73,8 +93,7 @@ void build_kernel_directory(void){
 		sd_p[pnum][pa_in] = '\0';
 	 }
     }
-
-
+    
 
     memzero(file_dir,sizeof(struct user_fs)*20);/*file_dir index */
     for(int build_d = 0,file_dir_i = 0; build_d<4; build_d++){
@@ -93,10 +112,11 @@ void build_kernel_directory(void){
     //printf("A:%s\n\r",&sd_p[0][0]);
 }
 
+
+
 void build_root(void){
 	origin = dir;
 }
-
 
 char* search_file(void){
         int index = 0;

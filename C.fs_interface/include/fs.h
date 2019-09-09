@@ -68,7 +68,7 @@ struct dev{
 	int type;
 	int dev_type; /*nope=0, sd=1*/
 	unsigned int fat_table_start;
-	//unsigned int * empty_head;
+	unsigned int empty[16];
 	//unsigned int fat_table_end;	
 }; 
 struct user_fs{
