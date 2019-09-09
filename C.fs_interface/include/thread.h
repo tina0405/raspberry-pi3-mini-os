@@ -17,4 +17,5 @@ int _thread_mutex_trylock (struct thread_mutex *mutex);
 void _thread_cond_signal(thread_t thread);
 void *_thread_exit (void *status);
 int _thread_create(thread_t *thread, const struct thread_attr_t *attr,void * (*start_routine)(void *),void* arg);
+int _thread_mutex_init ( struct thread_mutex *mutex, struct thread_attr_t *attr );
 #endif

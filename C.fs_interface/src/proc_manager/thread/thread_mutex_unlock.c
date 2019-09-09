@@ -1,8 +1,10 @@
 #include <stddef.h>
 #include "sched.h"
+#include "printf.h"
 int _thread_mutex_unlock (struct thread_mutex *mutex)
 {
 	int ret = unlock(&mutex->__lock);
+	//printf("unlock:%d", ret);
 	if(ret != 0 ){
 		return 1; 
 	}

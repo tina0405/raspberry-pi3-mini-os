@@ -7,6 +7,7 @@ extern struct pcb_struct *thread_id_table[4096];
 int _thread_mutex_lock (struct thread_mutex *mutex)
 {
   /*owner*/ 
+ 
   while(try_lock(&(mutex->__lock))!=0)
   {
 	if(mutex->__attr == 0){
@@ -24,7 +25,6 @@ int _thread_mutex_lock (struct thread_mutex *mutex)
 	}
   
   }
-
   mutex->__owner = thread_id_self();
   return 0;//Successfully acquired the lock  	
 

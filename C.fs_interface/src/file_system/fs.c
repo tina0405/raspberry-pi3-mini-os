@@ -44,6 +44,7 @@ void build_kernel_directory(void){
                 /*malloc*/
 		bpb=(bpb_t*)(&_end + partition[pnum].record);
 		dev_param = &partition[pnum];	
+		/*save the FAT table*/
 		switch(partition[pnum].type){
 			case 0xc:
 				memory = allocate_kernel_page((bpb->spf32+bpb->rsc)*512);
@@ -57,9 +58,7 @@ void build_kernel_directory(void){
 #endif	
 		}
                 
-                //ptr = (unsigned char*)(&_end+2048+s);
                 partition[pnum].fat_table_start = memory.start;
-		partition[pnum].fat_table_end = memory.start+s;
 		bl_init( &_start_+(return_fs->addr_directory-(unsigned int)&_start_),dev_param);		
 		build_root();
    	 	pa_name =  search_file(); 
@@ -74,9 +73,9 @@ void build_kernel_directory(void){
 		sd_p[pnum][pa_in] = '\0';
 	 }
     }
-    bpb=(bpb_t*)(&_end + partition[0].record);
-    kservice_dev_read(1, partition[0].partitionlba+1,(unsigned char*)&_start_ + partition[0].fat_table_start,bpb->spf32+bpb->rsc);
-    //data_dump((unsigned int*)(&_start_ +  partition[0].fat_table_start - 512 + bpb->rsc*512),64);
+
+
+
     memzero(file_dir,sizeof(struct user_fs)*20);/*file_dir index */
     for(int build_d = 0,file_dir_i = 0; build_d<4; build_d++){
 	 if(sd_p[build_d][0] != (char)8 && sd_p[build_d][0] != '\0'){
