@@ -190,25 +190,25 @@ call_sys_lscom:
 	ret
 
 .globl call_sys_fopen
-call_sys_lscom:
+call_sys_fopen:
 	mov w8, #SYS_FOPEN_NUMBER
 	svc #0
 	ret
 
 .globl call_sys_fwrite
-call_sys_lscom:
+call_sys_fwrite:
 	mov w8, #SYS_FWRITE_NUMBER
 	svc #0
 	ret
 
 .globl call_sys_fclose
-call_sys_lscom:
+call_sys_fclose:
 	mov w8, #SYS_FCLOSE_NUMBER
 	svc #0
 	ret
 
 .globl call_sys_fscanf
-call_sys_lscom:
+call_sys_fscanf:
 	mov w8, #SYS_FSCANF_NUMBER
 	svc #0
 	ret

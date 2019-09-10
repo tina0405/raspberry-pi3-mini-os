@@ -85,7 +85,7 @@ int copy_process(unsigned long clone_flags, unsigned long fn,unsigned long arg,u
 	
 	struct pcb_struct *tmp_pcb;
 	if (clone_flags == SERVER_THREAD){/*SERVER*/
-		tmp_pcb = task_prio_table[0];
+		tmp_pcb = head[0];
 		if(tmp_pcb -> nextp != NULL){
 			pcb -> nextp = tmp_pcb->nextp;
 			pcb -> prevp = tmp_pcb;
@@ -98,7 +98,7 @@ int copy_process(unsigned long clone_flags, unsigned long fn,unsigned long arg,u
 
 		
 	}else if  (clone_flags == APP_THREAD || clone_flags == FORK_THREAD){
-		tmp_pcb = task_prio_table[1];
+		tmp_pcb = head[1];
 		if(tmp_pcb -> nextp != NULL){
 			pcb -> nextp = tmp_pcb->nextp;
 			pcb -> prevp = tmp_pcb;

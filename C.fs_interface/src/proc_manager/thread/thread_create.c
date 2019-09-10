@@ -64,7 +64,6 @@ int _thread_create(thread_t *thread, const struct thread_attr_t *attr,void * (*s
 	childregs->pstate = cur_regs->pstate;
 	
 	copy_virt_memory(p);/*here*/
-	
 	p->flags = 0;
 	p->priority = 2;
 	p->state = THREAD_JOINABLE;/*default*/
@@ -93,7 +92,7 @@ int _thread_create(thread_t *thread, const struct thread_attr_t *attr,void * (*s
 	thread_id_table[tid] = pcb;
 
         /*schedule*/      
-	tmp_pcb = task_prio_table[1];
+	tmp_pcb = head[1];
 	if(tmp_pcb -> nextp != NULL){
 		pcb -> nextp = tmp_pcb->nextp;
 		pcb -> prevp = tmp_pcb;

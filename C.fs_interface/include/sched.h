@@ -17,7 +17,7 @@
 #define THREAD_DETACHED			3 /* The thread is running and detached.  */
 #define THREAD_EXITED				4 /* A joinable thread exited and its return code is available.  */
 
-//#define APP_THREAD				0x00000003
+
 //#define MODULE_THREAD				0x00000002
 #define FORK_THREAD				0x00000002
 #define APP_THREAD				0x00000001	
@@ -28,6 +28,7 @@ extern struct task_struct *next_real;
 struct pcb_struct *task[NR_TASKS];
 extern int nr_tasks;
 extern struct pcb_struct *task_prio_table[2];
+extern struct pcb_struct *head[2];
 #include <pm.h> 
 struct mailbox {
 	unsigned int letter_type;
@@ -129,8 +130,8 @@ struct pcb_struct {
 	struct pcb_struct *nextp;
 	/*thread child*/
 	struct pcb_struct *main_thread;
-	struct pcb_struct *thread_p;
-	struct pcb_struct *thread_n;	
+	struct pcb_struct *thread_p;/*prev thread*/
+	struct pcb_struct *thread_n;/*next thread*/	
 	/*mailbox*/
 	struct mailbox Box[8];
 	/*Rendezvous*/

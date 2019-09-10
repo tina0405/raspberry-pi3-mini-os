@@ -65,6 +65,9 @@ struct pcb_struct {
 
 
 int next = 0;
+int is_running(struct pcb_struct * task){
+	return (*(task->state)== TASK_RUNNING||*(task->state) == THREAD_JOINABLE||*(task->state) == THREAD_DETACHED);
+}
 void _schedule(void)
 {
 	preempt_disable();
@@ -83,8 +86,9 @@ void _schedule(void)
 			if(index == 2){ index = 0; }
 			
 		}
-		//printf("%x\n\r",index);
-		if(*(task_prio_table[index]->nextp->state) == TASK_RUNNING||*(task_prio_table[index]->nextp->state) == THREAD_JOINABLE||*(task_prio_table[index]->nextp->state) == THREAD_DETACHED){
+		/*change here*/
+		if(is_running(task_prio_table[index]->nextp)){
+			/*change here*/
 			break;
 
 		}else{
