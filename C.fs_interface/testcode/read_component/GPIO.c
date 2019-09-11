@@ -1,5 +1,6 @@
 #include<kservice.h>
 #include<gpio.h>
+#include<sched.h>
 #define oper_compt main
 
 
@@ -24,9 +25,16 @@ void led_20_blink(int a){
 }
 */
 
-void init_compt(void){ /*initial*/
+int init_compt(void* nope,struct pcb_struct* pcb){ /*initial*/
 	kservice_uart_write("Initial GPIO component!\n\r");
+	kservice_uart_write("priority:%d\n\r",*pcb->priority);
+	if(*pcb->priority){
+		kservice_uart_write(">0\n\r");
+	}else{
+		kservice_uart_write("<0\n\r");
+	}
 	//kservice_reg_compt("set_gpio");
+	return *pcb->state;
 }
 
 

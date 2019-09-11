@@ -77,25 +77,21 @@ void _schedule(void)
 	//struct pcb_struct pcb;
 	//printf("scheduler\n\r");
 	static int index = 0;/*3 priority highest*/
-	*(task_prio_table[index]->counter) = (*(task_prio_table[index]->counter) >> 1) + *(task_prio_table[index]->priority);
+	*(task_prio_table[index]->counter) = 15;
+	//*(task_prio_table[index]->counter) = (*(task_prio_table[index]->counter) >> 1) + *(task_prio_table[index]->priority);
 	while(1){
-
-		while (task_prio_table[index]->nextp == NULL){	
+		while (task_prio_table[index]->nextp == NULL){	/*choose*/
 			task_prio_table[index] = head[index];
 			index++;			
 			if(index == 2){ index = 0; }
-			
 		}
 		/*change here*/
 		if(is_running(task_prio_table[index]->nextp)){
-			/*change here*/
 			break;
 
 		}else{
-			task_prio_table[index] = task_prio_table[index]->nextp;
-					
+			task_prio_table[index] = task_prio_table[index]->nextp;			
 		}
-		
 	}
 	
 	task_prio_table[index] = task_prio_table[index]->nextp;
@@ -131,7 +127,9 @@ void _schedule(void)
 */
 	//printf("task_prio_table:%d\n\r",index);
 	switch_to(task_prio_table[index]);
-	preempt_enable();
+	if(index != 0){
+		preempt_enable();
+	}
 }
 
 void schedule(void)
