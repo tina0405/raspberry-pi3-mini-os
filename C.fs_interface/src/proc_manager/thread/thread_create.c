@@ -83,6 +83,7 @@ int _thread_create(thread_t *thread, const struct thread_attr_t *attr,void * (*s
 	pcb -> mm = &(now->mm);
 	pcb -> pid = current->pid;
 	pcb -> main_thread = current;
+	/*need initial next thread*/
 	while(thread_id_table[tid]!=0){		
 		tid = tid + 1;	
 		if(tid == 4096){tid=0;}
@@ -100,7 +101,8 @@ int _thread_create(thread_t *thread, const struct thread_attr_t *attr,void * (*s
 		tmp_pcb -> nextp =pcb;
 	}else{
 		tmp_pcb->nextp =  pcb;
-		pcb -> prevp =	tmp_pcb;			
+		pcb -> prevp =	tmp_pcb;
+		pcb -> nextp =	NULL;				
 	}
 
 	//task[pid] = pcb;

@@ -70,7 +70,7 @@ int copy_process(unsigned long clone_flags, unsigned long fn,unsigned long arg,u
 	pcb -> mm = &(p->mm);
 	pcb -> pid = pid;
 	pcb -> main_thread = pcb;/*man thread = self*/
-
+	/*need initial next thread*/
 	while(thread_id_table[tid]!=0){		
 		tid = tid + 1;	
 		if(tid == 4096){tid=0;}
@@ -93,20 +93,23 @@ int copy_process(unsigned long clone_flags, unsigned long fn,unsigned long arg,u
 			tmp_pcb -> nextp =pcb;
 		}else{
 			tmp_pcb->nextp =  pcb;
-			pcb -> prevp =	tmp_pcb;			
+			pcb -> prevp =	tmp_pcb;
+			pcb -> nextp =	NULL;			
 		}
 
 		
 	}else if  (clone_flags == APP_THREAD || clone_flags == FORK_THREAD){
 		tmp_pcb = head[1];
 		if(tmp_pcb -> nextp != NULL){
+			
 			pcb -> nextp = tmp_pcb->nextp;
 			pcb -> prevp = tmp_pcb;
 			tmp_pcb -> nextp -> prevp = pcb;
 			tmp_pcb -> nextp =pcb;
 		}else{
 			tmp_pcb->nextp =  pcb;
-			pcb -> prevp =	tmp_pcb;			
+			pcb -> prevp =	tmp_pcb;
+			pcb -> nextp =	NULL;			
 		}
 	}
 /*
