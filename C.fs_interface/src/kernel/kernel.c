@@ -24,6 +24,7 @@ extern unsigned int ipc_test;
 extern unsigned long shell_user_process;
 extern unsigned long try;
 unsigned int fat_addr;
+struct thread_mutex mm_lock;
 void kernel_process(){
 	unsigned long begin = (unsigned long)&user_begin;
 	unsigned long end = (unsigned long)&user_end;
@@ -64,7 +65,7 @@ void kernel_main()
        } 
         //printf("&_end:%x\n\r",&_end);
 	enable_cache();
-	
+	_thread_mutex_init(&mm_lock,(void *)0);
 	
 	int res = copy_process(SERVER_THREAD, (unsigned long)&pm_daemon, 0, 0);
 	

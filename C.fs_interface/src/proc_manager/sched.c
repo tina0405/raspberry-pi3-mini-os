@@ -68,6 +68,25 @@ int next = 0;
 int is_running(struct pcb_struct * task){
 	return (*(task->state)== TASK_RUNNING||*(task->state) == THREAD_JOINABLE||*(task->state) == THREAD_DETACHED);
 }
+
+struct pcb_struct * round_robin(void* nope,struct pcb_struct * current_task, struct pcb_struct * head){
+	*(current_task->counter) = 15;	
+	while(1){	
+		if(current_task->nextp == NULL){	
+			current_task = head;
+			return NULL;			
+		}else{
+			if(is_running(current_task->nextp)){
+				return current_task->nextp;
+			}else{
+				current_task = current_task->nextp;			
+			}
+
+		}
+	}
+}
+
+int index = 0;/*3 priority highest*/
 void _schedule(void)
 {
 	preempt_disable();
@@ -76,16 +95,45 @@ void _schedule(void)
 	//struct pcb_struct* pcb;
 	//struct pcb_struct pcb;
 	//printf("scheduler\n\r");
-	static int index = 0;/*3 priority highest*/
+/*
+	while(1){
+		if(index == 0){
+			printf("0");
+			if(task_prio_table[0]->nextp == NULL){	
+				task_prio_table[0] = head[0];
+				index = 1;			
+			}else{
+				if(is_running(task_prio_table[0]->nextp)){
+					task_prio_table[0] = task_prio_table[0]->nextp;
+					break;
+				}else{
+					task_prio_table[0] = task_prio_table[0]->nextp;			
+				}
+
+			}
+
+		}else{
+			printf("1");
+			struct pcb_struct * result = round_robin(0,task_prio_table[1],head[1]);
+			if(result == NULL){ 
+				index = 0;
+			}else{
+				task_prio_table[1] = result; 
+				break;
+			}
+		}
+
+	}
+*/
+
 	*(task_prio_table[index]->counter) = 15;
 	//*(task_prio_table[index]->counter) = (*(task_prio_table[index]->counter) >> 1) + *(task_prio_table[index]->priority);
 	while(1){
-		while (task_prio_table[index]->nextp == NULL){	/*choose*/
-			task_prio_table[index] = head[index];
+		while (task_prio_table[index]->nextp == NULL){
 			index++;			
 			if(index == 2){ index = 0; }
 		}
-		/*change here*/
+	
 		if(is_running(task_prio_table[index]->nextp)){
 			break;
 
@@ -127,10 +175,12 @@ void _schedule(void)
 */
 	//printf("task_prio_table:%d\n\r",index);
 	switch_to(task_prio_table[index]);
-	if(index != 0){
-		preempt_enable();
-	}
+	preempt_enable();
 }
+
+
+
+
 
 void schedule(void)
 {
@@ -192,15 +242,14 @@ void schedule_tail(void) {
 
 void timer_tick()
 {
+	//if(index == 0){return;}/*kernel service*/
 	--*(current->counter);
-
 	if (*(current->counter)>0 || *(current->preempt_count) >0) {
 		return;
 	}
 	*(current->counter)=0;
 
 	enable_irq();
-        //printf("interrupt schedule\n\r");
 	_schedule();
 	disable_irq();
 }

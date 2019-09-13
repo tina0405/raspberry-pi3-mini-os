@@ -59,6 +59,7 @@ void fs_daemon(void)
 
 			default:
 				schedule();
+				break;
 			
 		}
 

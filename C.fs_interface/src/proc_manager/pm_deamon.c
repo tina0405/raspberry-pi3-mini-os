@@ -11,7 +11,6 @@ extern struct pcb_struct *thread_id_table[4096];
 extern unsigned long mod_process;
 static int index_push = 0;
 static int index_pop = 0;
-
 struct mailbox user_ipc_mail[mail_size]; /*Mailbox*/
 int ipc_index_pop=0;
 
@@ -23,7 +22,6 @@ void pm_daemon(void)
 
 	printf("Process Manager Starts running....\n\r");
 	printf("Process Manager Starts receiving messages....\n\r");
-	
 	/*Rendezvous Message-Passing or Mailbox Message-Passing*/
 	struct pcb_struct *tmp_pcb;
         while(1){

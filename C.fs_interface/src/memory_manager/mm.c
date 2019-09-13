@@ -54,14 +54,11 @@ unsigned long allocate_user_page(struct task_struct *task, unsigned long va) {
 	map_page(task, va, page);	
 	return page + VA_START;
 }
-
+extern struct thread_mutex mm_lock;
 unsigned long get_free_page(int count)
 {
 	int succeed = 1;
-	static struct thread_mutex lock;
-	
-	_thread_mutex_init(&lock,(void *)0);
-	_thread_mutex_lock(&lock);
+	_thread_mutex_lock(&mm_lock);
 	for (int i = 0; i < PAGING_PAGES; i++){
 		succeed = 1;
 		for (int j = 0;j < count;j++){
@@ -76,12 +73,12 @@ unsigned long get_free_page(int count)
 			}
 			unsigned long page = LOW_MEMORY + i*PAGE_SIZE;
 			memzero(page + VA_START, PAGE_SIZE*count);
-			_thread_mutex_unlock(&lock);
+			_thread_mutex_unlock(&mm_lock);
 			return page;
 		
 		}
 	}
-        _thread_mutex_unlock(&lock);
+        _thread_mutex_unlock(&mm_lock);
 	return 0;
 }
 
