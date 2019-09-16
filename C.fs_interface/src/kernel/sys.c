@@ -9,6 +9,7 @@
 #include "threadtype.h"
 #include "fs.h"
 #include "thread.h"
+#include "pm.h"
 extern struct mailbox user_ipc_mail[mail_size];
 int add_thread(thread_t *thread, const struct thread_attr_t *attr,void * (*start_routine)(void *),void* arg);
 thread_t thread_id_self(void);
@@ -85,7 +86,7 @@ void  kservice_run_file(char* file_name){
 
 /*ipc_*/
 int ipc_index_push =0;
-void kservice_send_msg(unsigned int type, int pid, int msg){
+void kservice_send_msg(unsigned int type, int pid, void* msg){
 	user_ipc_mail[ipc_index_push].dst_task = pid;/*pid?*/
 	user_ipc_mail[ipc_index_push].from = current;
 	user_ipc_mail[ipc_index_push].msg = msg;
@@ -150,11 +151,11 @@ void kservice_ls_dev(void){
 void kservice_ls_compt(void){
 	ls_compt();
 }
-/*
-void  kservice_use_compt(char* compt_name,void * arg){
-	use_compt(file_name,arg);
+
+void  kservice_change_sched(char* file_name){
+	send_msg(Change_Sched,thread_id_self(), file_name);
 }
-*/
+
 
 int kservice_dev_read(int dev,unsigned int lba, unsigned char *buffer, unsigned int num){	
 		
@@ -176,6 +177,8 @@ extern unsigned char _end;
 unsigned char* kservice_end(void){
 	return &_end;
 }
+
+
 
 void * const sys_call_table[] = {kservice_uart_write, /*0*/
 kservice_fork, /*1*/
@@ -203,11 +206,12 @@ kservice_free_page, /*22*/
 kservice_rm_compt, /*23*/
 kservice_ls_dev, /*24*/
 kservice_ls_compt, /*25*/
+kservice_change_sched,/*26*/
 /*below for symbol table*/
-kservice_allocate_kpage, /*26*/
-kservice_schedule, /*27*/
-kservice_reg_compt, /*28*/
-kservice_unreg_compt, /*29*/
-kservice_dev_read, /*30*/
-kservice_dir_interface,
+kservice_allocate_kpage, /*27*/
+kservice_schedule, /*28*/
+kservice_reg_compt, /*29*/
+kservice_unreg_compt, /*30*/
+kservice_dev_read, /*31*/
+kservice_dir_interface, /*31*/
 }; 

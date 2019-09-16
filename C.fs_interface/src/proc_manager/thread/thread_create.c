@@ -93,7 +93,7 @@ int _thread_create(thread_t *thread, const struct thread_attr_t *attr,void * (*s
 	thread_id_table[tid] = pcb;
 
         /*schedule*/      
-	tmp_pcb = head[1];
+	tmp_pcb = head[APP_THREAD];
 	if(tmp_pcb -> nextp != NULL){
 		pcb -> nextp = tmp_pcb->nextp;
 		pcb -> prevp = tmp_pcb;

@@ -19,23 +19,22 @@
 
 
 //#define MODULE_THREAD				0x00000002
-#define FORK_THREAD				0x00000003
-#define APP_THREAD				0x00000002
-#define EXTRA_SERVER_THREAD			0x00000001
+#define FORK_THREAD				0x00000002
+#define APP_THREAD				0x00000001	
 #define SERVER_THREAD				0x00000000
 
 extern struct pcb_struct *current;
 extern struct task_struct *next_real;
 struct pcb_struct *task[NR_TASKS];
 extern int nr_tasks;
-extern struct pcb_struct *task_prio_table[3];
-extern struct pcb_struct *head[3];
+extern struct pcb_struct *task_prio_table[2];
+extern struct pcb_struct *head[2];
 #include <pm.h> 
 struct mailbox {
 	unsigned int letter_type;
 	thread_t dst_task;
 	struct pcb_struct *from;
-	void* msg;
+	int msg;
 	//int empty;
 };
 
@@ -155,7 +154,7 @@ extern void preempt_enable(void);
 extern void switch_to(struct pcb_struct* next);
 extern void cpu_switch_to(struct task_struct* prev, struct task_struct* next);
 extern void exit_process(void);
-struct pcb_struct * round_robin(void* nope,struct pcb_struct * current_task, struct pcb_struct * head);
+
 #define INIT_TASK \
 /*cpu_context*/ { { 0,0,0,0,0,0,0,0,0,0,0,0,0}, \
 /* state etc */	 0,0,15, 0, PF_KTHREAD, \

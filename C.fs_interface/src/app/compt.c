@@ -45,7 +45,6 @@ struct mod_section move_sec[7];/*0.text 1.rodata 2.data 3.bss 4.rela.text 5.symt
 
 char compt_filename[8];
 int compt_file(char* file_name){/*incom*/
-
 	unsigned int clust = 0;
         unsigned long base = 0;
         struct dev* dev_param;
@@ -149,14 +148,13 @@ int compt_file(char* file_name){/*incom*/
 
 }
 
-int compt_fs_file(char* file_name){/*incom*/
+int compt_sched_file(char* file_name){/*incom*/
 
 	unsigned int clust = 0;
         unsigned long base = 0;
         struct dev* dev_param;
 	struct fs_unit* return_fs;
 	for(int k = 0;file_dir[k].name[0]!='\0';k++){
-	 
 	   if(!memcmp(file_dir[k].name,file_name,8)){
 		clust =((unsigned int)file_dir[k].ch)<<16|file_dir[k].cl;
 		if(clust){
@@ -184,7 +182,7 @@ int compt_fs_file(char* file_name){/*incom*/
 			
 			unsigned long size_u = file_dir[k].size;
 			printf("Component: read file OK!\n\r");
-			printf("----------------------Component initial----------------------\n\r");
+			printf("----------------------Change Schedule----------------------\n\r");
 			
 
 			unsigned long section_table_start;
@@ -219,20 +217,14 @@ int compt_fs_file(char* file_name){/*incom*/
 			/*relocate*/
 			int rela_err = relocate(comp_start,section_table_start,section_size,(char *)base,(char *)(base + move_sec[4].addr),move_sec[4].size);
 			if(!rela_err){
-				int getcluster = use_compt_func(base,(char *)(base + move_sec[5].addr),move_sec[5].size,"getcluster");/*find initial*/
-				int readfile = use_compt_func(base,(char *)(base + move_sec[5].addr),move_sec[5].size,"read_file_f");
-				int directory = use_compt_func(base,(char *)(base + move_sec[5].addr),move_sec[5].size,"read_direct");
-				fs_support[1].type = 0x0e;
-				fs_support[1].addr_directory = comp_start+directory;
- 				fs_support[1].addr_getcluster = comp_start+getcluster;
- 				fs_support[1].addr_readfile = comp_start+readfile;	
-                                build_kernel_directory();
+				base = use_compt_func(base,(char *)(base + move_sec[5].addr),move_sec[5].size,"change_sched");
+				if(base<0){
+					printf("Without change_sched function!");
+					sched_type = &round_robin;
+				}
+				sched_type = comp_start+base;
 			}
-			
-			//copy_process(SERVER_THREAD, (char *)comp_start, 0, 0);
-			
-						
-
+				
 		}
 		else{
 			printf("\n\rNot file");
@@ -366,6 +358,7 @@ int use_compt_func(char* base,Elf64_Sym* sym,int size,char* fun_name){
 		}
 
 	}
+	printf("ERROR: without %s\n\r", fun_name);
 	return -1;
 	//printf("st_name:%x st_other:%x\n\r",(sym+init)->st_name,(sym+init)->st_other);
 	//printf("bind:%x type:%x \n\r",(sym+init)->st_info >> 4,(sym+init)->st_info & 0xf);

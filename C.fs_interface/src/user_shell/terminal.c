@@ -17,7 +17,7 @@ void shell_user_process()
 	char output[15] = {""};	
 	char command[2] = {""};
 	
-	char file_name[11] = {""};	
+	char file_name[12] = {""};	
 	call_sys_write("tkernel@user_name:");
 	call_sys_write("%s",directory);
 	call_sys_write("$");
@@ -154,7 +154,7 @@ void shell_user_process()
 				else{invalid();}			
 			}
 			else if(output[0]=='i'&& output[1]=='n' && output[2]=='c' && output[3]=='o' && output[4]=='m'){ 
-				/*to_do_list*/			
+			
 				if(output[5]=='\r'){
 					call_sys_write("\n\rWithout input file!");
 					call_sys_write("\n\rtkernel@user_name:");
@@ -165,12 +165,15 @@ void shell_user_process()
 					   if(output[f]=='\r'){
 						break;
 					   }
-					   file_name[n] = output[f];
-					   
-		                           
+					   file_name[n] = output[f];		                           
 					}
-		    			
-					call_sys_com(file_name);
+
+
+		    			if(file_name[8]=='S'  && file_name[9]=='C' && file_name[10]=='H'){
+						call_sys_sched(file_name);
+					}else{
+						call_sys_com(file_name);
+					}					
 					call_sys_write("\n\rtkernel@user_name:");
 					call_sys_write(directory);
 					call_sys_write("$");

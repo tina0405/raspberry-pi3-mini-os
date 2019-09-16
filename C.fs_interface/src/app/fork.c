@@ -41,7 +41,7 @@ int copy_process(unsigned long clone_flags, unsigned long fn,unsigned long arg,u
 	if (!p)
 		return -1;
 
-	if (clone_flags == SERVER_THREAD || clone_flags == APP_THREAD) {
+	if (clone_flags == SERVER_THREAD || clone_flags == EXTRA_SERVER_THREAD || clone_flags == APP_THREAD) {
 		p->cpu_context.x19 = fn;
 		p->cpu_context.x20 = arg;
 		p->cpu_context.x21 = arg_2;
@@ -84,8 +84,8 @@ int copy_process(unsigned long clone_flags, unsigned long fn,unsigned long arg,u
 	//task[pid] = pcb;
 	
 	struct pcb_struct *tmp_pcb;
-	if (clone_flags == SERVER_THREAD){/*SERVER*/
-		tmp_pcb = head[0];
+	if (clone_flags == SERVER_THREAD){/*SERVER*/		
+		tmp_pcb = head[SERVER_THREAD];
 		if(tmp_pcb -> nextp != NULL){
 			pcb -> nextp = tmp_pcb->nextp;
 			pcb -> prevp = tmp_pcb;
@@ -98,10 +98,28 @@ int copy_process(unsigned long clone_flags, unsigned long fn,unsigned long arg,u
 		}
 
 		
-	}else if  (clone_flags == APP_THREAD || clone_flags == FORK_THREAD){
-		tmp_pcb = head[1];
+	}else if (clone_flags == EXTRA_SERVER_THREAD){/*SERVER*/
+		p->priority = 5;
+		p->counter = p->priority;
+		tmp_pcb = head[EXTRA_SERVER_THREAD];
 		if(tmp_pcb -> nextp != NULL){
-			
+			pcb -> nextp = tmp_pcb->nextp;
+			pcb -> prevp = tmp_pcb;
+			tmp_pcb -> nextp -> prevp = pcb;
+			tmp_pcb -> nextp =pcb;
+		}else{
+			tmp_pcb->nextp =  pcb;
+			pcb -> prevp =	tmp_pcb;
+			pcb -> nextp =	NULL;			
+		}
+
+		
+	}
+	else if  (clone_flags == APP_THREAD || clone_flags == FORK_THREAD){
+		p->priority = 1;
+		p->counter = p->priority;		
+		tmp_pcb = head[APP_THREAD];
+		if(tmp_pcb -> nextp != NULL){
 			pcb -> nextp = tmp_pcb->nextp;
 			pcb -> prevp = tmp_pcb;
 			tmp_pcb -> nextp -> prevp = pcb;
@@ -131,7 +149,7 @@ int copy_process(unsigned long clone_flags, unsigned long fn,unsigned long arg,u
 	}
 */	
 	else{
-		printf("error clone flag\n\r");
+		printf("error clone flag %x\n\r",clone_flags);
 	}
 	
 	preempt_enable();

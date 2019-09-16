@@ -16,7 +16,7 @@ void application(void)
 	}
 
 
-	if (pid == 0){
+	if (pid == 0){/*child*/
 		data("abcde",2);
 	}else{
 		data("12345",5);
@@ -28,11 +28,13 @@ void application(void)
 void data(char* str,int a)
 {
 	t=t+a;
-	char buf[2] = {""};	
-	for (int i = 0; i < 5; i++){
-		buf[0] = str[i];
-		call_sys_write(buf);
-		user_delay(1000000);
+	char buf[2] = {""};
+	for(int j = 0; j<50;j++){
+		for (int i = 0; i < 5; i++){
+			buf[0] = str[i];
+			call_sys_write(buf);
+			//user_delay(1000000);
+		}
 	}
 }
 

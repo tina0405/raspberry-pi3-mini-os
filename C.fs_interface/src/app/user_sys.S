@@ -26,10 +26,11 @@
 .set SYS_RMCOM_NUMBER, 23
 .set SYS_LSDEV_NUMBER, 24
 .set SYS_LSCOM_NUMBER, 25
-.set SYS_FOPEN_NUMBER, 26
-.set SYS_FWRITE_NUMBER, 27
-.set SYS_FCLOSE_NUMBER, 28
-.set SYS_FSCANF_NUMBER, 29
+.set SYS_SCHED_NUMBER, 26
+.set SYS_FOPEN_NUMBER, 27
+.set SYS_FWRITE_NUMBER, 28
+.set SYS_FCLOSE_NUMBER, 29
+.set SYS_FSCANF_NUMBER, 30
 
 
 .globl user_delay
@@ -186,6 +187,12 @@ call_sys_lsdev:
 .globl call_sys_lscom
 call_sys_lscom:
 	mov w8, #SYS_LSCOM_NUMBER
+	svc #0
+	ret
+
+.globl call_sys_sched
+call_sys_sched:
+	mov w8, #SYS_SCHED_NUMBER
 	svc #0
 	ret
 

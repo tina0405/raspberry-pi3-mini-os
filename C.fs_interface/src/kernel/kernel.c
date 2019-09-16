@@ -66,7 +66,8 @@ void kernel_main()
         //printf("&_end:%x\n\r",&_end);
 	enable_cache();
 	_thread_mutex_init(&mm_lock,(void *)0);
-	
+	sched_type = &round_robin;
+
 	int res = copy_process(SERVER_THREAD, (unsigned long)&pm_daemon, 0, 0);
 	
 
@@ -82,7 +83,7 @@ void kernel_main()
 		return;
 	}
 
-        res = copy_process(APP_THREAD, (unsigned long)&kernel_process, 0, 0);
+        res = copy_process(EXTRA_SERVER_THREAD, (unsigned long)&kernel_process, 0, 0);
 	
 	if (res < 0) {
 		printf("error while starting kernel process\n\r");

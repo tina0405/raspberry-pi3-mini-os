@@ -41,6 +41,7 @@ void fs_daemon(void)
 	
 	/*Rendezvous Message-Passing or Mailbox Message-Passing*/
 	while(1){
+		//printf("FS");
 		if(read_mail_index == 64){
 			read_mail_index = 0;
 		}

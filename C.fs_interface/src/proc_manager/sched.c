@@ -9,19 +9,23 @@ struct cpu_context init_cpu = {0,0,0,0,0,0,0,0,0,0,0,0,0};
 long init_state = 0;
 long init_counter = 0;
 long init_priority = 15;
+long init_extra_priority = 10;
+long init_app_priority = 1;
 long init_preempt_count = 0;
 unsigned long init_flags = SERVER_THREAD;
+unsigned long init_extra_flags = EXTRA_SERVER_THREAD;
+unsigned long init_app_flags = APP_THREAD;
 struct mm_struct init_mm = { 0, 0, {{0}}, 0, {0}};
 struct pcb_struct init_task_0 = {&init_cpu,&init_state,&init_counter,&init_priority,&init_preempt_count,&init_flags,&init_mm,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
-struct pcb_struct init_task_1 = {&init_cpu,&init_state,&init_counter,&init_priority,&init_preempt_count,&init_flags,&init_mm,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
+struct pcb_struct init_task_1 = {&init_cpu,&init_state,&init_counter,&init_extra_priority,&init_preempt_count,&init_extra_flags,&init_mm,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
+struct pcb_struct init_task_2 = {&init_cpu,&init_state,&init_counter,&init_app_priority,&init_preempt_count,&init_app_flags,&init_mm,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
 //struct pcb_struct init_task_2 = {&init_cpu,&init_state,&init_counter,&init_priority,&init_preempt_count,&init_flags,&init_mm};
 //struct pcb_struct init_task_3 = {&init_cpu,&init_state,&init_counter,&init_priority,&init_preempt_count,&init_flags,&init_mm};
 struct pcb_struct *current = &(init_task_0);
 /*linked list*/
-struct pcb_struct *task_prio_table[2] = {&init_task_0, &init_task_1}; /*Hardware*/ /*Server*/ /*Change task*/ /*User*/
-struct pcb_struct *head[2]={&init_task_0, &init_task_1};
-/*linked list*/
-
+struct pcb_struct *task_prio_table[3] = {&init_task_0, &init_task_1, &init_task_2}; /*Hardware*/ /*Server*/ /*Change task*/ /*User*/
+struct pcb_struct *head[3]={&init_task_0, &init_task_1, &init_task_2};
+extern unsigned char _start_;
 
 
 
@@ -29,11 +33,13 @@ int nr_tasks = 0;
 
 void preempt_disable(void)
 {
+	//printf("preempt_disable\n\r");
 	*(current->preempt_count) = *(current->preempt_count) +1;
 }
 
 void preempt_enable(void)
-{
+{	
+	//printf("preempt_enable\n\r");
 	*(current->preempt_count) = *(current->preempt_count) -1;
 }
 
@@ -70,38 +76,52 @@ int is_running(struct pcb_struct * task){
 	return (*(task->state)== TASK_RUNNING||*(task->state) == THREAD_JOINABLE||*(task->state) == THREAD_DETACHED);
 }
 struct pcb_struct * round_robin(void* nope,struct pcb_struct * current_task, struct pcb_struct * head){
-	*(current_task->counter) = 15;	
+	*(current_task->counter) = 1;	
+
+	struct pcb_struct * tmp_task = current_task;
 	while(1){	
-		if(current_task->nextp == NULL){	
+		if(tmp_task->nextp == NULL){	
 			return NULL;			
 		}else{
-			if(is_running(current_task->nextp)){
-				return current_task->nextp;
+			if(is_running(tmp_task->nextp)){
+				return tmp_task->nextp;
 			}else{
-				current_task = current_task->nextp;			
+				tmp_task = tmp_task->nextp;			
 			}
 
 		}
 	}
 }
 
+struct pcb_struct * LIFO(void* nope,struct pcb_struct * current_task, struct pcb_struct * head){	
+	struct pcb_struct * tmp_task = head;
+	while(1){
+		if(head->nextp == NULL){	
+			return NULL;
+		}else{
+			if(*(head->nextp->counter)==0){
+				*(head->nextp->counter) = 1;
+				return NULL;
+			}
+			if(is_running(tmp_task->nextp)){
+				return tmp_task->nextp;
+			}else{
+				tmp_task = tmp_task->nextp;			
+			}
+		}
+	}	
+}
+
+
 void _schedule(void)
 {
 	preempt_disable();
 	
-	//int c;
-	//struct pcb_struct* pcb;
-	//struct pcb_struct pcb;
-	//printf("scheduler\n\r");
-	/*3 priority highest*/
-	//*(task_prio_table[index]->counter) = (*(task_prio_table[index]->counter) >> 1) + *(task_prio_table[index]->priority);
-
 	while(1){
-		if(service_index == 0){
-
+		if(service_index == SERVER_THREAD){
 			if(task_prio_table[0]->nextp == NULL){	
 				task_prio_table[0] = head[0];
-				service_index = 1;			
+				service_index = EXTRA_SERVER_THREAD;			
 			}else{
 				task_prio_table[0] = task_prio_table[0]->nextp;
 				if(is_running(task_prio_table[0])){
@@ -109,14 +129,28 @@ void _schedule(void)
 				}
 			}
 
-		}else{
+		}else if(service_index == EXTRA_SERVER_THREAD){
+			*(task_prio_table[1]->counter) = 10;	
+			if(task_prio_table[1]->nextp == NULL){	
+				task_prio_table[1] = head[1];
+				service_index = APP_THREAD;			
+			}else{
+				task_prio_table[1] = task_prio_table[1]->nextp;
+				if(is_running(task_prio_table[1])){
+					break;
+				}
+			}
+		
+		}
+		else{
 
-			struct pcb_struct * result = round_robin(0,task_prio_table[1],head[1]);
+			struct pcb_struct * result = bl_init( &_start_+(sched_type-(unsigned int)&_start_),task_prio_table[2],head[2]);
+		
 			if(result == NULL){
-				task_prio_table[1] = head[1]; 
+				task_prio_table[2] = head[2]; 
 				service_index = 0;
 			}else{
-				task_prio_table[1] = result; 
+				task_prio_table[2] = result; 
 				break;
 			}
 
@@ -188,7 +222,8 @@ void schedule_tail(void) {
 
 void timer_tick()
 {
-	if(service_index == 0){return;}/*kernel service*/
+	//printf("tick");
+	if(service_index == SERVER_THREAD){return;}/*kernel service*/
 	--*(current->counter);
 	if (*(current->counter)>0 || *(current->preempt_count) >0) {
 		return;

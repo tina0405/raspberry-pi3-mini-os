@@ -58,6 +58,7 @@ extern struct thread_mutex mm_lock;
 unsigned long get_free_page(int count)
 {
 	int succeed = 1;
+	static int pre_num = 0; /*improve*/
 	_thread_mutex_lock(&mm_lock);
 	for (int i = 0; i < PAGING_PAGES; i++){
 		succeed = 1;
