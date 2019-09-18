@@ -21,7 +21,7 @@
 //#define MODULE_THREAD				0x00000002
 #define FORK_THREAD				0x00000003
 #define APP_THREAD				0x00000002
-#define UMODE_SERVER_THREAD			0x00000001
+#define EXTRA_SERVER_THREAD			0x00000001
 #define SERVER_THREAD				0x00000000
 
 extern struct pcb_struct *current;

@@ -13,7 +13,7 @@ long init_extra_priority = 10;
 long init_app_priority = 1;
 long init_preempt_count = 0;
 unsigned long init_flags = SERVER_THREAD;
-unsigned long init_extra_flags = UMODE_SERVER_THREAD;
+unsigned long init_extra_flags = EXTRA_SERVER_THREAD;
 unsigned long init_app_flags = APP_THREAD;
 struct mm_struct init_mm = { 0, 0, {{0}}, 0, {0}};
 struct pcb_struct init_task_0 = {&init_cpu,&init_state,&init_counter,&init_priority,&init_preempt_count,&init_flags,&init_mm,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
@@ -121,7 +121,7 @@ void _schedule(void)
 		if(service_index == SERVER_THREAD){
 			if(task_prio_table[0]->nextp == NULL){	
 				task_prio_table[0] = head[0];
-				service_index = UMODE_SERVER_THREAD;			
+				service_index = EXTRA_SERVER_THREAD;			
 			}else{
 				task_prio_table[0] = task_prio_table[0]->nextp;
 				if(is_running(task_prio_table[0])){
@@ -129,7 +129,7 @@ void _schedule(void)
 				}
 			}
 
-		}else if(service_index == UMODE_SERVER_THREAD){
+		}else if(service_index == EXTRA_SERVER_THREAD){
 			*(task_prio_table[1]->counter) = 10;	
 			if(task_prio_table[1]->nextp == NULL){	
 				task_prio_table[1] = head[1];

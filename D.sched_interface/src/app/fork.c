@@ -41,7 +41,7 @@ int copy_process(unsigned long clone_flags, unsigned long fn,unsigned long arg,u
 	if (!p)
 		return -1;
 
-	if (clone_flags == SERVER_THREAD || clone_flags == UMODE_SERVER_THREAD || clone_flags == APP_THREAD) {
+	if (clone_flags == SERVER_THREAD || clone_flags == EXTRA_SERVER_THREAD || clone_flags == APP_THREAD) {
 		p->cpu_context.x19 = fn;
 		p->cpu_context.x20 = arg;
 		p->cpu_context.x21 = arg_2;
@@ -98,10 +98,10 @@ int copy_process(unsigned long clone_flags, unsigned long fn,unsigned long arg,u
 		}
 
 		
-	}else if (clone_flags == UMODE_SERVER_THREAD){/*SERVER*/
+	}else if (clone_flags == EXTRA_SERVER_THREAD){/*SERVER*/
 		p->priority = 5;
 		p->counter = p->priority;
-		tmp_pcb = head[UMODE_SERVER_THREAD];
+		tmp_pcb = head[EXTRA_SERVER_THREAD];
 		if(tmp_pcb -> nextp != NULL){
 			pcb -> nextp = tmp_pcb->nextp;
 			pcb -> prevp = tmp_pcb;

@@ -83,7 +83,7 @@ void kernel_main()
 		return;
 	}
 
-        res = copy_process(UMODE_SERVER_THREAD, (unsigned long)&kernel_process, 0, 0);
+        res = copy_process(EXTRA_SERVER_THREAD, (unsigned long)&kernel_process, 0, 0);
 	
 	if (res < 0) {
 		printf("error while starting kernel process\n\r");
