@@ -1,0 +1,90 @@
+
+gpio.o:     file format elf64-littleaarch64
+
+
+Disassembly of section .text:
+
+0000000000000000 <init_compt>:
+   0:	a9bf7bfd 	stp	x29, x30, [sp,#-16]!
+   4:	910003fd 	mov	x29, sp
+   8:	90000000 	adrp	x0, 0 <init_compt>
+   c:	91000000 	add	x0, x0, #0x0
+  10:	94000000 	bl	0 <kservice_uart_write>
+  14:	d503201f 	nop
+  18:	a8c17bfd 	ldp	x29, x30, [sp],#16
+  1c:	d65f03c0 	ret
+
+0000000000000020 <main>:
+  20:	a9bd7bfd 	stp	x29, x30, [sp,#-48]!
+  24:	910003fd 	mov	x29, sp
+  28:	f90017a0 	str	x0, [x29,#40]
+  2c:	b90027a1 	str	w1, [x29,#36]
+  30:	b90023a2 	str	w2, [x29,#32]
+  34:	39007fa3 	strb	w3, [x29,#31]
+  38:	f9000ba4 	str	x4, [x29,#16]
+  3c:	90000000 	adrp	x0, 0 <init_compt>
+  40:	91000000 	add	x0, x0, #0x0
+  44:	94000000 	bl	0 <kservice_uart_write>
+  48:	d503201f 	nop
+  4c:	a8c37bfd 	ldp	x29, x30, [sp],#48
+  50:	d65f03c0 	ret
+
+0000000000000054 <exit_compt>:
+  54:	a9bf7bfd 	stp	x29, x30, [sp,#-16]!
+  58:	910003fd 	mov	x29, sp
+  5c:	90000000 	adrp	x0, 0 <init_compt>
+  60:	91000000 	add	x0, x0, #0x0
+  64:	94000000 	bl	0 <kservice_uart_write>
+  68:	90000000 	adrp	x0, 0 <init_compt>
+  6c:	91000000 	add	x0, x0, #0x0
+  70:	94000000 	bl	0 <kservice_uart_write>
+  74:	d503201f 	nop
+  78:	a8c17bfd 	ldp	x29, x30, [sp],#16
+  7c:	d65f03c0 	ret
+
+Disassembly of section .rodata:
+
+0000000000000000 <.rodata>:
+   0:	74696e49 	.word	0x74696e49
+   4:	206c6169 	.word	0x206c6169
+   8:	4f495047 	.word	0x4f495047
+   c:	6d6f6320 	.word	0x6d6f6320
+  10:	656e6f70 	.word	0x656e6f70
+  14:	0a21746e 	.word	0x0a21746e
+  18:	0000000d 	.word	0x0000000d
+  1c:	00000000 	.word	0x00000000
+  20:	4f495047 	.word	0x4f495047
+  24:	65704f20 	.word	0x65704f20
+  28:	69746172 	.word	0x69746172
+  2c:	0a216e6f 	.word	0x0a216e6f
+  30:	0000000d 	.word	0x0000000d
+  34:	00000000 	.word	0x00000000
+  38:	61656c43 	.word	0x61656c43
+  3c:	7075206e 	.word	0x7075206e
+  40:	49504720 	.word	0x49504720
+  44:	6f63204f 	.word	0x6f63204f
+  48:	6e6f706d 	.word	0x6e6f706d
+  4c:	21746e65 	.word	0x21746e65
+  50:	00000d0a 	.word	0x00000d0a
+  54:	00000000 	.word	0x00000000
+  58:	4b434142 	.word	0x4b434142
+  5c:	000d0a21 	.word	0x000d0a21
+
+Disassembly of section .comment:
+
+0000000000000000 <.comment>:
+   0:	43434700 	.inst	0x43434700 ; undefined
+   4:	5528203a 	.inst	0x5528203a ; undefined
+   8:	746e7562 	.inst	0x746e7562 ; undefined
+   c:	694c2f75 	ldpsw	x21, x11, [x27,#96]
+  10:	6f72616e 	umlsl2	v14.4s, v11.8h, v2.h[3]
+  14:	342e3520 	cbz	w0, 5c6b8 <exit_compt+0x5c664>
+  18:	362d302e 	tbz	w14, #5, ffffffffffffa61c <exit_compt+0xffffffffffffa5c8>
+  1c:	6e756275 	rsubhn2	v21.8h, v19.4s, v21.4s
+  20:	7e317574 	.inst	0x7e317574 ; undefined
+  24:	302e3631 	adr	x17, 5c6e9 <exit_compt+0x5c695>
+  28:	29392e34 	stp	w20, w11, [x17,#-56]
+  2c:	342e3520 	cbz	w0, 5c6d0 <exit_compt+0x5c67c>
+  30:	3220302e 	orr	w14, w1, #0x1fff
+  34:	30363130 	adr	x16, 6c659 <exit_compt+0x6c605>
+  38:	00393036 	.inst	0x00393036 ; NYI
