@@ -84,7 +84,9 @@ void build_kernel_directory(void){
 		/*scanf empty cluster*/
 		//scanf_empty_cluster(partition[pnum].type,(unsigned char*)(memory.start));	
 		if(pnum == 0){
+			while(1);
 			read_ksymbol();
+			
 		}
 		while(*(pa_name+pa_in)!=(char)8 && *(pa_name+pa_in)!='\0' && *(pa_name+pa_in)!= (char)32){
 			sd_p[pnum][pa_in] = *(pa_name+pa_in);
@@ -117,7 +119,7 @@ void build_kernel_directory(void){
 void build_root(void){
 	origin = dir;
 }
-
+extern int sect;
 char* search_file(void){
         int index = 0;
         memzero(file_dir,sizeof(struct user_fs)*20);
@@ -126,15 +128,24 @@ char* search_file(void){
 		// is it a valid entry?
 		if(origin->name[0]==0xE5 || origin->attr[0]==0xF) continue;
 		// decode attributes
-		//printf("%s\n\r",origin -> name);
+
 		memcpy(origin -> name,file_dir[index].name,11);	
                 memcpy(origin -> attr,file_dir[index].attr,9);	
 		file_dir[index].size = origin -> size;
+
+		if(origin -> size==0x10){
+			//file_dir[index].size=0x20;
+			origin -> size=0x20;
+			sdTransferBlocks (sect, 1, (&_start_+(unsigned long)(partition[0].directory)) , 1);
+			//data_dump((&_start_+(unsigned long)(partition[0].directory)),384);
+		}
+		
 		file_dir[index].ch = origin -> ch;		
 		file_dir[index].cl = origin -> cl;
 		index++;
 		
 	}
+        
 	return file_dir[0].name;
 
 }

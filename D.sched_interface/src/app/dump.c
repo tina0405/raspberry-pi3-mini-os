@@ -39,7 +39,7 @@ void data_dump(void *ptr, int size)
 				}
    			}
 }
- 
+//extern int sect;
 int dump(char* file_name){
 	unsigned long addr = 0;
 	for(int k = 0;file_dir[k].name[0]!='\0';k++){
@@ -58,6 +58,7 @@ int dump(char* file_name){
 			}
 			
                         data_dump((char*)&_start_ + addr,file_dir[k].size);
+			//char* ptr=alloca ;
 			//sdTransferBlocks (sect, 1, &_end, 1);
 
 		}

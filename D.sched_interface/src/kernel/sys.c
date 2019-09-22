@@ -10,6 +10,8 @@
 #include "fs.h"
 #include "thread.h"
 #include "pm.h"
+
+typedef int size_t;
 extern struct mailbox user_ipc_mail[mail_size];
 int add_thread(thread_t *thread, const struct thread_attr_t *attr,void * (*start_routine)(void *),void* arg);
 thread_t thread_id_self(void);
@@ -153,10 +155,41 @@ void kservice_ls_compt(void){
 }
 
 void  kservice_change_sched(char* file_name){
-	send_msg(Change_Sched,thread_id_self(), file_name);
+	send_msg(Change_Sched,thread_id_self(), 0, file_name, 4096);
 }
 
+struct File* kservice_fopen(char* filename, char* type){
+	return fopen(filename, type);
+}
 
+int kservice_fread(void *ptr, size_t size, size_t nobj, FILE *stream){
+        return fread(ptr, size, nobj, stream);
+}
+
+int kservice_fwrite(void *ptr, size_t size, size_t nobj, FILE *stream){
+	return fwrite(ptr, size, nobj, stream);
+}
+
+int kservice_fclose(FILE *stream){
+	return fclose(stream);
+}
+/*
+int kservice_shmget(int key,int size,int flag){
+	return shmget(key, size, flag);
+}
+
+void *kservice_shmat(int shmid){
+	return shmat(shmid);
+}
+
+int kservice_shmdt(const void *shmaddr){
+	return shmdt(shmaddr);
+}
+ 
+int kservice_shmrm(int shmid){
+	return shmrm(shmid);
+}
+*/
 int kservice_dev_read(int dev,unsigned int lba, unsigned char *buffer, unsigned int num){	
 		
 	switch(dev){
@@ -207,6 +240,10 @@ kservice_rm_compt, /*23*/
 kservice_ls_dev, /*24*/
 kservice_ls_compt, /*25*/
 kservice_change_sched,/*26*/
+kservice_fopen,/*27*/
+kservice_fread,/*28*/
+kservice_fwrite,/*29*/
+kservice_fclose,/*30*/
 /*below for symbol table*/
 kservice_allocate_kpage, /*27*/
 kservice_schedule, /*28*/

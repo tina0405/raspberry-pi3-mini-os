@@ -24,6 +24,7 @@
  */
 //https://www.twblogs.net/a/5b7c43132b71770a43da21e2
 #include "sd.h"
+#include "mm.h"
 #include "mini_uart.h"
 #include "printf.h"
 #include "fs.h" 
@@ -66,7 +67,8 @@ unsigned int fat32_getcluster(void* nope, char *fn,struct dev* sd_num)
 /**
  * Read a file into memory
  */
-//int sect = 0;
+int sect = 0;
+/*need a real and buf*/
 char *fat32_readfile(void* nope, int cluster,struct dev* sd_num)
 {
 
@@ -81,16 +83,21 @@ char *fat32_readfile(void* nope, int cluster,struct dev* sd_num)
     unsigned char *data, *ptr;
     // find the LBA of the first data sector
     data_sec = ((bpb->spf32)*bpb->nf)+bpb->rsc;
-    s = (bpb->nr0 + (bpb->nr1 << 8)) * sizeof(fatdir_t);
+    //s = (bpb->nr0 + (bpb->nr1 << 8)) * sizeof(fatdir_t);
     // add partition LBA
     data_sec+= sd_num->partitionlba;
 
     // end of FAT in memory
-    data = ptr = &_end+2048;
+    struct mm_info page = allocate_kernel_page(4096);/*improve*//*buff*/
+    data = ptr = (unsigned char *)page.start;
     // iterate on cluster chain
+    sect = (2-2)*bpb->spc+data_sec;
     while(cluster>1 && cluster<0xFFF8) {
+	printf("cluster:%x %x %x\n\r",cluster,bpb->spc,(bpb->bps0 + (bpb->bps1 << 8)));
 	// load all sectors in a cluster
-        kservice_dev_read(1, (cluster-2)*bpb -> spc + data_sec, ptr ,bpb->spc);
+        kservice_dev_read(1, (cluster-2)*bpb -> spc + data_sec, ptr ,bpb->spc);/*real*/
+	//data_dump(ptr,512);
+	//while(!uart_recv());
 	// move pointer, sector per cluster * bytes per sector
         ptr+=bpb->spc*(bpb->bps0 + (bpb->bps1 << 8));
         // get the next cluster in chain
@@ -98,11 +105,53 @@ char *fat32_readfile(void* nope, int cluster,struct dev* sd_num)
     }
     return (char*)data;
 }
+/*return position and next*/
+
+void fat32_getpos(void* nope, int cluster,struct dev* sd_num,struct File* fp)
+{
+    // BIOS Parameter Block
+    bpb_t *bpb=(bpb_t*)(&_end+sd_num->record);
+    // File allocation tables. We choose between FAT16 and FAT32 dynamically
+    unsigned int *fat32=(unsigned int*)(&_start_ + sd_num-> fat_table_start - 512 + bpb->rsc*512);/*reserved: bpb->rsc*/
+
+   
+    // Data pointers
+    unsigned int data_sec, s;
+    unsigned char *data, *ptr;
+    // find the LBA of the first data sector
+    data_sec = ((bpb->spf32)*bpb->nf)+bpb->rsc;
+    s = (bpb->nr0 + (bpb->nr1 << 8)) * sizeof(fatdir_t);
+    // add partition LBA
+    data_sec+= sd_num->partitionlba;
+
+
+    // iterate on cluster chain
+    if(cluster>1 && cluster<0xFFF8) {
+	// load all sectors in a cluster
+	fp->_real.real_addr = (cluster-2)*bpb -> spc + data_sec;
+	// move pointer, sector per cluster * bytes per sector
+        //ptr+=bpb->spc*(bpb->bps0 + (bpb->bps1 << 8));
+        // get the next cluster in chain
+        cluster=fat32[cluster];
+	if(cluster>1 && cluster<0xFFF8){ 
+		fp->_real.next_cluster = cluster;
+	}else{
+		fp->_real.next_cluster = 0;
+
+	}
+    }else{
+	fp->_real.real_addr = 0;
+	fp->_real.next_cluster = 0;
+    }
+
+}
+
 
 void fat32_read_directory(void* nope, struct dev* sd_num)
 {
     bpb_t *bpb=(bpb_t*)(&_end + sd_num->record);
     unsigned int fat_addr= fat32_readfile(0,bpb->rc, sd_num);
+    sd_num->directory = fat_addr;/*improve*/
     fat_listdirectory(&_end+(fat_addr-(unsigned int)&_end));
 }
 

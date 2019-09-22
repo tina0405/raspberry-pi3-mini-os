@@ -18,6 +18,17 @@ void cd_root(void);
 struct fs_unit* fs_type_support(int type);
 
 char sd_p[4][11]; 
+struct pos{
+	uint32_t real_addr;
+	int next_cluster;
+};
+struct File{
+   char* _base;
+   int   _bufsize;
+   struct pos _real;
+   char *_tmpfname; 
+};
+typedef struct File FILE;
 // directory entry structure
 typedef struct {
     char            name[8];
@@ -69,6 +80,7 @@ struct dev{
 	int dev_type; /*nope=0, sd=1*/
 	unsigned int fat_table_start;
 	unsigned int empty[16];
+	char* directory;
 	//unsigned int fat_table_end;	
 }; 
 struct user_fs{
@@ -84,6 +96,7 @@ struct fs_unit{
     unsigned int addr_directory;
     unsigned int addr_getcluster;
     unsigned int addr_readfile;
+    unsigned int addr_getpos;
 }; 
 struct dev partition[4];
 struct user_fs file_dir[20];

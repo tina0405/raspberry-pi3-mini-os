@@ -54,7 +54,8 @@ void kernel_main()
 	uart_init();
 	init_printf(NULL, putc);
 	irq_vector_init(); 
-	if(sd_init() == SD_OK) {
+	//sdInitCard (&printf, &printf, true);
+	if(sdInitCard (&printf, &printf, true) == SD_OK) {
 		// read the master boot record and find our partition
 		if(fat_getpartition()) {
 		     /*compt.c*/
