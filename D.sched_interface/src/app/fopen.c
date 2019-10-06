@@ -19,7 +19,7 @@ struct File* fopen(char* file_name, char* type){
                		if(return_fs){
 				struct mm_info page = allocate_kernel_page(file_dir[k].size);
 				struct File* fp = (struct File*)page.start; 
-				bpb_t *bpb=(bpb_t*)(&_end+partition[cd_rem].record);				
+				bpb_t *bpb=(bpb_t*)(&_end+partition[cd_rem].dbr);				
 				fp->_base = bl_init( &_start_+(return_fs->addr_readfile -(unsigned int)&_start_), clust, &partition[cd_rem]);
 				fp->_bufsize = bpb->spc*(bpb->bps0 + (bpb->bps1 << 8));/*clust size*/
 				bl_init( &_start_+(return_fs->addr_getpos -(unsigned int)&_start_), clust, &partition

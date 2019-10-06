@@ -16,7 +16,6 @@ void fs_daemon(void)
 	//send_msg(Rendezvous, 2, 3);
 
 	
-
 	//register fat32
 	fs_support[0].type = 0x0c;
 	fs_support[0].addr_directory = &fat32_read_directory;

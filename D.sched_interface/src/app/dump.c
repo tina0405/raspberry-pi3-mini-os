@@ -58,8 +58,6 @@ int dump(char* file_name){
 			}
 			
                         data_dump((char*)&_start_ + addr,file_dir[k].size);
-			//char* ptr=alloca ;
-			//sdTransferBlocks (sect, 1, &_end, 1);
 
 		}
 		else{

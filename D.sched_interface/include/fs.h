@@ -4,7 +4,6 @@
 #include <elf.h>
 void list(void);
 void build_kernel_directory(void);
-char* search_file(void);
 void build_root(void);
 void ls_dev(void);
 int unreg_compt(char* compt_name);
@@ -40,6 +39,26 @@ typedef struct {
     unsigned int    size;
 } __attribute__((packed)) fatdir_t;
 
+typedef struct {/*save struct*/
+    char* log_addr;
+    unsigned int phy_addr;
+} openfile;
+
+struct file{/*save struct*/
+    fatdir_t dir_record;
+    openfile addr;/*dir in sd Card*/
+    unsigned int num_fatdir;/*offset*/ 
+    unsigned int directory;/*file: record buff*/
+    int dev;
+};
+
+typedef struct {/*save struct*/
+    int index;
+    unsigned int file_addr_buf;
+    unsigned int open_phy;
+    char* tmp_name;
+} symbolic_node;
+
 // the BIOS Parameter Block (in Volume Boot Record)
 typedef struct {
     char            jmp[3];
@@ -74,16 +93,17 @@ struct mod_section{
 };
 
 struct dev{
-	unsigned int record;
+	unsigned int dbr;
 	unsigned int partitionlba;
 	int type;
 	int dev_type; /*nope=0, sd=1*/
 	unsigned int fat_table_start;
 	unsigned int empty[16];
-	char* directory;
+	openfile directory_addr;
+	unsigned int op_dir;
 	//unsigned int fat_table_end;	
 }; 
-struct user_fs{
+struct user_fs{/*for user dir*/
     char           name[11];
     char            attr[9];
     unsigned int    size;
@@ -101,5 +121,8 @@ struct fs_unit{
 struct dev partition[4];
 struct user_fs file_dir[20];
 struct fs_unit fs_support[32];
+void user_dir(char* page);
+char* _search_file(openfile* addr,char* page,struct dev sd_num);
+symbolic_node symbolic_fs_array[128];
 fatdir_t *dir;
 #endif

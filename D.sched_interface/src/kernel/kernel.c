@@ -54,19 +54,18 @@ void kernel_main()
 	uart_init();
 	init_printf(NULL, putc);
 	irq_vector_init(); 
+	enable_cache();
+	_thread_mutex_init(&mm_lock,(void *)0);/*for memory access*/
 	//sdInitCard (&printf, &printf, true);
 	if(sdInitCard (&printf, &printf, true) == SD_OK) {
 		// read the master boot record and find our partition
 		if(fat_getpartition()) {
-		     /*compt.c*/
-		     //read_ksymbol();
+
 		} else {
 		    uart_puts("FAT partition not found???\n\r");
 		}	
        } 
         //printf("&_end:%x\n\r",&_end);
-	enable_cache();
-	_thread_mutex_init(&mm_lock,(void *)0);
 	sched_type = &round_robin;
 
 	int res = copy_process(SERVER_THREAD, (unsigned long)&pm_daemon, 0, 0);

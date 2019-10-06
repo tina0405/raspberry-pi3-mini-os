@@ -561,10 +561,10 @@ int read_ksymbol(){
 	   if(!strcmp(file_dir[k].name,"SYMBOL  TXT")){
 	  	clust =((unsigned int)file_dir[k].ch)<<16|file_dir[k].cl;	
 		if(clust){			
-			base = fat32_readfile(0, clust, &partition[0]);/*Putting ksymbol in first partition is regulation*/
+			openfile* base = fat32_readfile(0, clust, &partition[0]);/*Putting ksymbol in first partition is regulation*/
 			/*save kernel symbol*/
 			unsigned int name_word=0,aa=0,base_index=0;
-			char* name_addr =(char*)(&_end+((unsigned int)base-(unsigned int)&_end));
+			char* name_addr =(char*)(&_start_+(unsigned int)base->log_addr);
 			while(*(name_addr + base_index)!= 0x00){	
 				if(*(name_addr + base_index) != 0xA){
 					ksym[name_word].sym_name[aa++] = *(name_addr + base_index);
@@ -576,7 +576,6 @@ int read_ksymbol(){
 				
 				base_index++;
 			}
-
 			return 0;
 			
 		}
