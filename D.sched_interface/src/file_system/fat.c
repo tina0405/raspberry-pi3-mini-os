@@ -3,6 +3,7 @@
 #include "printf.h"
 #include "fs.h"
 #include "fat.h"
+#include "mm.h"
 extern unsigned char _end; 
 
 /**
@@ -15,6 +16,8 @@ int fat_getpartition(void)
 {
     unsigned char *mbr=&_end;
     bpb_t *bpb=(bpb_t*)&_end;
+    //struct mm_info dbr;
+    //dbr =  allocate_kernel_page(4096);
     // read the partitioning table
     if(sd_readblock(0,&_end,1)) {/*mbr:lba->0*/
         // check magic
@@ -27,7 +30,7 @@ int fat_getpartition(void)
             if(mbr[0x1C2 + p_index] == 0x0/*FAT32 LBA*/){
 	        break;
 	    }
-	    partition[p_index/0x10].record = (p_index/0x10)*512;
+	    partition[p_index/0x10].dbr = (p_index/0x10)*512;
 	    partition[p_index/0x10].type = mbr[0x1C2 + p_index]; 
 	    // should be this, but compiler generates bad code...
             //partitionlba=*((unsigned int*)((unsigned long)&_end+0x1C6));
@@ -37,6 +40,9 @@ int fat_getpartition(void)
 	int i = 0;
 	// read the boot record
         while(partition[i].partitionlba!=0){
+	    partition[i].dev_type=1;
+	    struct mm_info dir_page =  allocate_kernel_page(4096);
+	    partition[i].op_dir = dir_page.start;/*if partition is exiting, give a dir_page.*/
 	    if(!sd_readblock(partition[i].partitionlba,&_end+512*i,1)) {/*DBR DATA*/
             	uart_puts("ERROR: Unable to read boot record\n");
             	return 0;

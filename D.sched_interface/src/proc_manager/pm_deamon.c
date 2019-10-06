@@ -153,7 +153,7 @@ struct mailbox recieve_msg(unsigned int ipc_type){
 char name[11];
 
 /*type: mailbox or rendezvous or end_thread*/
-void send_msg(unsigned int type, int tid, void* msg){/*without size*/
+void send_msg(unsigned int type, int tid, int addr, void* msg,int size){/*without size*/
 	/*push*/	
 	if(pm_mail[index_push].letter_type != 0){
 		printf("Push pm_mail error! Mailbox is Full\n\r");	
@@ -162,10 +162,13 @@ void send_msg(unsigned int type, int tid, void* msg){/*without size*/
 		pm_mail[index_push].letter_type = type;/*0:empty*/
 		pm_mail[index_push].dst_task = tid;/*exit_thread*/
 		pm_mail[index_push].from = current;
-		struct mm_info msg_mm = allocate_kernel_page(4096);	
-		pm_mail[index_push].msg = msg_mm.start;
-		
-		memcpy(msg, msg_mm.start,11);
+		if(size){
+			struct mm_info msg_mm = allocate_kernel_page(size);	
+			pm_mail[index_push].msg = msg_mm.start;
+			memcpy(msg, msg_mm.start,11);
+		}else{
+			pm_mail[index_push].msg = NULL;
+		}		
 		index_push++;
 		if(index_push == mail_size){index_push=0;}
 		//accept_reply();

@@ -33,7 +33,6 @@
 .set SYS_FCLOSE_NUMBER, 30
 
 
-
 .globl user_delay
 user_delay:
 	subs x0, x0, #1
@@ -209,11 +208,6 @@ call_sys_fread:
 	svc #0
 	ret
 
-.globl call_sys_fclose
-call_sys_fclose:
-	mov w8, #SYS_FCLOSE_NUMBER
-	svc #0
-	ret
 
 .globl call_sys_fwrite
 call_sys_fwrite:
@@ -221,6 +215,11 @@ call_sys_fwrite:
 	svc #0
 	ret
 
+.globl call_sys_fclose
+call_sys_fclose:
+	mov w8, #SYS_FCLOSE_NUMBER
+	svc #0
+	ret
 /* Return true if T1 and T2 both name the same thread.  Otherwise, false.  */
 .globl thread_equal
 thread_equal:
