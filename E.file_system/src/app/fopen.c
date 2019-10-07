@@ -7,6 +7,9 @@ extern unsigned char _end;
 extern int cd_rem;
 struct File* fopen(char* file_name, char* type){
 	 
+
+
+
 	for(int k = 0;file_dir[k].name[0]!='\0';k++){
 	   if(!memcmp(file_dir[k].name,file_name,8)){
 		

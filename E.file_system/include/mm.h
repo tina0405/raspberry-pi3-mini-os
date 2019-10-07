@@ -34,7 +34,7 @@
 #include "sched.h"
 
 unsigned long get_free_page();
-void free_page(unsigned long p);
+void free_page(unsigned long p,int size);
 void map_page(struct task_struct *task, unsigned long va, unsigned long page);
 void memzero(unsigned long src, unsigned long n);
 int memcmp(unsigned long src, unsigned long dst, unsigned long n);

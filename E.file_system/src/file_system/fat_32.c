@@ -103,8 +103,8 @@ openfile* fat32_readfile(void* nope, int cluster,struct dev* sd_num)
     }
     //printf("\n\r");
     ret->log_addr = data;
-    //printf("fat32:%x\n\r",(unsigned int)(ret->log_addr));
-   // data_dump((char *)(&_start_ + (unsigned int)(ret->log_addr)),64);
+    //printf("fat32:%x %x\n\r",ret,(unsigned int)(ret->log_addr));
+    //data_dump((char *)(&_start_ + (unsigned int)(ret->log_addr)),64);
     return ret;
 }
 /*return position and next*/

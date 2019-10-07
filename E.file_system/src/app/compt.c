@@ -255,7 +255,7 @@ int rm_compt_file(char* file_name){
 					printf("\n\r----------------------Component exit----------------------\n\r");
 					bl_init(cfile[num].rmcom,0); 
 					memzero(cfile[num].filename,8);
-					free_page(cfile[num].rmcom);
+					free_page(cfile[num].rmcom,1);
 					int page_num = ((cfile[num].rmcom - LOW_MEMORY) / PAGE_SIZE);			
 					for(int rm_i = 26;rm_i<64;rm_i++){
 						if(ksym[rm_i].sym_name[0] != '\0'){

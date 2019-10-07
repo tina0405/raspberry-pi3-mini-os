@@ -3,14 +3,13 @@
 #include "fat16.h"
 #include "fat32.h"
 #include <sched.h>
-extern unsigned char _end;
+
 extern unsigned long mod_process;
-char map_array[4096];/*improve*/
-unsigned int map_index= 0;
 extern int cd_rem;
+extern unsigned char _start_;
 int run_file(char* file_name){
 	unsigned int clust =0;
-        unsigned long base =0;
+        openfile* base=0;
         
 	for(int k = 0;file_dir[k].name[0]!='\0';k++){
 	 
@@ -32,10 +31,9 @@ int run_file(char* file_name){
 					printf("Not support %x type in File system",partition[cd_rem].type);
 					return 0;			
 			}
-			unsigned long size_u = file_dir[k].size;
-			memcpy((char *)base , &map_array[map_index],size_u);
-			copy_process(APP_THREAD, (unsigned long)&mod_process, &map_array[map_index], size_u);
-			map_index = map_index + size_u;
+			
+			copy_process(APP_THREAD, (unsigned long)&mod_process, (char *)(&_start_ + (unsigned int)base->log_addr), file_dir[k].size);
+			printf("%x\n\r",(char *)((unsigned int)base->log_addr));
 			printf("User application: read file OK!\n\r");
 			
 		}

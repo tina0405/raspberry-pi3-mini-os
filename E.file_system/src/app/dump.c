@@ -41,23 +41,47 @@ void data_dump(void *ptr, int size)
 }
 //extern int sect;
 int dump(char* file_name){
-	unsigned long addr = 0;
+	openfile* buff_addr;
 	for(int k = 0;file_dir[k].name[0]!='\0';k++){
 	   if(!memcmp(file_dir[k].name,file_name,8)){
 
 		/*get cluster for*/
 		unsigned int clust = ((unsigned int)file_dir[k].ch)<<16|(unsigned int)file_dir[k].cl;
 		if(clust){
-                        printf("\n\r");
+			printf("\n\r");
 			struct fs_unit* return_fs = fs_type_support(partition[cd_rem].type);
                		if(return_fs){
-				addr = bl_init( &_start_+(return_fs->addr_readfile -(unsigned int)&_start_), clust, &partition[cd_rem]);
+				switch(partition[cd_rem].type){
+					case 0xc:
+						buff_addr = fat32_readfile(0, clust, &partition[cd_rem]);
+						break;
+#ifdef FAT16
+					case 0xe:
+						buff_addr = fat16_readfile(0, clust, &partition[cd_rem]);
+						break;
+#endif
+					default:
+						printf("Not support %x type in File system",partition[cd_rem].type);
+						return 0;			
+				}
+
+				data_dump((char*)(&_start_ + (unsigned int)(buff_addr->log_addr)), file_dir[k].size);
+
+				int num = 0; 
+				if(file_dir[k].size%4096){
+					num = (file_dir[k].size/4096)+1;	
+				}else{
+					num = file_dir[k].size/4096;
+				}
+
+				free_page((char*)(&_start_ + (unsigned int)(buff_addr->log_addr)), num);
+
 			}else{
 				printf("Not support %x type in File system",partition[cd_rem].type);
 				return 0;
 			}
 			
-                        data_dump((char*)&_start_ + addr,file_dir[k].size);
+                        
 
 		}
 		else{

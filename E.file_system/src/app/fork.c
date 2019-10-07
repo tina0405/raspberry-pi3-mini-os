@@ -170,7 +170,6 @@ unsigned long move_to_user_mode(unsigned long start, unsigned long size, unsigne
 	}
 	
 	memcpy(start, code_page, size);
-	
 	struct task_struct *now = (struct task_struct *)&(current->cpu_context->x19);
 	//printf("pgd:%x\n\r",now->mm.pgd);
 	set_pgd(now->mm.pgd);

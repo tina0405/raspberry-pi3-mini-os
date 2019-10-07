@@ -121,8 +121,8 @@ unsigned long  kservice_allocate_upage(){
 	return allocate_user_page((struct task_struct *)&(current->cpu_context->x19),0);
 }
 
-void kservice_free_page(unsigned long p){
-	free_page(p);
+void kservice_free_page(struct mm_info p){
+	free_page(p.start,p.size);
 }
 
 

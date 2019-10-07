@@ -61,9 +61,9 @@ void pm_daemon(void)
 							if(tmp_pcb -> nextp!=NULL){
 								tmp_pcb -> nextp -> prevp = tmp_pcb-> prevp;
 							}
-							
-							free_page(tmp_pcb);
-						        free_page(&(tmp_pcb->cpu_context->x19));
+							printf("pm:%x %x\n\r",tmp_pcb->mm->user_pages[0].phys_addr,tmp_pcb->mm->user_pages[0].virt_addr);
+							free_page(tmp_pcb,1);
+						        free_page(&(tmp_pcb->cpu_context->x19),1);
 							tmp_pcb = tmp_pcb->thread_n;
 						}
 
@@ -83,8 +83,8 @@ void pm_daemon(void)
 							tmp_pcb -> nextp -> prevp = tmp_pcb-> thread_p;
 						}
 						
-						free_page(tmp_pcb);
-						free_page(&(tmp_pcb->cpu_context->x19));
+						free_page(tmp_pcb,1);
+						free_page(&(tmp_pcb->cpu_context->x19),1);
 						/*free used memory*/	
 
 					}				

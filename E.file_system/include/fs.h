@@ -52,11 +52,10 @@ struct file{/*save struct*/
     int dev;
 };
 
-typedef struct {/*save struct*/
-    int index;
-    unsigned int file_addr_buf;
-    unsigned int open_phy;
-    char* tmp_name;
+typedef struct {
+    struct file* file_info;
+    unsigned int open;//open:phy unopen:0 dev:-1
+    char tmp_name[32];
 } symbolic_node;
 
 // the BIOS Parameter Block (in Volume Boot Record)

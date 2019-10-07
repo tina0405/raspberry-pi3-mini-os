@@ -127,6 +127,8 @@ extern int sect;
 char* _search_file(openfile* addr, char* page, struct dev dev_num){
         int index = 0;
 	int parse_i = 4,file_i =0;
+	static int sym_index = 0;
+	static char tmp_name[32] = {"root/"};
 	//printf("save_dir_head:%x %x %x\n\r",(unsigned int)addr->log_addr,addr,page);
 	struct file* file = (struct file*)(&_start_ + (unsigned int)page);
 	fatdir_t * tmp_origin= &_start_ + (unsigned int)addr->log_addr;/*global!!!*/
@@ -144,15 +146,23 @@ char* _search_file(openfile* addr, char* page, struct dev dev_num){
 			(file+index)->dir_record.ch = tmp_origin -> ch;		
 			(file+index)->dir_record.cl = tmp_origin -> cl;
 			unsigned int clu = ((unsigned int)tmp_origin -> ch)<<16|tmp_origin -> cl;
-		
-		 
+			//build soft symbolic
+			/*typedef struct {
+			    struct file* file_info;
+			    unsigned int open;//open:phy unopen:0 dev:-1
+			    char* tmp_name;
+			} symbolic_node;
+			*/
+			symbolic_fs_array[sym_index].file_info = file+index;
+			symbolic_fs_array[sym_index].open = 0;
+			
+
 			if((file+index)->dir_record.attr[0]&16){/*directory*/
 				if(clu == 0){
 					printf("Not know this file!\n\r");
 				}else{
 					// read into memory
-					parse_i = 0;
-					file_i =0;
+
 					int a = bl_init( &_start_+(return_fs->addr_getcluster-(unsigned int)&_start_), (file+index)->dir_record.name, dev_num);
 					
 					openfile* save_dir = bl_init( &_start_+(return_fs->addr_readfile -(unsigned int)&_start_), clu, dev_num);				/*new page*/
@@ -165,23 +175,69 @@ char* _search_file(openfile* addr, char* page, struct dev dev_num){
 					(file+index)->directory = dir_page.start;/*next page*/
 					(file+index)->addr.phy_addr = addr->phy_addr;/*phy dir start*/
 					(file+index)->addr.log_addr = addr->log_addr;/*log dir start*/	
-					_search_file(&tmp_dir, dir_page.start,dev_num);				
 					
-					//fat_listdirectory(&_end+(adr-(unsigned int)&_end));
+					/*symbolic*/
+					file_i = 0, parse_i = 0;
+					while(tmp_name[parse_i] !='\0'){
+						parse_i++;
+					}
+					int back_mark = parse_i;
+		                        tmp_name[parse_i++] = '/';
+					while(tmp_origin->name[file_i]!='\0' && tmp_origin->name[file_i] != (char)8 && tmp_origin->name[file_i] != (char)0x20){
+						tmp_name[parse_i+file_i] = tmp_origin->name[file_i];
+						file_i++;
+	
+					}
+					tmp_name[parse_i+file_i]='\0';
+					memcpy(&tmp_name[0], symbolic_fs_array[sym_index].tmp_name,32);
+					symbolic_fs_array[sym_index].open = -1;
+					//printf("symbolic node:%s\n\r",symbolic_fs_array[sym_index].tmp_name);
+					sym_index++;
+								
+					_search_file(&tmp_dir, dir_page.start,dev_num);	
+					/*back mark*/
+					tmp_name[back_mark]='\0';			
 					
 				}	
+			}else if((file+index)->dir_record.attr[0]&8){/*label*/
+				file_i = 0;				
+				while(tmp_origin->name[file_i]!='\0' && tmp_origin->name[file_i]!=0x20 && tmp_origin->name[file_i]!=8){
+					tmp_name[5+file_i] = tmp_origin->name[file_i];
+					file_i++;
+				}
+				tmp_name[5+file_i]='\0';
+				memcpy(&tmp_name[0], symbolic_fs_array[sym_index].tmp_name,32);
+				symbolic_fs_array[sym_index].open = -1;
+				//printf("partition name:%s mounted:%s\n\r",tmp_origin->name,symbolic_fs_array[sym_index].tmp_name);
+				sym_index++;
+
 			}else{
 				if(clu == 0){
 					printf("Not know this file!\n\r");
+					
 				}else{
 					// read into memory
-					parse_i = 0;
-					file_i =0;
 					
 					(file+index)->num_fatdir= offset;/*offset*/
 					(file+index)->directory = NULL;
 					(file+index)->addr.phy_addr = addr->phy_addr;/*phy dir start*/
 					(file+index)->addr.log_addr = addr->log_addr;/*log dir start*/
+										
+					file_i = 0, parse_i = 0;
+					while(tmp_name[parse_i] !='\0' && tmp_name[parse_i] != (char)8){
+						parse_i++;
+					}
+					memcpy(&tmp_name[0], symbolic_fs_array[sym_index].tmp_name,parse_i);
+		                        symbolic_fs_array[sym_index].tmp_name[parse_i++] = '/';
+					while(tmp_origin->name[file_i]!='\0'){
+						symbolic_fs_array[sym_index].tmp_name[parse_i+file_i] = tmp_origin->name[file_i];
+						file_i++;
+					}
+					symbolic_fs_array[sym_index].tmp_name[parse_i+file_i]='\0';
+					symbolic_fs_array[sym_index].open = 0;
+					//printf("symbolic node:%s\n\r",symbolic_fs_array[sym_index].tmp_name);
+					sym_index++;
+					
 				}	
 
 
@@ -194,6 +250,9 @@ char* _search_file(openfile* addr, char* page, struct dev dev_num){
         }else{
 		return NULL;
 	}
+
+
+	
 	return file->dir_record.name;
 
 }

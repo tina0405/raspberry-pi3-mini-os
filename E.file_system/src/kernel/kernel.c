@@ -43,9 +43,17 @@ void mod_process(unsigned long* start,unsigned long size){
 	unsigned long user_page_2 = move_to_user_mode((unsigned long)start, size, 0);
 	if (user_page_2 < 0){
 		printf("Error while moving process to user mode\n\r");
-	} 
+	}
+	int num = 0; 
+	if(size%4096){
+		num = (size/4096)+1;	
+	}else{
+		num = size/4096;
+	}
 	
-	
+
+	free_page(start, num);
+	printf("free:%x %x\n\r",start, num);
 }
 
 void kernel_main()
