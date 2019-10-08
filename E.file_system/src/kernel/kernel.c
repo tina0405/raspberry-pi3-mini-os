@@ -51,9 +51,8 @@ void mod_process(unsigned long* start,unsigned long size){
 		num = size/4096;
 	}
 	
-
 	free_page(start, num);
-	printf("free:%x %x\n\r",start, num);
+	//printf("free:%x %x\n\r",start, num);
 }
 
 void kernel_main()

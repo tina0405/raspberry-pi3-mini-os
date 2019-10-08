@@ -108,13 +108,13 @@ openfile* fat32_readfile(void* nope, int cluster,struct dev* sd_num)
     return ret;
 }
 /*return position and next*/
-
+/*
 void fat32_getpos(void* nope, int cluster,struct dev* sd_num,struct File* fp)
 {
     // BIOS Parameter Block
     bpb_t *bpb=(bpb_t*)(&_end+sd_num->dbr);
     // File allocation tables. We choose between FAT16 and FAT32 dynamically
-    unsigned int *fat32=(unsigned int*)(&_start_ + sd_num-> fat_table_start - 512 + bpb->rsc*512);/*reserved: bpb->rsc*/
+    unsigned int *fat32=(unsigned int*)(&_start_ + sd_num-> fat_table_start - 512 + bpb->rsc*512);
 
    
     // Data pointers
@@ -147,7 +147,7 @@ void fat32_getpos(void* nope, int cluster,struct dev* sd_num,struct File* fp)
     }
 
 }
-
+*/
 
 openfile* fat32_read_directory(void* nope, struct dev* sd_num)
 {

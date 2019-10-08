@@ -8,13 +8,12 @@ struct mailbox pm_mail[mail_size]={NULL}; /*Mailbox*/
 struct mailbox rendezvous; /*Rendezvous*/
 extern struct pcb_struct *thread_id_table[4096];
 extern unsigned long mod_process;
-int index_push = 0;
-int index_pop = 0;
+static int index_push = 0;
+static int index_pop = 0;
 struct mailbox user_ipc_mail[mail_size]; /*Mailbox*/
 int ipc_index_pop=0;
 extern unsigned char _start_;
 /*FIFO*/
-char name[11];
 
 void pm_daemon(void)
 {
@@ -61,7 +60,7 @@ void pm_daemon(void)
 							if(tmp_pcb -> nextp!=NULL){
 								tmp_pcb -> nextp -> prevp = tmp_pcb-> prevp;
 							}
-							printf("pm:%x %x\n\r",tmp_pcb->mm->user_pages[0].phys_addr,tmp_pcb->mm->user_pages[0].virt_addr);
+						
 							free_page(tmp_pcb,1);
 						        free_page(&(tmp_pcb->cpu_context->x19),1);
 							tmp_pcb = tmp_pcb->thread_n;
@@ -150,7 +149,6 @@ struct mailbox recieve_msg(unsigned int ipc_type){
 	}
 
 }
-char name[11];
 
 /*type: mailbox or rendezvous or end_thread*/
 void send_msg(unsigned int type, int tid, int addr, void* msg,int size){/*without size*/

@@ -2,7 +2,7 @@
 #include <fs.h>
 #include <strcmp.h>
 #include "utils.h"
-char kdirectory[30] = {"root"};
+char kdirectory[30] = {"root/"};
 int cd_rem = -1;/*remember where you are*/
 extern unsigned char _end;
 extern unsigned char _start_;
@@ -10,7 +10,7 @@ unsigned int current_page=0;
 int cd(char* file_name){
 		//char directory[20]
 		/*relative*/
-		int parse_i = 4,file_i =0;
+		int parse_i = 5,file_i =0;
 		struct dev* dev_param;
 		struct fs_unit* return_fs;
 		if(cd_rem == -1){/*root*/			
@@ -26,6 +26,7 @@ int cd(char* file_name){
 							file_i++;
 						}
 						cd_rem = cd_i;
+						
 						return 1;
 					}else{  return 0;}
 				}
@@ -48,10 +49,12 @@ int cd(char* file_name){
 					kdirectory[parse_i+file_i] = file_name[file_i];
 					file_i++;
 				}
-				//printf("dir:%s\n\r",kdirectory);
+				kdirectory[parse_i+file_i] = '\0';
+				
 				return 1;
 
 			}else{
+				
 				return 0;
 			}
 	
@@ -69,8 +72,8 @@ void cd_root(void){
        	 	 	memcpy((&sd_p[build_d][0]),&(file_dir[build_d].name[0]), 8);
 	 		file_dir[build_d].attr[0] = (char) 16;
     		 }
-		 memzero(&kdirectory[0],30);
-		 memcpy("root",&kdirectory[0],4);
+		 memzero(&kdirectory[0],32);
+		 memcpy("root/",&kdirectory[0],5);
 		 cd_rem = -1;
 
 }

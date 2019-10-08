@@ -24,8 +24,7 @@ struct pos{
 struct File{
    char* _base;
    int   _bufsize;
-   struct pos _real;
-   char *_tmpfname; 
+   int _tmpname; 
 };
 typedef struct File FILE;
 // directory entry structure
@@ -115,7 +114,6 @@ struct fs_unit{
     unsigned int addr_directory;
     unsigned int addr_getcluster;
     unsigned int addr_readfile;
-    unsigned int addr_getpos;
 }; 
 struct dev partition[4];
 struct user_fs file_dir[20];

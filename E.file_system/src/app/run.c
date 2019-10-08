@@ -33,7 +33,6 @@ int run_file(char* file_name){
 			}
 			
 			copy_process(APP_THREAD, (unsigned long)&mod_process, (char *)(&_start_ + (unsigned int)base->log_addr), file_dir[k].size);
-			printf("%x\n\r",(char *)((unsigned int)base->log_addr));
 			printf("User application: read file OK!\n\r");
 			
 		}

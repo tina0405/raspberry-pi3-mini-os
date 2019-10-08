@@ -13,7 +13,7 @@
 #include "mini_uart.h"
 extern unsigned char _end;
 extern fatdir_t *dir;
-extern char directory[20];
+extern char directory[32];
 fatdir_t *origin;
 extern unsigned char _start_;
 
@@ -37,6 +37,7 @@ void build_kernel_directory(void){
     struct fs_unit* return_fs;
     struct mm_info memory;
     memzero(&(sd_p[0][0]),44);
+    memzero(&(symbolic_fs_array[0]),128*sizeof(symbolic_node));
     for(int pnum=0; pnum<4; pnum++){
 	
 	 return_fs = fs_type_support(partition[pnum].type);
@@ -83,6 +84,7 @@ void build_kernel_directory(void){
 		partition[pnum].directory_addr.log_addr = addr->log_addr;
 		partition[pnum].directory_addr.phy_addr = addr->phy_addr;		
 		//build_root();
+		
    	 	pa_name =  _search_file(&partition[pnum].directory_addr,partition[pnum].op_dir,partition[pnum]); /*here*/
 		pa_in = 0;
 		/*scanf empty cluster*/
@@ -153,6 +155,7 @@ char* _search_file(openfile* addr, char* page, struct dev dev_num){
 			    char* tmp_name;
 			} symbolic_node;
 			*/
+
 			symbolic_fs_array[sym_index].file_info = file+index;
 			symbolic_fs_array[sym_index].open = 0;
 			
@@ -191,7 +194,7 @@ char* _search_file(openfile* addr, char* page, struct dev dev_num){
 					tmp_name[parse_i+file_i]='\0';
 					memcpy(&tmp_name[0], symbolic_fs_array[sym_index].tmp_name,32);
 					symbolic_fs_array[sym_index].open = -1;
-					//printf("symbolic node:%s\n\r",symbolic_fs_array[sym_index].tmp_name);
+					//printf("node:%x name:%s\n\r",sym_index,symbolic_fs_array[sym_index].tmp_name);
 					sym_index++;
 								
 					_search_file(&tmp_dir, dir_page.start,dev_num);	
@@ -208,7 +211,7 @@ char* _search_file(openfile* addr, char* page, struct dev dev_num){
 				tmp_name[5+file_i]='\0';
 				memcpy(&tmp_name[0], symbolic_fs_array[sym_index].tmp_name,32);
 				symbolic_fs_array[sym_index].open = -1;
-				//printf("partition name:%s mounted:%s\n\r",tmp_origin->name,symbolic_fs_array[sym_index].tmp_name);
+				//printf("node:%x name:%s\n\r",sym_index,symbolic_fs_array[sym_index].tmp_name);
 				sym_index++;
 
 			}else{
@@ -235,7 +238,7 @@ char* _search_file(openfile* addr, char* page, struct dev dev_num){
 					}
 					symbolic_fs_array[sym_index].tmp_name[parse_i+file_i]='\0';
 					symbolic_fs_array[sym_index].open = 0;
-					//printf("symbolic node:%s\n\r",symbolic_fs_array[sym_index].tmp_name);
+					//printf("node:%x name:%s\n\r",sym_index,symbolic_fs_array[sym_index].tmp_name);
 					sym_index++;
 					
 				}	
