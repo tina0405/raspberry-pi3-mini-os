@@ -150,6 +150,7 @@ struct mailbox recieve_msg(unsigned int ipc_type){
 
 }
 
+
 /*type: mailbox or rendezvous or end_thread*/
 void send_msg(unsigned int type, int tid, int addr, void* msg,int size){/*without size*/
 	/*push*/	

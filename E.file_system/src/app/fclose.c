@@ -20,7 +20,7 @@ int fclose(FILE *stream){
 		printf("File buff > 512\n\r");
 	}
 
-	printf("close page:%x",num);
+	//printf("close page:%x",num);
 	free_page(real_addr->_base,num);
 	symbolic_fs_array[real_addr->_tmpname].open = 0;/*soft symbolic*/ 
 	symbolic_fs_array[real_addr->_tmpname].file_info->directory = NULL;
