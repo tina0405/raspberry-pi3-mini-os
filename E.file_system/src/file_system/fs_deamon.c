@@ -9,7 +9,6 @@
 #define OPENF 1
 #define CLOSEF 2
 struct mailbox fs_mail[mail_size]={NULL};
-static int index_push = 0;
 static int index_pop = 0;
 //int support_type[4] = {0}; /*0:fat16*/
 
