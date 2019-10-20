@@ -7,6 +7,7 @@
 #include "fat32.h"
 #include <stddef.h>
 #define OPENF 1
+#define CLOSEF 2
 struct mailbox fs_mail[mail_size]={NULL};
 static int index_push = 0;
 static int index_pop = 0;
@@ -14,7 +15,6 @@ static int index_pop = 0;
 
 void fs_daemon(void)
 {	
-	static int read_mail_index = 0;
 	//printf("File System send a message (int 3) to ipc_test (use pid as an address)\n\r");
 	//send_msg(Rendezvous, 2, 3);
 
@@ -53,7 +53,8 @@ void fs_daemon(void)
 					index_pop++;			
 					if(index_pop == mail_size){index_pop=0;}
 					break;
-
+				case CLOSEF:
+					break;
 				
 				default:
 					break;
@@ -65,29 +66,6 @@ void fs_daemon(void)
 	
 
 
-}
-
-void send_fs_msg(unsigned int type, int tid, int addr, void* msg,int size){/*without size*/
-	/*push*/	
-	if(fs_mail[index_push].letter_type != 0){
-		printf("Push pm_mail error! Mailbox is Full\n\r");	
-	}
-	else{
-		fs_mail[index_push].letter_type = type;/*0:empty*/
-		fs_mail[index_push].dst_task = tid;/*exit_thread*/
-		fs_mail[index_push].from = current;
-		if(size){
-			struct mm_info msg_mm = allocate_kernel_page(size);	
-			fs_mail[index_push].msg = msg_mm.start;
-			memcpy(msg, msg_mm.start,11);
-		}else{
-			fs_mail[index_push].msg = NULL;
-		}		
-		index_push++;
-		if(index_push == mail_size){index_push=0;}
-		//accept_reply();
-	}
-	
 }
 
 

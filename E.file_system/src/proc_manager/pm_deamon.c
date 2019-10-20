@@ -153,24 +153,31 @@ struct mailbox recieve_msg(unsigned int ipc_type){
 
 /*type: mailbox or rendezvous or end_thread*/
 void send_msg(unsigned int type, int tid, int addr, void* msg,int size){/*without size*/
-	/*push*/	
-	if(pm_mail[index_push].letter_type != 0){
-		printf("Push pm_mail error! Mailbox is Full\n\r");	
-	}
-	else{
-		pm_mail[index_push].letter_type = type;/*0:empty*/
-		pm_mail[index_push].dst_task = tid;/*exit_thread*/
-		pm_mail[index_push].from = current;
-		if(size){
-			struct mm_info msg_mm = allocate_kernel_page(size);	
-			pm_mail[index_push].msg = msg_mm.start;
-			memcpy(msg, msg_mm.start,11);
-		}else{
-			pm_mail[index_push].msg = NULL;
-		}		
-		index_push++;
-		if(index_push == mail_size){index_push=0;}
-		//accept_reply();
+	/*push*/
+
+	if(addr==0){	
+		if(pm_mail[index_push].letter_type != 0){
+			printf("Push pm_mail error! Mailbox is Full\n\r");	
+		}
+		else{
+			pm_mail[index_push].letter_type = type;/*0:empty*/
+			pm_mail[index_push].dst_task = tid;/*exit_thread*/
+			pm_mail[index_push].from = current;
+			if(size){
+				struct mm_info msg_mm = allocate_kernel_page(size);	
+				pm_mail[index_push].msg = msg_mm.start;
+				memcpy(msg, msg_mm.start,11);
+			}else{
+				pm_mail[index_push].msg = NULL;
+			}		
+			index_push++;
+			if(index_push == mail_size){index_push=0;}
+			//accept_reply();
+		}
+	}else{/*1:fs*/
+
+
+
 	}
 	
 }

@@ -19,6 +19,7 @@ extern unsigned char _end;/*in linker script*/
 unsigned long user_page_start;
 extern unsigned int pm_daemon;
 extern unsigned int fs_daemon;
+extern unsigned int compt_daemon;
 extern unsigned int user_ipc_service;
 extern unsigned int ipc_test;
 extern unsigned long shell_user_process;
@@ -74,8 +75,15 @@ void kernel_main()
        } 
         //printf("&_end:%x\n\r",&_end);
 	sched_type = &round_robin;
+	
+	int res = copy_process(SERVER_THREAD, (unsigned long)&compt_daemon, 0, 0);
+	
+	if (res < 0) {
+		printf("error while starting kernel process\n\r");
+		return;
+	}
 
-	int res = copy_process(SERVER_THREAD, (unsigned long)&pm_daemon, 0, 0);
+	res = copy_process(SERVER_THREAD, (unsigned long)&pm_daemon, 0, 0);
 	
 
 	if (res < 0) {
@@ -89,7 +97,7 @@ void kernel_main()
 		printf("error while starting process manager \n\r");
 		return;
 	}
-
+	
         res = copy_process(EXTRA_SERVER_THREAD, (unsigned long)&kernel_process, 0, 0);
 	
 	if (res < 0) {
@@ -98,6 +106,7 @@ void kernel_main()
 	}
 		
 	
+
 	timer_init();
 	enable_interrupt_controller();
 	enable_irq();
