@@ -54,7 +54,7 @@ void uart_init ( void )
 }
 
 //set_gpio
-#ifdef GPIO 
+//#ifdef GPIO 
 void set_gpio(unsigned long gpio,int on_off){
         put32(GPPUD,on_off);
         delay(150);
@@ -62,7 +62,7 @@ void set_gpio(unsigned long gpio,int on_off){
         delay(150);
         put32(GPPUDCLK0,0);
 }
-#endif
+//#endif
 
 void uart_hex(unsigned long d) {
     unsigned int n;

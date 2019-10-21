@@ -12,11 +12,12 @@ extern struct mailbox pm_mail[mail_size];
 extern struct mailbox fs_mail[mail_size];
 extern struct mailbox compt_mail[mail_size];
 
-void send_msg(unsigned int type, int tid, int addr, void* msg,int size){/*without size*/
+int send_msg(unsigned int type, int tid, int addr, void* msg,int size){/*without size*/
 	/*push*/
 	if(addr == 0){/*process manager*/	
 		if(pm_mail[pm_index_push].letter_type != 0){
-			printf("Push pm_mail error! Mailbox is Full\n\r");	
+			printf("Push pm_mail error! Mailbox is Full\n\r");
+			return 1;	
 		}
 		else{
 			pm_mail[pm_index_push].letter_type = type;/*0:empty*/
@@ -31,11 +32,13 @@ void send_msg(unsigned int type, int tid, int addr, void* msg,int size){/*withou
 			}		
 			pm_index_push++;
 			if(pm_index_push == mail_size){pm_index_push = 0;}
+			return 0;
 			
 		}
 	}else if(addr == 1){/*1:file system manager*/
 		if(fs_mail[fs_index_push].letter_type != 0){
-			printf("Push fs_mail error! Mailbox is Full\n\r");	
+			printf("Push fs_mail error! Mailbox is Full\n\r");
+			return 1;	
 		}
 		else{
 			fs_mail[fs_index_push].letter_type = type;/*0:empty*/
@@ -50,12 +53,14 @@ void send_msg(unsigned int type, int tid, int addr, void* msg,int size){/*withou
 			}		
 			fs_index_push++;
 			if(fs_index_push == mail_size){fs_index_push = 0;}
+			return 0;
 		}
+ 
 
-
-	}else if(addr == 2){/*1:component manager*/
+	}else if(addr == 2){/*2:component manager*/
 		if(compt_mail[compt_index_push].letter_type != 0){
 			printf("Push compt_mail error! Mailbox is Full\n\r");	
+			return 1;
 		}
 		else{
 			compt_mail[compt_index_push].letter_type = type;/*0:empty*/
@@ -70,6 +75,7 @@ void send_msg(unsigned int type, int tid, int addr, void* msg,int size){/*withou
 			}		
 			compt_index_push++;
 			if(compt_index_push == mail_size){compt_index_push = 0;}
+			return 0;
 		}
 	}
 	

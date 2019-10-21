@@ -9,7 +9,7 @@ struct mailbox rendezvous; /*Rendezvous*/
 extern struct pcb_struct *thread_id_table[4096];
 extern unsigned long mod_process;
 static int index_pop = 0;
-struct mailbox user_ipc_mail[mail_size]; /*Mailbox*/
+//struct mailbox user_ipc_mail[mail_size]; /*Mailbox*/
 int ipc_index_pop=0;
 extern unsigned char _start_;
 /*FIFO*/
@@ -94,6 +94,7 @@ void pm_daemon(void)
 					break;
 			}
 		}
+		/*
 		while(user_ipc_mail[ipc_index_pop].letter_type){
 			switch(user_ipc_mail[ipc_index_pop].letter_type){
 				case Rendezvous:
@@ -108,6 +109,7 @@ void pm_daemon(void)
 					break;
 			}	
 		}
+		*/
 		schedule();
 	}
 
@@ -115,7 +117,7 @@ void pm_daemon(void)
 
 
 }
-
+/*
 void reply(struct pcb_struct *letter){
 	struct pcb_struct *from_pcb = letter; 
 	from_pcb -> reply = 1; 
@@ -150,6 +152,6 @@ struct mailbox recieve_msg(unsigned int ipc_type){
 }
 
 
-
+*/
 
 

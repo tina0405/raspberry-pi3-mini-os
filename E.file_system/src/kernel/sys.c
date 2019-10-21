@@ -10,14 +10,15 @@
 #include "fs.h"
 #include "thread.h"
 #include "pm.h"
-
+#include "ipc.h"
+#include "gpio.h"
 typedef int size_t;
-extern struct mailbox user_ipc_mail[mail_size];
+//extern struct mailbox user_ipc_mail[mail_size];
 int add_thread(thread_t *thread, const struct thread_attr_t *attr,void * (*start_routine)(void *),void* arg);
 thread_t thread_id_self(void);
 int _thread_join (thread_t thread, void **status);
 void signal(thread_t thread);
-
+extern unsigned char _start_;
 
 extern unsigned long user_page_start;
 
@@ -58,7 +59,7 @@ int  kservice_thread_join (thread_t thread, void **value_ptr ){
 	return 0;
 }
 
-void  kservice_thread_exit (thread_t thread){
+void  kservice_thread_exit (thread_t thread){/*delete*/
 	
 }
 
@@ -88,17 +89,13 @@ void  kservice_run_file(char* file_name){
 
 /*ipc_*/
 int ipc_index_push =0;
-void kservice_send_msg(unsigned int type, int pid, void* msg){
-	user_ipc_mail[ipc_index_push].dst_task = pid;/*pid?*/
-	user_ipc_mail[ipc_index_push].from = current;
-	user_ipc_mail[ipc_index_push].msg = msg;
-	user_ipc_mail[ipc_index_push++].letter_type = type;/*0:empty*/
-	if(ipc_index_push == mail_size){ipc_index_push=0;}
-	accept_reply();	
+
+void kservice_send_msg(unsigned int type, int pid, void* msg){/*delete*/
+	
 }
 
-struct mailbox kservice_recieve_msg(unsigned int ipc_type){
-	return recieve_msg(ipc_type);
+void kservice_recieve_msg(unsigned int ipc_type){/*delete*/
+	//return recieve_msg(ipc_type);
 }
 
 void  kservice_mutex_trylock(struct thread_mutex *mutex){
@@ -130,22 +127,6 @@ void  kservice_rm_compt(char* compt_name){
 	rm_compt_file(compt_name);
 }
 
-struct mm_info kservice_allocate_kpage(int count){
-	return allocate_kernel_page(count);
-}
-
-void  kservice_schedule(){
-	schedule();
-}
-
-int  kservice_reg_compt(char* compt_name){
-	return reg_compt(compt_name);
-}
-
-int kservice_unreg_compt(char* compt_name){
-	return unreg_compt(compt_name);
-}
-
 void kservice_ls_dev(void){
 	ls_dev();
 }
@@ -153,6 +134,7 @@ void kservice_ls_dev(void){
 void kservice_ls_compt(void){
 	ls_compt();
 }
+
 
 void  kservice_change_sched(char* file_name){
 	send_msg(Change_Sched,thread_id_self(), 0, file_name, 4096);
@@ -173,6 +155,27 @@ int kservice_fwrite(void *ptr, size_t size, size_t nobj, FILE *stream){
 int kservice_fclose(FILE *stream){
 	return fclose(stream);
 }
+
+struct mm_info kservice_allocate_kpage(int count){
+	return allocate_kernel_page(count);
+}
+
+void  kservice_schedule(){
+	schedule();
+}
+
+
+int  kservice_reg_compt(char* compt_name){
+	return reg_compt(compt_name);
+}
+
+int kservice_unreg_compt(char* compt_name){
+	return unreg_compt(compt_name);
+}
+
+
+
+
 /*
 int kservice_shmget(int key,int size,int flag){
 	return shmget(key, size, flag);
@@ -205,13 +208,14 @@ void kservice_dir_interface(unsigned int* addr){
 	fat_listdirectory(addr);
 }
 
-extern unsigned char _end;
 
-unsigned char* kservice_end(void){
-	return &_end;
+unsigned int kservice_set_hard(unsigned int addr){
+	return &_start_ + addr;
 }
 
-
+void kservice_put32( unsigned long a, unsigned int b){
+	put32((volatile unsigned int*)(MMIO_BASE+a),b);
+}
 
 void * const sys_call_table[] = {kservice_uart_write, /*0*/
 kservice_fork, /*1*/
@@ -250,5 +254,7 @@ kservice_schedule, /*28*/
 kservice_reg_compt, /*29*/
 kservice_unreg_compt, /*30*/
 kservice_dev_read, /*31*/
-kservice_dir_interface, /*31*/
+kservice_dir_interface, /*32*/
+kservice_set_hard, /*33*/
+kservice_put32
 }; 

@@ -46,6 +46,7 @@ struct mod_section move_sec[7];/*0.text 1.rodata 2.data 3.bss 4.rela.text 5.symt
 char compt_filename[8];
 int compt_file(char* file_name){/*incom*/
 	unsigned int clust = 0;
+	openfile* basefile;
         unsigned long base = 0;
         struct dev* dev_param;
 	struct fs_unit* return_fs;
@@ -71,7 +72,7 @@ int compt_file(char* file_name){/*incom*/
 			return_fs = fs_type_support(partition[cd_rem].type);
                         dev_param = &partition[cd_rem];
                		if(return_fs){
-				base = bl_init( &_start_+(return_fs->addr_readfile -(unsigned int)&_start_), clust, dev_param);
+				basefile = bl_init( &_start_+(return_fs->addr_readfile -(unsigned int)&_start_), clust, dev_param);
 			}else{
 				printf("Not support %x type in File system",partition[cd_rem].type);
 				return 0;
@@ -82,7 +83,7 @@ int compt_file(char* file_name){/*incom*/
 			printf("Component: read file OK!\n\r");
 			printf("----------------------Component initial----------------------\n\r");
 			
-
+			base = basefile->log_addr;
 			unsigned long section_table_start;
 			unsigned long section_num;
 			unsigned long section_size;
@@ -115,7 +116,7 @@ int compt_file(char* file_name){/*incom*/
 			int rela_err = relocate(comp_start,section_table_start,section_size,(char *)base,(char *)(base + move_sec[4].addr),move_sec[4].size);
 			if(!rela_err){
 				int init_addr = use_compt_func(base,(char *)(base + move_sec[5].addr),move_sec[5].size,"init_compt");/*find initial*/
-				opera_addr = use_compt_func(base,(char *)(base + move_sec[5].addr),move_sec[5].size,"oper_compt");
+				opera_addr = use_compt_func(base,(char *)(base + move_sec[5].addr),move_sec[5].size,"oprt_compt");
 				rmcom_addr = use_compt_func(base,(char *)(base + move_sec[5].addr),move_sec[5].size,"exit_compt");
 				cfile[for_i].rmcom = rmcom_addr + comp_start;
 								
@@ -151,6 +152,7 @@ int compt_file(char* file_name){/*incom*/
 int compt_sched_file(char* file_name){/*incom*/
 
 	unsigned int clust = 0;
+	openfile* basefile;
         unsigned long base = 0;
         struct dev* dev_param;
 	struct fs_unit* return_fs;
@@ -174,7 +176,7 @@ int compt_sched_file(char* file_name){/*incom*/
 			return_fs = fs_type_support(partition[cd_rem].type);
                         dev_param = &partition[cd_rem];
                		if(return_fs){
-				base = bl_init( &_start_+(return_fs->addr_readfile -(unsigned int)&_start_), clust, dev_param);
+				basefile = bl_init( &_start_+(return_fs->addr_readfile -(unsigned int)&_start_), clust, dev_param);
 			}else{
 				printf("Not support %x type in File system",partition[cd_rem].type);
 				return 0;
@@ -184,7 +186,7 @@ int compt_sched_file(char* file_name){/*incom*/
 			printf("Component: read file OK!\n\r");
 			printf("----------------------Change Schedule----------------------\n\r");
 			
-
+			base = basefile->log_addr;
 			unsigned long section_table_start;
 			unsigned long section_num;
 			unsigned long section_size;
@@ -302,7 +304,7 @@ int strlength(char* string){
 	return length;
 }
 
-int reg_compt(char* compt_name){/*回傳 num*/
+int reg_compt(char* compt_name){/*return num*/
 	int ksym_i = 9,compt_i=0;
 	int length = strlength(compt_name);
 	for(int num = 0; num<64; num++){
@@ -350,6 +352,7 @@ int use_compt_func(char* base,Elf64_Sym* sym,int size,char* fun_name){
 			}
 		
 			text_function[num].size = (sym+init)->st_size;
+			//printf("%s\n\r",&text_function[num].name[0]);
 			if(!memcmp(&text_function[num].name[0],fun_name,10)){
 				return  initial;
 			}
@@ -548,7 +551,7 @@ void get_string(char* addr,unsigned long size){
 }
 
 void ls_compt(void){
-	printf("\n\r");
+	printf("lscom\n\r");
 	for(int compt_i=0; compt_i<64 && ksym[compt_i].sym_name[0]!='\0'; compt_i++){
 		printf("%s\n\r",ksym[compt_i].sym_name);
 	}
@@ -570,12 +573,13 @@ int read_ksymbol(){
 					ksym[name_word].sym_name[aa++] = *(name_addr + base_index);
 				}else{
 					ksym[name_word].sym_addr = sys_call_table[name_word];
+					printf("%s %x\n\r", ksym[name_word].sym_name, ksym[name_word].sym_addr);
 					name_word++;
 					aa = 0;			
 				}
-				
 				base_index++;
 			}
+			
 			return 0;
 			
 		}

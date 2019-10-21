@@ -14,7 +14,8 @@
 #include "fs.h"
 #include "sd.h"
 #include "boot.h"
-#include "SDCard.h"	
+#include "SDCard.h"
+#include "gpio.h"	
 extern unsigned char _end;/*in linker script*/
 unsigned long user_page_start;
 extern unsigned int pm_daemon;
@@ -36,6 +37,27 @@ void kernel_process(){
 		printf("Error while moving process to user mode\n\r");
 	} 
 
+}
+void A(unsigned long def,int on_off){
+	asm volatile(
+	    "put32_t: str w1,[x0]\n"
+	    "ret\n"
+	    "delay_t: subs x0, x0, #1\n"
+	    "bne delay_t\n"
+	    "ret"
+	);
+
+}
+
+
+void set_gpio_t(unsigned long gpio,int on_off){
+
+        put32_t(GPPUD,on_off);
+        delay_t(150);
+        put32_t(GPPUDCLK0,(1<<gpio));
+        delay_t(150);
+        put32_t(GPPUDCLK0,0);
+	
 }
 
 void mod_process(unsigned long* start,unsigned long size){
@@ -62,6 +84,8 @@ void kernel_main()
 	uart_init();
 	init_printf(NULL, putc);
 	irq_vector_init(); 
+	
+	
 	enable_cache();
 	_thread_mutex_init(&mm_lock,(void *)0);/*for memory access*/
 	//sdInitCard (&printf, &printf, true);
@@ -106,12 +130,11 @@ void kernel_main()
 	}
 		
 	
-
 	timer_init();
 	enable_interrupt_controller();
 	enable_irq();
 
-
+	set_gpio_t(21,2);
 	while (1){
 		
 		//printf("kernel\n\r");
