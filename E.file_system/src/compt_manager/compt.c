@@ -329,13 +329,20 @@ int reg_compt(char* compt_name){/*return num*/
 
 int get_ndx(Elf64_Sym* sym){
 
-	//printf("st_name:%x st_other:%x\n\r",(sym+init)->st_name,(sym+init)->st_other);
-	//printf("bind:%x type:%x \n\r",(sym+init)->st_info >> 4,(sym+init)->st_info & 0xf);
-	//printf("st_shndx:%x st_value:%x st_size:%x\n\r",(sym+init)->st_shndx,(sym+init)->st_value,(sym+init)->st_size);
+	//printf("st_name:%x st_other:%x\n\r",(sym)->st_name,(sym)->st_other);
+	//printf("bind:%x type:%x \n\r",(sym)->st_info >> 4,(sym)->st_info & 0xf);
+	//printf("st_shndx:%x st_value:%x st_size:%x\n\r",(sym)->st_shndx,(sym)->st_value,(sym)->st_size);
 
 	return sym->st_shndx;
 
 }
+
+int get_st_value(Elf64_Sym* sym){
+
+	return sym->st_value;
+
+}
+
 
 /*init*//*cleanup*//*operation*/
 int use_compt_func(char* base,Elf64_Sym* sym,int size,char* fun_name){
@@ -412,7 +419,13 @@ int relocate(char* comp_start,unsigned long section_table_start,unsigned long se
 				if(!memcmp(&ksym[ksym_i++] , &str_name[0] ,i-1)){flag = 1; break;}
 
 			if(flag==1){
-				unsigned int value = 0x3ffffff -((((int)comp_start + (rela+init)->r_offset) - ksym[ksym_i-1].sym_addr)/4)+1;
+				unsigned int value = 0;
+				if(((int)comp_start + (rela+init)->r_offset) > (ksym[ksym_i-1].sym_addr & 0xffffffff)){
+					value = 0x3ffffff -((((int)comp_start + (rela+init)->r_offset) - ksym[ksym_i-1].sym_addr)/4)+1;
+				}else{
+					value =((ksym[ksym_i-1].sym_addr - ((int)comp_start + (rela+init)->r_offset))/4);
+				}
+				
 				unsigned int* bl_test = (comp_start + (rela+init)->r_offset);
 				*bl_test = value + 0x94000000;
 			}else{
@@ -420,8 +433,20 @@ int relocate(char* comp_start,unsigned long section_table_start,unsigned long se
 				return -1;
 			}
 
-		   }else{
+		   }else if(ndx==1){
+			int st_value = get_st_value(base + move_sec[5].addr + 24*((rela+init)->r_info >> 32));
+			unsigned int value=0;
+			if(((int)comp_start + (rela+init)->r_offset) > ((int)comp_start + st_value)){
+				value = 0x3ffffff -((((int)comp_start + (rela+init)->r_offset) - ((int)comp_start + st_value))/4)+1;
+			}else{
+				value = ((((int)comp_start + st_value) - ((int)comp_start + (rela+init)->r_offset))/4);
 
+			}
+			
+			unsigned int* bl_test = (comp_start + (rela+init)->r_offset);
+			*bl_test = value + 0x94000000;
+		   }else{
+			printf("%d\n\r",ndx);
 			printf("To do list\n\r");
 		   }
 		}
