@@ -1,9 +1,11 @@
 #include <stddef.h>
 #include <sched.h>
 #include <printf.h>
+#include <cm.h>
 struct mailbox compt_mail[mail_size]={NULL};
 static int index_pop = 0;
 //int support_type[4] = {0}; /*0:fat16*/
+
 
 void compt_daemon(void)
 {	
@@ -22,15 +24,24 @@ void compt_daemon(void)
 	
 		while(compt_mail[index_pop].letter_type){	
 			switch(compt_mail[index_pop].letter_type){
-				case 1:
+				case INCOM:
 					//tmp_pcb = task[fs_mail[index_pop].dst_task];
 					//tmp_pcb->Rdv = fs_mail[index_pop];
+					compt_file(compt_mail[index_pop].msg);
 					compt_mail[index_pop].letter_type = 0;	
 					index_pop++;			
 					if(index_pop == mail_size){index_pop=0;}
 					break;
-				case 2:
+				case RMCOM:
+					compt_mail[index_pop].letter_type = 0;	
+					index_pop++;			
+					if(index_pop == mail_size){index_pop=0;}
 					break;
+				case SWAP:
+					compt_mail[index_pop].letter_type = 0;	
+					index_pop++;			
+					if(index_pop == mail_size){index_pop=0;}
+					break;	
 				
 				default:
 					break;

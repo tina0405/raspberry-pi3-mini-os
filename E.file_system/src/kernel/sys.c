@@ -12,6 +12,7 @@
 #include "pm.h"
 #include "ipc.h"
 #include "gpio.h"
+#include "cm.h"
 typedef int size_t;
 //extern struct mailbox user_ipc_mail[mail_size];
 int add_thread(thread_t *thread, const struct thread_attr_t *attr,void * (*start_routine)(void *),void* arg);
@@ -111,7 +112,7 @@ void  kservice_mutex_unlock(struct thread_mutex *mutex){
 }
 
 void  kservice_com_file(char* file_name){
-	compt_file(file_name);
+	send_msg(INCOM,thread_id_self(), 2, file_name, 4096);
 }
 
 unsigned long  kservice_allocate_upage(){
@@ -249,12 +250,12 @@ kservice_fread,/*28*/
 kservice_fwrite,/*29*/
 kservice_fclose,/*30*/
 /*below for symbol table*/
-kservice_allocate_kpage, /*27*/
-kservice_schedule, /*28*/
-kservice_reg_compt, /*29*/
-kservice_unreg_compt, /*30*/
-kservice_dev_read, /*31*/
-kservice_dir_interface, /*32*/
-kservice_set_hard, /*33*/
-kservice_put32
+kservice_allocate_kpage, /*31*/
+kservice_schedule, /*32*/
+kservice_reg_compt, /*33*/
+kservice_unreg_compt, /*34*/
+kservice_dev_read, /*35*/
+kservice_dir_interface, /*36*/
+kservice_set_hard, /*37*/
+kservice_put32 /*38*/
 }; 

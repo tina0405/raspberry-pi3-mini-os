@@ -26,7 +26,7 @@ struct text_func{
 };
 
 struct com_file{
-	char filename[8];
+	char filename[32];
 	int ksym_index;
 	unsigned long rmcom;
 };
@@ -35,10 +35,10 @@ struct com_file{
 struct text_func text_function[16];
 extern unsigned char _end;
 extern void * const sys_call_table[];
-struct com_file cfile[32];
-struct symbol_struct ksym[64];
+struct com_file cfile[32];/*Component Table*/
+struct symbol_struct ksym[128];/*Kernel Table*/
 int ksym_index = 26;
-
+int com_index=0;
 
 
 struct mod_section move_sec[7];/*0.text 1.rodata 2.data 3.bss 4.rela.text 5.symtab 6.strtab*/
@@ -57,16 +57,21 @@ int compt_file(char* file_name){/*incom*/
 		if(clust){
 
 			printf("\n\r");
-			int for_i=0;
-			while(for_i<32){
-				if(cfile[for_i].filename[0]=='\0')
+			com_index = 0;
+			while(com_index<32){
+				if(cfile[com_index].filename[0]=='\0')
 				{
-					memcpy(file_name, &cfile[for_i].filename[0],8);
+					memcpy(file_name, &cfile[com_index].filename[0],8);
+					
 					break;
 				}
 				
-				/*full not solve*/
-				for_i++;
+				
+				com_index++;
+				if(com_index==32){
+					printf("\n\rComponent Table is Full!");
+					return 0;
+				}
 			}
 
 			return_fs = fs_type_support(partition[cd_rem].type);
@@ -118,7 +123,7 @@ int compt_file(char* file_name){/*incom*/
 				int init_addr = use_compt_func(base,(char *)(base + move_sec[5].addr),move_sec[5].size,"init_compt");/*find initial*/
 				opera_addr = use_compt_func(base,(char *)(base + move_sec[5].addr),move_sec[5].size,"oprt_compt");
 				rmcom_addr = use_compt_func(base,(char *)(base + move_sec[5].addr),move_sec[5].size,"exit_compt");
-				cfile[for_i].rmcom = rmcom_addr + comp_start;
+				cfile[com_index].rmcom = rmcom_addr + comp_start;
 								
 				if(init_addr<0){
 					printf("Without init_comp function!");
@@ -126,6 +131,7 @@ int compt_file(char* file_name){/*incom*/
 					printf("Without exit_comp function!");
 				}else{
 					bl_init(comp_start+init_addr,0);
+					/*without*/
 				}
 			}
 			
@@ -162,16 +168,16 @@ int compt_sched_file(char* file_name){/*incom*/
 		if(clust){
 
 			printf("\n\r");
-			int for_i=0;
-			while(for_i<32){
-				if(cfile[for_i].filename[0]=='\0')
+			com_index = 0;
+			while(com_index<32){
+				if(cfile[com_index].filename[0]=='\0')
 				{
-					memcpy(file_name, &cfile[for_i].filename[0],8);
+					memcpy(file_name, &cfile[com_index].filename[0],8);
 					break;
 				}
 				
 				/*full not solve*/
-				for_i++;
+				com_index++;
 			}
 			return_fs = fs_type_support(partition[cd_rem].type);
                         dev_param = &partition[cd_rem];
@@ -249,42 +255,42 @@ int rm_compt_file(char* file_name){
 	unsigned int clust =0;
         unsigned long base =0;
         
-	for(int k = 0;file_dir[k].name[0]!='\0';k++){
+	
 	 
-	   if(!memcmp(file_dir[k].name,file_name,8)){
+	   
 		for(int num = 0; num<32; num++){
 			if(!memcmp(cfile[num].filename,file_name,8)){ 
 					printf("\n\r----------------------Component exit----------------------\n\r");
 					bl_init(cfile[num].rmcom,0); 
+					/*check unreg and release hardware*/
+					for(int n = 0; n<32; n++){/*unreg*/
+						if(!memcmp(cfile[n].filename,file_name,8)){
+							printf("\n\rThere are apps and compoenets using %s\n\r",cfile[n].filename);
+							printf("System advices adding unreg_compt(char* compt_name) in exit_compt() function \n\ror forcing to remove component:[rmcom -f compt_name]");
+							return 0; 
+						}
+					}
 					memzero(cfile[num].filename,8);
 					free_page(cfile[num].rmcom,1);
-					int page_num = ((cfile[num].rmcom - LOW_MEMORY) / PAGE_SIZE);			
-					for(int rm_i = 26;rm_i<64;rm_i++){
-						if(ksym[rm_i].sym_name[0] != '\0'){
-							int page_num_1 = ((ksym[rm_i].sym_addr - LOW_MEMORY) / PAGE_SIZE);
-							if(page_num == page_num_1){
-								memzero(&ksym[rm_i].sym_name[0],32);/*force rmcom*/
-								break;
-							}
-						}						
-					}
-									
+					memzero(&ksym[cfile[num].ksym_index].sym_name[0],32);
+					free_page(ksym[cfile[num].ksym_index].sym_addr,1);
+						
 					/*free k*/
 					return 1;
 			}
 			
 		}
-	   }
+	   
 	   
 
-        }
+        
 
-	printf("\n\rNot file");
+	printf("\n\rNot file A");
 	return 0;
 
 }
 
-int unreg_compt(char* compt_name){
+int unreg_compt(char* compt_name){/*remove app*/
 	int length = strlength(compt_name);
 	int ksym_i = 9,compt_i=0;
 	for(int num = 26; num<64; num++){
@@ -320,6 +326,8 @@ int reg_compt(char* compt_name){/*return num*/
 			}
 			ksym[num].sym_addr = comp_start + opera_addr;
 			printf("Register component function: %s\n\r",ksym[num].sym_name);
+			//memcpy(compt_name, &cfile[com_index].filename[0],8);
+			cfile[com_index].ksym_index = num;
 			return 0; /*succeed*/
 		}
 	}
@@ -576,9 +584,9 @@ void get_string(char* addr,unsigned long size){
 }
 
 void ls_compt(void){
-	printf("lscom\n\r");
-	for(int compt_i=0; compt_i<64 && ksym[compt_i].sym_name[0]!='\0'; compt_i++){
-		printf("%s\n\r",ksym[compt_i].sym_name);
+	printf("\n\r***************Components List***************\n\r");
+	for(int compt_i=0; compt_i<32 && cfile[compt_i].filename[0]!='\0'; compt_i++){
+		printf("%s\n\r",cfile[compt_i].filename);
 	}
 }
 
