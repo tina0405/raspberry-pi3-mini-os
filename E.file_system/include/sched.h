@@ -155,7 +155,8 @@ extern void preempt_enable(void);
 extern void switch_to(struct pcb_struct* next);
 extern void cpu_switch_to(struct task_struct* prev, struct task_struct* next);
 extern void exit_process(void);
-struct pcb_struct * round_robin(void* nope,struct pcb_struct * current_task, struct pcb_struct * head);
+struct pcb_struct * round_robin(struct pcb_struct * current_task, struct pcb_struct * head);
+
 #define INIT_TASK \
 /*cpu_context*/ { { 0,0,0,0,0,0,0,0,0,0,0,0,0}, \
 /* state etc */	 0,0,15, 0, PF_KTHREAD, \

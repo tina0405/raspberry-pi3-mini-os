@@ -75,7 +75,7 @@ int service_index = 0;
 int is_running(struct pcb_struct * task){
 	return (*(task->state)== TASK_RUNNING||*(task->state) == THREAD_JOINABLE||*(task->state) == THREAD_DETACHED);
 }
-struct pcb_struct * round_robin(void* nope,struct pcb_struct * current_task, struct pcb_struct * head){
+struct pcb_struct* round_robin(struct pcb_struct * current_task, struct pcb_struct * head){
 	*(current_task->counter) = 1;	
 
 	struct pcb_struct * tmp_task = current_task;
@@ -93,7 +93,8 @@ struct pcb_struct * round_robin(void* nope,struct pcb_struct * current_task, str
 	}
 }
 
-struct pcb_struct * LIFO(void* nope,struct pcb_struct * current_task, struct pcb_struct * head){	
+
+struct pcb_struct* LIFO(struct pcb_struct * current_task, struct pcb_struct * head){	
 	struct pcb_struct * tmp_task = head;
 	while(1){
 		if(head->nextp == NULL){	
@@ -144,7 +145,7 @@ void _schedule(void)
 		}
 		else{
 
-			struct pcb_struct * result = bl_init( &_start_+(sched_type-(unsigned int)&_start_),task_prio_table[2],head[2]);
+			struct pcb_struct* result = bl_sched_wrap(task_prio_table[2],head[2],&_start_+(sched_type-(unsigned int)&_start_));
 		
 			if(result == NULL){
 				task_prio_table[2] = head[2]; 

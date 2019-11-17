@@ -89,3 +89,10 @@ bl_init:
 	mov     x30, x8
 	ret
 
+.globl bl_sched_wrap
+bl_sched_wrap:
+	mov     x8, x30	
+	blr	x2
+	mov     x30, x8
+	ret
+
