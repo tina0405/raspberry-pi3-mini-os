@@ -225,9 +225,9 @@ int compt_sched_file(char* file_name){/*incom*/
 			/*relocate*/
 			int rela_err = relocate(comp_start,section_table_start,section_size,(char *)base,(char *)(base + move_sec[4].addr),move_sec[4].size);
 			if(!rela_err){
-				base = use_compt_func(base,(char *)(base + move_sec[5].addr),move_sec[5].size,"change_sched");
+				base = use_compt_func(base,(char *)(base + move_sec[5].addr),move_sec[5].size,"sched_policy");
 				if(base<0){
-					printf("Without change_sched function!");
+					printf("Without sched_policy function!");
 					sched_type = &round_robin;
 				}
 				sched_type = comp_start+base;

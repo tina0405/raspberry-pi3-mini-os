@@ -42,6 +42,12 @@ void compt_daemon(void)
 					index_pop++;			
 					if(index_pop == mail_size){index_pop=0;}
 					break;	
+				case Change_Sched:
+					compt_sched_file(compt_mail[index_pop].msg);
+					compt_mail[index_pop].letter_type = 0;	
+					index_pop++;			
+					if(index_pop == mail_size){index_pop=0;}
+					break;
 				
 				default:
 					break;

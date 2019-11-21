@@ -4,7 +4,6 @@
 #define Rendezvous 1
 #define Mailbox 2
 #define END_Thread 3
-#define Change_Sched 4
 
 typedef int __thread_t;
 typedef __thread_t thread_t;

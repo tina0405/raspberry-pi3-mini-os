@@ -4,6 +4,7 @@
 #include "mini_uart.h"
 #include "printf.h"
 #include "mm.h"
+#include "utils.h"
 extern unsigned char _end;
 extern unsigned char _start_;
 extern int cd_rem;
@@ -51,20 +52,7 @@ int dump(char* file_name){
 			printf("\n\r");
 			struct fs_unit* return_fs = fs_type_support(partition[cd_rem].type);
                		if(return_fs){
-				switch(partition[cd_rem].type){
-					case 0xc:
-						buff_addr = fat32_readfile(0, clust, &partition[cd_rem]);
-						break;
-#ifdef FAT16
-					case 0xe:
-						buff_addr = fat16_readfile(0, clust, &partition[cd_rem]);
-						break;
-#endif
-					default:
-						printf("Not support %x type in File system",partition[cd_rem].type);
-						return 0;			
-				}
-
+				buff_addr = bl_init( &_start_+ (unsigned int)return_fs->addr_readfile, clust, &partition[cd_rem]);
 				data_dump((char*)(&_start_ + (unsigned int)(buff_addr->log_addr)), file_dir[k].size);
 
 				int num = 0; 

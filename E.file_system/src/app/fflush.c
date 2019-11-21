@@ -2,7 +2,7 @@
 #include<printf.h>
 #include <stddef.h>
 extern unsigned char _start_;
-int fclose(FILE *stream){
+int fflush(FILE *stream){
 		
 
 	FILE * real_addr = (&_start_ + (unsigned int)stream);
@@ -20,6 +20,7 @@ int fclose(FILE *stream){
 		printf("File buff > 512\n\r");
 	}
 
+	//printf("close page:%x",num);
 	free_page(real_addr->_base,num);
 	symbolic_fs_array[real_addr->_tmpname].open = 0;/*soft symbolic*/ 
 	symbolic_fs_array[real_addr->_tmpname].file_info->directory = NULL;

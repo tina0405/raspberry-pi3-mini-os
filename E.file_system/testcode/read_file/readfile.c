@@ -8,11 +8,14 @@ struct File{
    char *_tmpname; 
 };
 int application(void) { 
-	struct record array[2]; 
+	 
 	int a = 1;
 	struct FILE *fp = call_sys_fopen("READ    TXT", "r");
+	struct record array[2];
 	if (fp == NULL) { call_sys_write("Open file fail!"); call_sys_exit(a); } 
-	int num = call_sys_fread(array, sizeof(struct record), 2, fp); 
+	
+	int num = call_sys_fread(&array[0], 14, 2, fp);
+	call_sys_write("SIZE: %x \n\r", sizeof(&array[0]));  
 	call_sys_write("Name1: %s Age1: %d\n\r", array[0].name, array[0].age); 
 	call_sys_write("Name2: %s Age2: %d\n\r", array[1].name, array[1].age);
 	call_sys_write("return num: %d\n\r",num);  
@@ -27,6 +30,7 @@ int application(void) {
 	call_sys_write("Name2: %s Age2: %d\n\r", array[1].name, array[1].age);
 	call_sys_write("return num: %d\n\r",num);  
 	call_sys_fclose(fp); 
+	
 	return 0; 
 }
 

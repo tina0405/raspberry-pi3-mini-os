@@ -1,18 +1,17 @@
 #ifndef	_SYS_H
 #define	_SYS_H
 
-#define __NR_syscalls	 31
+#define __NR_syscalls	 32
 
 #ifndef __ASSEMBLER__
  /*pthreadtypes.h*/
 #include "sched.h"
 
-void sys_write(char * buf);
-int sys_fork();
-void sys_write_int(int a);
-void sys_exit();
-void sys_led(void);
-char sys_read(void);
+extern void kservice_uart_write(char *fmt, ...);
+extern int  kservice_fork(void);
+extern void kservice_exit(void *status);
+extern void kservice_led_blink(void);
+extern char kservice_uart_read(void);
 
 
 #endif

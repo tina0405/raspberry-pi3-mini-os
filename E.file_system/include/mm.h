@@ -47,7 +47,7 @@ unsigned long allocate_user_page(struct task_struct *task, unsigned long va);
 extern unsigned long pg_dir;
 
 struct mm_info{
-	unsigned long  start;
+	char*  start;
 	unsigned int size;
 }; 
 

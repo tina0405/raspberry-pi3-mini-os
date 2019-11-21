@@ -42,13 +42,6 @@ void pm_daemon(void)
 					if(index_pop== mail_size){index_pop=0;}
 					break;
 				
-				case Change_Sched:
-					compt_sched_file(pm_mail[index_pop].msg);
-					pm_mail[index_pop].letter_type = 0;	
-					index_pop++;			
-					if(index_pop == mail_size){index_pop=0;}
-					break;
-
 				case END_Thread:	
 					tmp_pcb = pm_mail[index_pop].from;
 						

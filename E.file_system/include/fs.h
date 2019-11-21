@@ -2,6 +2,9 @@
 #define	_FS_H
 #include <stdint.h>
 #include <elf.h>
+#define FOPEN 1
+#define FCLOSE 2
+#define FFLUSH 3
 void list(void);
 void build_kernel_directory(void);
 void build_root(void);

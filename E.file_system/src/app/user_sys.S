@@ -31,6 +31,7 @@
 .set SYS_FREAD_NUMBER, 28
 .set SYS_FWRITE_NUMBER, 29
 .set SYS_FCLOSE_NUMBER, 30
+.set SYS_FFLUSH_NUMBER, 31
 
 
 
@@ -219,6 +220,12 @@ call_sys_fclose:
 .globl call_sys_fwrite
 call_sys_fwrite:
 	mov w8, #SYS_FWRITE_NUMBER
+	svc #0
+	ret
+
+.globl call_sys_fflush
+call_sys_fflush:
+	mov w8, #SYS_FFLUSH_NUMBER
 	svc #0
 	ret
 

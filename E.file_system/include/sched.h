@@ -36,6 +36,7 @@ struct mailbox {
 	thread_t dst_task;
 	struct pcb_struct *from;
 	void* msg;
+	void* msg2;
 	//int empty;
 };
 
