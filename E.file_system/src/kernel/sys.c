@@ -157,6 +157,7 @@ struct File* kservice_fopen(char* filename, char* type){
 }
 
 int kservice_fread(void *ptr, size_t size, size_t nobj, FILE *stream){
+
 	return  fread(ptr, size, nobj, stream);
 }
 

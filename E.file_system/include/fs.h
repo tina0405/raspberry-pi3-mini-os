@@ -18,16 +18,22 @@ int dump(char* file_name);
 int cd(char* file_name);
 void cd_root(void);
 struct fs_unit* fs_type_support(int type);
-
+extern struct thread_mutex fs_lock;
 char sd_p[4][11]; 
+typedef struct {
+    volatile unsigned int lock;
+} arch_rwlock_t;
+
 struct pos{
 	uint32_t real_addr;
 	int next_cluster;
 };
 struct File{
+   char* _ptr;/*next pos*/
    char* _base;
    int   _bufsize;
    int _tmpname; 
+   arch_rwlock_t rw_lock;
 };
 typedef struct File FILE;
 // directory entry structure

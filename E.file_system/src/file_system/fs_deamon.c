@@ -54,7 +54,6 @@ void fs_daemon(void)
 					break;
 				case FCLOSE:
 					num = fclose((unsigned long)(((unsigned long*)fs_mail[index_pop].msg)[0]));
-					printf("CLOSE!!");
 					((int*)fs_mail[index_pop].msg)[0]=(unsigned long)num;					
 					((char*)fs_mail[index_pop].msg)[9]='Y';					
 					fs_mail[index_pop].letter_type = 0;	
