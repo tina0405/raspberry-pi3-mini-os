@@ -7,7 +7,6 @@ extern unsigned char _start_;
 static inline void arch_write_lock(arch_rwlock_t* rw)
 {
     unsigned int tmp;
- 
     asm volatile(
     "2:    ldaxr    %w0, %1\n"
     "      cbnz     %w0, yield_cpu\n"

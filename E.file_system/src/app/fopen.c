@@ -49,7 +49,7 @@ struct File* fopen(char* file_name, char* type){
 				fp->_tmpname = num;
 				fp->rw_lock.lock = 0;
 				symbolic_fs_array[num].open = real_addr->log_addr;/*soft symbolic*/ 
-				symbolic_fs_array[num].file_info->directory = real_addr->phy_addr;/*phy addr*/		
+				symbolic_fs_array[num].file_info->directory = ((unsigned long*)real_addr->phy_addr)[0];/*phy addr*/		
 				return fp;
 			}else{
 				printf("Not support %x type in File system",partition[cd_rem].type);

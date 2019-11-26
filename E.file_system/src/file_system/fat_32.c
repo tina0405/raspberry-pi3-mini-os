@@ -89,11 +89,13 @@ openfile* fat32_readfile(void* nope, int cluster,struct dev* sd_num)
 
     // end of FAT in memory
     struct mm_info page = allocate_kernel_page(4096);/*improve*//*buff*/
+    struct mm_info phy_page = allocate_kernel_page(4096);
     data = ptr = (unsigned char *)page.start;
     // iterate on cluster chain
-    ret->phy_addr = (cluster-2)*bpb->spc+data_sec;	
+    //ret->phy_addr = (cluster-2)*bpb->spc+data_sec;
+    int iterate = 0;
     while(cluster>1 && cluster<0xFFF8) {
-
+	((unsigned long *)phy_page.start)[iterate++] = (unsigned long)(cluster-2)*bpb->spc+data_sec;
 	// load all sectors in a cluster
         kservice_dev_read(1, (cluster-2)*bpb -> spc + data_sec, ptr ,bpb->spc);/*real*/
 	// move pointer, sector per cluster * bytes per sector
@@ -102,52 +104,12 @@ openfile* fat32_readfile(void* nope, int cluster,struct dev* sd_num)
         cluster=fat32[cluster];
     }
     //printf("\n\r");
+    ret->phy_addr = (unsigned char *)phy_page.start;
     ret->log_addr = data;
     //printf("fat32:%x %x\n\r",ret,(unsigned int)(ret->log_addr));
     //data_dump((char *)(&_start_ + (unsigned int)(ret->log_addr)),64);
     return ret;
 }
-/*return position and next*/
-/*
-void fat32_getpos(void* nope, int cluster,struct dev* sd_num,struct File* fp)
-{
-    // BIOS Parameter Block
-    bpb_t *bpb=(bpb_t*)(&_end+sd_num->dbr);
-    // File allocation tables. We choose between FAT16 and FAT32 dynamically
-    unsigned int *fat32=(unsigned int*)(&_start_ + sd_num-> fat_table_start - 512 + bpb->rsc*512);
-
-   
-    // Data pointers
-    unsigned int data_sec, s;
-    unsigned char *data, *ptr;
-    // find the LBA of the first data sector
-    data_sec = ((bpb->spf32)*bpb->nf)+bpb->rsc;
-    s = (bpb->nr0 + (bpb->nr1 << 8)) * sizeof(fatdir_t);
-    // add partition LBA
-    data_sec+= sd_num->partitionlba;
-
-
-    // iterate on cluster chain
-    if(cluster>1 && cluster<0xFFF8) {
-	// load all sectors in a cluster
-	fp->_real.real_addr = (cluster-2)*bpb -> spc + data_sec;
-	// move pointer, sector per cluster * bytes per sector
-        //ptr+=bpb->spc*(bpb->bps0 + (bpb->bps1 << 8));
-        // get the next cluster in chain
-        cluster=fat32[cluster];
-	if(cluster>1 && cluster<0xFFF8){ 
-		fp->_real.next_cluster = cluster;
-	}else{
-		fp->_real.next_cluster = 0;
-
-	}
-    }else{
-	fp->_real.real_addr = 0;
-	fp->_real.next_cluster = 0;
-    }
-
-}
-*/
 
 openfile* fat32_read_directory(void* nope, struct dev* sd_num)
 {

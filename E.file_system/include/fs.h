@@ -49,7 +49,7 @@ typedef struct {
 
 typedef struct {/*save struct*/
     char* log_addr;
-    unsigned int phy_addr;
+    unsigned long* phy_addr;
 } openfile;
 
 struct file{/*save struct*/

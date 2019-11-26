@@ -13,7 +13,6 @@ void yield_cpu(void){
 static inline void arch_read_lock(arch_rwlock_t* rw)
 {
     unsigned int tmp, tmp2;
-    printf("i_lock:%x\n\r",rw->lock);
     asm volatile(
     "2:    ldaxr    %w0, %2\n"
     "      add      %w0, %w0, #1\n"
@@ -29,7 +28,6 @@ static inline void arch_read_lock(arch_rwlock_t* rw)
 static inline void arch_read_unlock(arch_rwlock_t* rw)
 {
     unsigned int tmp, tmp2;
-    printf("i_unlock:%x\n\r",rw->lock);
     asm volatile(  
     "      ldxr    %w0, %2\n"
     "      sub     %w0, %w0, #1\n"
@@ -46,7 +44,6 @@ int fread(void *ptr, size_t size, size_t nobj, FILE *stream){
 	/*if file size is allow*/
  	
         FILE * real_addr = (&_start_ + (unsigned int)stream);
-	printf("fread:%x\n\r",real_addr->rw_lock.lock);
 	arch_read_lock(&real_addr->rw_lock);
 
 	int buf =(real_addr->_bufsize);

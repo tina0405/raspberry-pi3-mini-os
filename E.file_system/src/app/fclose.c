@@ -20,9 +20,10 @@ int fclose(FILE *stream){
 		fatdir_t* tmp = symbolic_fs_array[real_addr->_tmpname].file_info->addr.log_addr + symbolic_fs_array[real_addr->_tmpname].file_info->num_fatdir*32;
 		
 		tmp->size = (real_addr->_ptr - real_addr->_base);
+		block = (tmp-> size)/512;	
 		data_dump(tmp,32);
-	
-		sdTransferBlocks ((char*)symbolic_fs_array[real_addr->_tmpname].file_info->addr.phy_addr, 1, (char*)symbolic_fs_array[real_addr->_tmpname].file_info->addr.log_addr , 1);
+		
+		sdTransferBlocks (((unsigned long*)symbolic_fs_array[real_addr->_tmpname].file_info->addr.phy_addr)[block], 1, (char*)symbolic_fs_array[real_addr->_tmpname].file_info->addr.log_addr , 1);
 		
 	}else{
 		printf("File buff > 512\n\r");
