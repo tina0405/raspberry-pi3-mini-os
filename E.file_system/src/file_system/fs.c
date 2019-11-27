@@ -162,7 +162,7 @@ char* _search_file(openfile* addr, char* page, struct dev dev_num){
 
 			if((file+index)->dir_record.attr[0]&16){/*directory*/
 				if(clu == 0){
-					printf("Not know this file!\n\r");
+					printf("Not know this folder!\n\r");
 				}else{
 					// read into memory
 

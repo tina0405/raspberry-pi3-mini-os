@@ -606,7 +606,7 @@ int read_ksymbol(){
 					ksym[name_word].sym_name[aa++] = *(name_addr + base_index);
 				}else{
 					ksym[name_word].sym_addr = sys_call_table[name_word];
-					printf("%s %x\n\r", ksym[name_word].sym_name, ksym[name_word].sym_addr);
+					//printf("%s %x\n\r", ksym[name_word].sym_name, ksym[name_word].sym_addr);
 					name_word++;
 					aa = 0;			
 				}
