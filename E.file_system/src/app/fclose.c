@@ -2,6 +2,7 @@
 #include<printf.h>
 #include <stddef.h>
 extern unsigned char _start_;
+
 int fclose(FILE *stream){
 		
 
@@ -21,8 +22,10 @@ int fclose(FILE *stream){
 		
 		tmp->size = (real_addr->_ptr - real_addr->_base);
 		block = (tmp-> size)/512;	
-		data_dump(tmp,32);
-		
+		/*user page reset*/
+		symbolic_fs_array[real_addr->_tmpname].file_info->dir_record.size =tmp->size;		
+		user_dir((char*)current_page);
+		/*device*/
 		sdTransferBlocks (((unsigned long*)symbolic_fs_array[real_addr->_tmpname].file_info->addr.phy_addr)[block], 1, (char*)symbolic_fs_array[real_addr->_tmpname].file_info->addr.log_addr , 1);
 		
 	}else{

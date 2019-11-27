@@ -19,7 +19,9 @@ int cd(char* file_name);
 void cd_root(void);
 struct fs_unit* fs_type_support(int type);
 extern struct thread_mutex fs_lock;
+extern unsigned int current_page;
 char sd_p[4][11]; 
+
 typedef struct {
     volatile unsigned int lock;
 } arch_rwlock_t;
