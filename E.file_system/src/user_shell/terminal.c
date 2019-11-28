@@ -202,6 +202,8 @@ void shell_user_process()
 					call_sys_write("$");
 				}
 				else{invalid();}
+			}else if(output[0]=='m'&& output[1]=='o' && output[2]=='u' && output[3]=='n' && output[4]=='t' && output[5]==' ' && output[6]=='s' && output[7]=='d'){ 
+					call_sys_mount();
 			}
 			else if(output[0] != '\r'){
                                 invalid();

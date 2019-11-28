@@ -78,7 +78,7 @@ void mod_process(unsigned long* start,unsigned long size){
 	free_page(start, num);
 	//printf("free:%x %x\n\r",start, num);
 }
-
+int sd_exist = 0;
 void kernel_main()
 {	
 	
@@ -92,7 +92,7 @@ void kernel_main()
 	_thread_mutex_init(&fs_lock,(void *)0);/*for file read and write*/
 	//sdInitCard (&printf, &printf, true);
 	if(sdInitCard (&printf, &printf, true) == SD_OK) {
-		
+		sd_exist =1;
 		// read the master boot record and find our partition
 		if(fat_getpartition()) {
 

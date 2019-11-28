@@ -32,7 +32,7 @@
 .set SYS_FWRITE_NUMBER, 29
 .set SYS_FCLOSE_NUMBER, 30
 .set SYS_FFLUSH_NUMBER, 31
-
+.set SYS_MOUNT_NUMBER, 32
 
 
 
@@ -226,6 +226,12 @@ call_sys_fwrite:
 .globl call_sys_fflush
 call_sys_fflush:
 	mov w8, #SYS_FFLUSH_NUMBER
+	svc #0
+	ret
+
+.globl call_sys_mount
+call_sys_mount:
+	mov w8, #SYS_MOUNT_NUMBER
 	svc #0
 	ret
 

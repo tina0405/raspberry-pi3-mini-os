@@ -7,6 +7,7 @@
 extern unsigned long mod_process;
 extern int cd_rem;
 extern unsigned char _start_;
+extern int sd_exist;
 int run_file(char* file_name){
 	unsigned int clust =0;
         openfile* base=0;
@@ -36,6 +37,7 @@ int run_file(char* file_name){
 				printf("User application: read file OK!\n\r");
 			}else{
 				printf("\n\rUnable to read device!");
+				sd_exist = 0;
 			}
 			
 		}

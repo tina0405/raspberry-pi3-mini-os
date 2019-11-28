@@ -189,6 +189,10 @@ int kservice_fflush(FILE *stream){
 	return (int)(((int*)msg_mm.start)[0]);
 }
 
+void kservice_mount(void){
+	mount();
+}
+
 struct mm_info kservice_allocate_kpage(int count){
 	return allocate_kernel_page(count);
 }
@@ -282,6 +286,7 @@ kservice_fread,/*28*/
 kservice_fwrite,/*29*/
 kservice_fclose,/*30*/
 kservice_fflush,/*31*/
+kservice_mount,/*31*/
 /*below for symbol table*/
 kservice_allocate_kpage, /*32*/
 kservice_schedule, /*33*/
