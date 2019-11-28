@@ -92,6 +92,7 @@ void kernel_main()
 	_thread_mutex_init(&fs_lock,(void *)0);/*for file read and write*/
 	//sdInitCard (&printf, &printf, true);
 	if(sdInitCard (&printf, &printf, true) == SD_OK) {
+		
 		// read the master boot record and find our partition
 		if(fat_getpartition()) {
 

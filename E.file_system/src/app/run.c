@@ -31,9 +31,12 @@ int run_file(char* file_name){
 					printf("Not support %x type in File system",partition[cd_rem].type);
 					return 0;			
 			}
-			
-			copy_process(APP_THREAD, (unsigned long)&mod_process, (char *)(&_start_ + (unsigned int)base->log_addr), file_dir[k].size);
-			printf("User application: read file OK!\n\r");
+			if(base){
+				copy_process(APP_THREAD, (unsigned long)&mod_process, (char *)(&_start_ + (unsigned int)base->log_addr), file_dir[k].size);		
+				printf("User application: read file OK!\n\r");
+			}else{
+				printf("\n\rUnable to read device!");
+			}
 			
 		}
 		else{

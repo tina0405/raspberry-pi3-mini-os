@@ -1,6 +1,9 @@
 #include "fs.h"
 #include "mini_uart.h"
+#include "SDCard.h"
+#include "printf.h"
 extern int cd_rem;
+
 void list(){
     uart_puts("\nAttrib Size     Cluster  Name\n");
     if(cd_rem==-1){/*root*/

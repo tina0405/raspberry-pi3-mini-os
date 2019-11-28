@@ -92,22 +92,23 @@ openfile* fat32_readfile(void* nope, int cluster,struct dev* sd_num)
     struct mm_info phy_page = allocate_kernel_page(4096);
     data = ptr = (unsigned char *)page.start;
     // iterate on cluster chain
-    //ret->phy_addr = (cluster-2)*bpb->spc+data_sec;
     int iterate = 0;
     while(cluster>1 && cluster<0xFFF8) {
 	((unsigned long *)phy_page.start)[iterate++] = (unsigned long)(cluster-2)*bpb->spc+data_sec;
 	// load all sectors in a cluster
-        kservice_dev_read(1, (cluster-2)*bpb -> spc + data_sec, ptr ,bpb->spc);/*real*/
+	if(!kservice_dev_read(1, (cluster-2)*bpb -> spc + data_sec, ptr ,bpb->spc)){
+		printf("Unable to read SD card!");
+		return NULL;
+	}
 	// move pointer, sector per cluster * bytes per sector
         ptr+=bpb->spc*(bpb->bps0 + (bpb->bps1 << 8));
         // get the next cluster in chain
         cluster=fat32[cluster];
     }
-    //printf("\n\r");
+
     ret->phy_addr = (unsigned char *)phy_page.start;
     ret->log_addr = data;
-    //printf("fat32:%x %x\n\r",ret,(unsigned int)(ret->log_addr));
-    //data_dump((char *)(&_start_ + (unsigned int)(ret->log_addr)),64);
+
     return ret;
 }
 

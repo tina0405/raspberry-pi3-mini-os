@@ -22,7 +22,6 @@ static inline void arch_read_lock(arch_rwlock_t* rw)
     : "=&r" (tmp), "=&r" (tmp2), "+Q" (rw->lock)
     :
     : "memory");
-    printf("r_lock:%x\n\r",rw->lock);
 }
 
 static inline void arch_read_unlock(arch_rwlock_t* rw)
@@ -36,7 +35,6 @@ static inline void arch_read_unlock(arch_rwlock_t* rw)
     : "=&r" (tmp), "=&r" (tmp2), "+Q" (rw->lock)
     :
     : "memory");
-     printf("r_unlock:%x\n\r",rw->lock);
 }
 
 

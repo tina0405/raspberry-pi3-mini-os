@@ -15,7 +15,6 @@ static inline void arch_write_lock(arch_rwlock_t* rw)
     : "=&r" (tmp), "+Q" (rw->lock)
     : "r" (0x80000000)
     : "memory");
-     printf("w_lock:%x\n\r",rw->lock);
 }
 
 static inline void arch_write_unlock(arch_rwlock_t* rw)
@@ -23,7 +22,6 @@ static inline void arch_write_unlock(arch_rwlock_t* rw)
 	asm volatile(
 	"	stlr	%w1, [%0]\n"
 	: : "r" (&rw->lock), "r" (0) : "memory");
-	printf("w_unlock:%x\n\r",rw->lock);
 }
 
 
