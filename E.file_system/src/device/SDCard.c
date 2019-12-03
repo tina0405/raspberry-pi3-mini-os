@@ -735,13 +735,13 @@ static SDDescriptor sdCard = { 0 };
 
 static int sdDebugResponse( int resp ) 
 {
-	LOG_DEBUG("EMMC: Status: %08x, control1: %08x, interrupt: %08x\n", 
+	LOG_DEBUG("EMMC: Status: %08x, control1: %08x, interrupt: %08x", 
 		(unsigned int)EMMC_STATUS->Raw32, (unsigned int)EMMC_CONTROL1->Raw32, 
 		(unsigned int)EMMC_INTERRUPT->Raw32);
-	LOG_DEBUG("EMMC: Command %s resp %08x: %08x %08x %08x %08x\n",
-		sdCard.lastCmd->cmd_name, (unsigned int)resp,(unsigned int)*EMMC_RESP3, 
-		(unsigned int)*EMMC_RESP2, (unsigned int)*EMMC_RESP1, 
-		(unsigned int)*EMMC_RESP0);
+	//LOG_DEBUG("EMMC: Command %s resp %08x: %08x %08x %08x %08x\n",
+	//	sdCard.lastCmd->cmd_name, (unsigned int)resp,(unsigned int)*EMMC_RESP3, 
+	//	(unsigned int)*EMMC_RESP2, (unsigned int)*EMMC_RESP1, 
+	//	(unsigned int)*EMMC_RESP0);
 	return resp;
 }
 

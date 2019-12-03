@@ -33,7 +33,7 @@
 .set SYS_FCLOSE_NUMBER, 30
 .set SYS_FFLUSH_NUMBER, 31
 .set SYS_MOUNT_NUMBER, 32
-
+.set SYS_EXECOM_NUMBER, 33
 
 
 .globl user_delay
@@ -232,6 +232,12 @@ call_sys_fflush:
 .globl call_sys_mount
 call_sys_mount:
 	mov w8, #SYS_MOUNT_NUMBER
+	svc #0
+	ret
+
+.globl call_sys_execom
+call_sys_execom:
+	mov w8, #SYS_EXECOM_NUMBER
 	svc #0
 	ret
 

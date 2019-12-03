@@ -135,7 +135,7 @@ openfile* fat16_read_directory(void* nope, struct dev* sd_num)
     struct mm_info dir_page;
     dir_page =  allocate_kernel_page(4096);
     struct mm_info phy_page =  allocate_kernel_page(4096);
-    if(!kservice_dev_read(1, root_sec,(unsigned char*)(dir_page.start),s/512+1))){
+    if(!kservice_dev_read(1, root_sec,(unsigned char*)(dir_page.start),s/512+1)){
 		printf("Unable to read SD card!");
 		return NULL;
     }

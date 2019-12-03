@@ -53,6 +53,9 @@ int dump(char* file_name){
 			struct fs_unit* return_fs = fs_type_support(partition[cd_rem].type);
                		if(return_fs){
 				buff_addr = bl_init( &_start_+ (unsigned int)return_fs->addr_readfile, clust, &partition[cd_rem]);
+				//printf("%x\n\r",buff_addr->log_addr);
+				//data_dump((buff_addr->log_addr), file_dir[k].size);
+				//printf("%x\n\r",(unsigned int)(buff_addr->log_addr));					
 				data_dump((char*)(&_start_ + (unsigned int)(buff_addr->log_addr)), file_dir[k].size);
 
 				int num = 0; 

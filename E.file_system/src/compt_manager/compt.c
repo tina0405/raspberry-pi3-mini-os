@@ -4,20 +4,23 @@
 #include "fat.h"
 #include "fs.h"
 #include "pm.h"
-#include <mm.h>
+#include "mm.h"
 #include "sched.h"
 #include "utils.h"
 #include "fat16.h"
 #include "fat32.h"
 #include "mini_uart.h"
+#define kapi_count 43
 int opera_addr = 0;
 int rmcom_addr = 0;
 char* comp_start=0;
 extern int cd_rem;
 extern unsigned char _start_;
+int current_symbol = -1;
 struct symbol_struct{
 	unsigned char sym_name[32];
 	unsigned long sym_addr;
+	void* config_para;
 };
  
 struct text_func{
@@ -37,7 +40,7 @@ extern unsigned char _end;
 extern void * const sys_call_table[];
 struct com_file cfile[32];/*Component Table*/
 struct symbol_struct ksym[128];/*Kernel Table*/
-int ksym_index = 26;
+
 int com_index=0;
 
 
@@ -46,7 +49,7 @@ struct mod_section move_sec[7];/*0.text 1.rodata 2.data 3.bss 4.rela.text 5.symt
 char compt_filename[8];
 int compt_file(char* file_name){/*incom*/
 	unsigned int clust = 0;
-	openfile* basefile;
+	volatile openfile* basefile;
         unsigned long base = 0;
         struct dev* dev_param;
 	struct fs_unit* return_fs;
@@ -70,6 +73,7 @@ int compt_file(char* file_name){/*incom*/
 				com_index++;
 				if(com_index==32){
 					printf("\n\rComponent Table is Full!");
+					current_symbol = -1;
 					return 0;
 				}
 			}
@@ -77,9 +81,11 @@ int compt_file(char* file_name){/*incom*/
 			return_fs = fs_type_support(partition[cd_rem].type);
                         dev_param = &partition[cd_rem];
                		if(return_fs){
-				basefile = bl_init( &_start_+(return_fs->addr_readfile -(unsigned int)&_start_), clust, dev_param);
+				basefile = bl_init( &_start_+ (unsigned int)return_fs->addr_readfile, clust, dev_param);
+				base = (unsigned long)basefile->log_addr;
 			}else{
 				printf("Not support %x type in File system",partition[cd_rem].type);
+				current_symbol = -1;
 				return 0;
 			}
 
@@ -88,15 +94,14 @@ int compt_file(char* file_name){/*incom*/
 			printf("Component: read file OK!\n\r");
 			printf("----------------------Component initial----------------------\n\r");
 			
-			base = basefile->log_addr;
+			//base = (unsigned long)basefile->log_addr;	
 			unsigned long section_table_start;
 			unsigned long section_num;
 			unsigned long section_size;
 			unsigned long name_index;
 			
 			int check = check_file_format(base ,&section_table_start,&section_num,&section_size,&name_index);
-			if(!check){printf("\n\rNot ELF format!"); return 0;} 
-			
+			if(!check){printf("\n\rNot ELF format!"); current_symbol = -1; return 0;} 
 			for(int num_sec = 0 ; num_sec < section_num ; num_sec++){
                         	find_sec_addr(section_table_start + base + num_sec * section_size);
 			}
@@ -116,7 +121,6 @@ int compt_file(char* file_name){/*incom*/
 			section = section + move_sec[3].size;
 			unsigned long load_size = move_sec[0].size + move_sec[1].size + move_sec[2].size + move_sec[3].size;
 			
-
 			/*relocate*/
 			int rela_err = relocate(comp_start,section_table_start,section_size,(char *)base,(char *)(base + move_sec[4].addr),move_sec[4].size);
 			if(!rela_err){
@@ -142,8 +146,10 @@ int compt_file(char* file_name){/*incom*/
 		}
 		else{
 			printf("\n\rNot file");
+			current_symbol = -1;
 			return 0;		
 		}
+                current_symbol = -1;
 		return 1;
 	   }
 	   
@@ -313,7 +319,7 @@ int strlength(char* string){
 int reg_compt(char* compt_name){/*return num*/
 	int ksym_i = 9,compt_i=0;
 	int length = strlength(compt_name);
-	for(int num = 0; num<64; num++){
+	for(int num = kapi_count; num<128; num++){
 		if(!memcmp(&ksym[num].sym_name[9],compt_name,length)){
 			printf("Cannot register! kservice_%s has existed!",compt_name);
 			return 1;/*fail*/
@@ -328,6 +334,7 @@ int reg_compt(char* compt_name){/*return num*/
 			printf("Register component function: %s\n\r",ksym[num].sym_name);
 			//memcpy(compt_name, &cfile[com_index].filename[0],8);
 			cfile[com_index].ksym_index = num;
+                        current_symbol = num;
 			return 0; /*succeed*/
 		}
 	}
@@ -520,6 +527,7 @@ int check_file_format(Elf64_Ehdr *header,unsigned long *section_table_start ,uns
 	else{
 	     *section_table_start = header->e_shoff+(8 - ((header->e_shoff) % 8));
 	}
+
 	string_table(*section_table_start+ (unsigned long) header +  header->e_shentsize * header->e_shstrndx, header);	
   	return 1; 
 }
@@ -583,8 +591,27 @@ void get_string(char* addr,unsigned long size){
 	}
 }
 
+int config_compt(int* para){
+	if(current_symbol == -1){
+		printf("Error: Without registering.Could not config parameter.");
+		return -1;
+	}
+	struct mm_info para_page = allocate_kernel_page(4096);
+	memcpy((int*)para,(int*)para_page.start,4*((*para)+1));
+	ksym[current_symbol].config_para = para_page.start;
+	int* a=ksym[current_symbol].config_para;	
+	return *para;
+}
+
 void ls_compt(void){
 	printf("\n\r***************Components List***************\n\r");
+	for(int compt_i = kapi_count; compt_i<128 && ksym[compt_i].sym_name[0]!='\0'; compt_i++){
+		printf("%s\n\r",ksym[compt_i].sym_name);
+	}
+}
+
+int exe_com(char* name){
+	
 	for(int compt_i=0; compt_i<32 && cfile[compt_i].filename[0]!='\0'; compt_i++){
 		printf("%s\n\r",cfile[compt_i].filename);
 	}

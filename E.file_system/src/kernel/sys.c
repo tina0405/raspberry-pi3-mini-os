@@ -193,6 +193,14 @@ void kservice_mount(void){
 	mount();
 }
 
+int kservice_execom(char* name){
+	return 0;
+}
+
+int kservice_config_compt(int* para){
+	return config_compt(para);
+}
+
 struct mm_info kservice_allocate_kpage(int count){
 	return allocate_kernel_page(count);
 }
@@ -286,7 +294,9 @@ kservice_fread,/*28*/
 kservice_fwrite,/*29*/
 kservice_fclose,/*30*/
 kservice_fflush,/*31*/
-kservice_mount,/*31*/
+kservice_mount,/*32*/
+kservice_execom,/*33*/
+kservice_config_compt,/*34*/
 /*below for symbol table*/
 kservice_allocate_kpage, /*32*/
 kservice_schedule, /*33*/

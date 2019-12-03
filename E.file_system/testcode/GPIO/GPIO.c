@@ -12,34 +12,30 @@ void DELAY(unsigned long def,int on_off){
 
 }
 struct para{
-	int para_num;
 	unsigned long gpio;
 	int on_off;
 };
-struct para input;
-struct para drv_config =
- {
-    para_num: 2,
-    gpio: sizeof(input.gpio),
-    on_off: sizeof(input.on_off),
+
+struct para_config{
+    int para_num;
+    int para_1;
+    int para_2;
  };
 
-
-int A(int a){
-	return a+1;
-}
+struct para input;
+struct para_config drv_config =
+ {
+    para_num: 2,
+    para_1: sizeof(input.gpio),
+    para_2: sizeof(input.on_off),
+ };
 
 void init_compt(void){ /*initial*/
 	kservice_uart_write("Initial GPIO component!\n\r");
-	kservice_uart_write("%d\n\r",sizeof(input.gpio));
-	kservice_uart_write("%d\n\r",sizeof(input.on_off));
-	kservice_uart_write("%d\n\r",A(5));
-	delay(5);
-	//kservice_config_compt(drv_config);
 	kservice_reg_compt("set_gpio");
+	int a = kservice_config_compt(&drv_config);
+	kservice_uart_write("%x\n\r", a);
 }
-
-
 
 
 void oprt_compt(struct para parameter){ /*operation*/
@@ -53,8 +49,7 @@ void oprt_compt(struct para parameter){ /*operation*/
 
 
 void exit_compt(void){ /*exit*/
-	//kservice_unreg_compt("set_gpio");
+	kservice_unreg_compt("set_gpio");
 	kservice_uart_write("Clean up GPIO component!\n\r");
-        kservice_uart_write("BACK!\n\r");
 }
 

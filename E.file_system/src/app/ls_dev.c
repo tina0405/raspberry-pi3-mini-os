@@ -45,6 +45,6 @@ void ls_dev(void){
 			}
 		}
 	}else{
-		printf("sd        none     none        none   \n\r");
+		printf("sd         none     none        none   \n\r");
 	}
 }

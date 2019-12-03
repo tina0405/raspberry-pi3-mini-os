@@ -108,7 +108,6 @@ openfile* fat32_readfile(void* nope, int cluster,struct dev* sd_num)
 
     ret->phy_addr = (unsigned char *)phy_page.start;
     ret->log_addr = data;
-
     return ret;
 }
 

@@ -50,8 +50,8 @@ typedef struct {
 } __attribute__((packed)) fatdir_t;
 
 typedef struct {/*save struct*/
-    char* log_addr;
-    unsigned long* phy_addr;
+    volatile char* log_addr;
+    volatile unsigned long* phy_addr;
 } openfile;
 
 struct file{/*save struct*/

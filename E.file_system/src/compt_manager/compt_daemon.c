@@ -25,8 +25,6 @@ void compt_daemon(void)
 		while(compt_mail[index_pop].letter_type){	
 			switch(compt_mail[index_pop].letter_type){
 				case INCOM:
-					//tmp_pcb = task[fs_mail[index_pop].dst_task];
-					//tmp_pcb->Rdv = fs_mail[index_pop];
 					compt_file(compt_mail[index_pop].msg);
 					compt_mail[index_pop].letter_type = 0;	
 					index_pop++;			
