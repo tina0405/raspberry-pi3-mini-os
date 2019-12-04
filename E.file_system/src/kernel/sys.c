@@ -259,8 +259,9 @@ void kservice_dir_interface(unsigned int* addr){
 	fat_listdirectory(addr);
 }
 
-
+extern struct pcb_struct *thread_id_table[4096];/*tid and pcb map*/
 void kservice_put32( unsigned long a, unsigned int b){
+	
 	put32((volatile unsigned int*)(MMIO_BASE+a),b);
 }
 

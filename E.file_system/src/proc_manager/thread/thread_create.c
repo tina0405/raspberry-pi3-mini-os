@@ -10,7 +10,7 @@
 #include "entry.h"
 #include "pm.h"
 
-extern struct pcb_struct *thread_id_table[4096];/*tid and pid map*/
+extern struct pcb_struct *thread_id_table[4096];/*tid and pcb map*/
 /*thread table Pointer thread_id-> pointer*/
 extern int next;
 extern int tid;
@@ -83,6 +83,8 @@ int _thread_create(thread_t *thread, const struct thread_attr_t *attr,void * (*s
 	pcb -> mm = &(now->mm);
 	pcb -> pid = current->pid;
 	pcb -> main_thread = current;
+	pcb -> h_count = 0;
+	pcb -> hardware = NULL;
 	/*need initial next thread*/
 	while(thread_id_table[tid]!=0){		
 		tid = tid + 1;	

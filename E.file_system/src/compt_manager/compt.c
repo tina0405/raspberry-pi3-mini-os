@@ -5,41 +5,26 @@
 #include "fs.h"
 #include "pm.h"
 #include "mm.h"
+#include "cm.h"
 #include "sched.h"
 #include "thread.h"
 #include "utils.h"
 #include "fat16.h"
 #include "fat32.h"
 #include "mini_uart.h"
-#define kapi_count 43
+
 int opera_addr = 0;
 int rmcom_addr = 0;
 char* comp_start=0;
 extern int cd_rem;
 extern unsigned char _start_;
 
-struct symbol_struct{
-	unsigned char sym_name[32];
-	unsigned long sym_addr;
-        /*hardware*/
-	void* config_para;
-};
- 
+
 struct text_func{
 	char name[16];
 	int size;
 };
 
-struct com_file{
-	char filename[32];
-	struct symbol_struct* sym;
-	unsigned long rmcom;
-};
-
-struct hard_struct{
-	int app_count;
-	unsigned long* app_page;
-};
 
 struct text_func text_function[16];
 extern unsigned char _end;
@@ -335,7 +320,7 @@ int reg_compt(char* compt_name){/*return num*/
 	return 1;/**/
 }
 
-
+extern struct pcb_struct *thread_id_table[4096];/*tid and pcb map*/
 int hardware_request(unsigned int address){
 	
 
@@ -349,7 +334,20 @@ int hardware_request(unsigned int address){
 		}
 		return 1;/*fail*/
 	}
-	printf("ID:%x\n\r",thread_id_self());
+	if(hardware_table[address].app_page==NULL){	
+		struct mm_info app_page = allocate_kernel_page(4096);	
+		hardware_table[address].app_page = app_page.start;
+	}
+	*(hardware_table[address].app_page + hardware_table[address].app_count) = thread_id_table[thread_id_self()];
+	
+        if(thread_id_table[thread_id_self()]-> hardware==NULL){	
+		struct mm_info h_page = allocate_kernel_page(4096);	
+		thread_id_table[thread_id_self()]-> hardware = h_page.start;
+	}
+	*(thread_id_table[thread_id_self()]-> hardware + thread_id_table[thread_id_self()]->h_count) = address;
+	thread_id_table[thread_id_self()]->h_count++;
+	
+	printf("\n\rTid:%x pcb:%x\n\r",thread_id_self(),thread_id_table[thread_id_self()]);
         hardware_table[address].app_count++;
 	return 0;/*succeed*/
 }

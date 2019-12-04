@@ -135,7 +135,8 @@ struct pcb_struct {
 	struct pcb_struct *thread_p;/*prev thread*/
 	struct pcb_struct *thread_n;/*next thread*/	
 	/* thread_set */
-	int * hardware;
+	int *hardware;
+	int h_count;
 	/* thread_id */
 };
 

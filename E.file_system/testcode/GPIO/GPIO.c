@@ -3,7 +3,7 @@
 #include<sched.h>
 #define oper_compt main
 
-void DELAY(unsigned long def,int on_off){
+void DELAY(unsigned long def){
 	asm volatile(
 	    "delay: subs x0, x0, #1\n"
 	    "bne delay\n"

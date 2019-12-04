@@ -5,8 +5,8 @@
 struct mailbox compt_mail[mail_size]={NULL};
 static int index_pop = 0;
 //int support_type[4] = {0}; /*0:fat16*/
-
-
+extern struct com_file cfile[64];/*Component Table*/
+extern struct symbol_struct ksym[128];/*Kernel Table*/
 void compt_daemon(void)
 {	
 
@@ -16,7 +16,8 @@ void compt_daemon(void)
     
 	printf("Component manager Starts running....\n\r");
 	printf("Component manager starts receiving messages....\n\r");
-
+	memzero(&cfile[0], 64*sizeof(cfile[0]));
+	memzero(&ksym[kapi_count], (128-kapi_count)*sizeof(ksym[0]));
 	
 	
 	/*Rendezvous Message-Passing or Mailbox Message-Passing*/

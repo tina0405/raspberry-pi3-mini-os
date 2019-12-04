@@ -3,7 +3,7 @@
 #include <mm.h>
 #include <sched.h>
 #include <stddef.h>
-
+#include <gpio.h>
 struct mailbox pm_mail[mail_size]={NULL}; /*Mailbox*/
 struct mailbox rendezvous; /*Rendezvous*/
 extern struct pcb_struct *thread_id_table[4096];
@@ -13,7 +13,15 @@ static int index_pop = 0;
 int ipc_index_pop=0;
 extern unsigned char _start_;
 /*FIFO*/
+void clear_gpio(unsigned long gpio){
 
+        put32(GPPUD,0);
+        delay(150);
+        put32(GPPUDCLK0,(1<<gpio));
+        delay(150);
+        put32(GPPUDCLK0,0);
+	
+}
 void pm_daemon(void)
 {
 	
@@ -28,21 +36,6 @@ void pm_daemon(void)
 		/*pop*/
 		while(pm_mail[index_pop].letter_type){	
 			switch(pm_mail[index_pop].letter_type){
-/*
-				case Rendezvous:
-					tmp_pcb = task[pm_mail[index_pop].dst_task];
-					tmp_pcb->Rdv = pm_mail[index_pop];
-					pm_mail[index_pop].letter_type = 0;	
-					index_pop++;			
-					if(index_pop == mail_size){index_pop=0;}
-					break;
-
-				case Mailbox:
-					tmp_pcb = task[pm_mail[index_pop].dst_task];
-					pm_mail[index_pop++].letter_type = 0;
-					if(index_pop== mail_size){index_pop=0;}
-					break;
-				*/
 				case END_Thread:	
 					tmp_pcb = pm_mail[index_pop].from;
 						
@@ -53,8 +46,12 @@ void pm_daemon(void)
 							if(tmp_pcb -> nextp!=NULL){
 								tmp_pcb -> nextp -> prevp = tmp_pcb-> prevp;
 							}
-						
-							free_page(tmp_pcb,1);
+							while(tmp_pcb->h_count){
+								clear_gpio(*(tmp_pcb->hardware+tmp_pcb->h_count-1));
+								tmp_pcb->h_count--;
+							}
+							free_page(tmp_pcb->hardware,1);/*hardware table*/
+							free_page(tmp_pcb,1);/*pcb*/
 						        free_page(&(tmp_pcb->cpu_context->x19),1);
 							tmp_pcb = tmp_pcb->thread_n;
 						}
@@ -75,7 +72,13 @@ void pm_daemon(void)
 							tmp_pcb -> nextp -> prevp = tmp_pcb-> thread_p;
 						}
 						
-						free_page(tmp_pcb,1);
+						while(tmp_pcb->h_count){
+							clear_gpio(*(tmp_pcb->hardware+tmp_pcb->h_count-1));
+							tmp_pcb->h_count--;
+						}
+						
+						free_page(tmp_pcb->hardware,1);/*hardware table*/
+						free_page(tmp_pcb,1);/*pcb*/
 						free_page(&(tmp_pcb->cpu_context->x19),1);
 						/*free used memory*/	
 
@@ -88,22 +91,6 @@ void pm_daemon(void)
 					break;
 			}
 		}
-		/*
-		while(user_ipc_mail[ipc_index_pop].letter_type){
-			switch(user_ipc_mail[ipc_index_pop].letter_type){
-				case Rendezvous:
-					printf("User IPC Service recieve a msg!\n\r");
-					tmp_pcb = task[user_ipc_mail[ipc_index_pop].dst_task];
-					tmp_pcb->Rdv = user_ipc_mail[ipc_index_pop];
-					user_ipc_mail[ipc_index_pop].letter_type = 0;	
-					ipc_index_pop++;			
-					if(ipc_index_pop == mail_size){ipc_index_pop=0;}
-					break;	
-				default:
-					break;
-			}	
-		}
-		*/
 		schedule();
 	}
 

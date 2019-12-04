@@ -15,7 +15,8 @@
 #include "sd.h"
 #include "boot.h"
 #include "SDCard.h"
-#include "gpio.h"	
+#include "gpio.h"
+#include "cm.h"	
 extern unsigned char _end;/*in linker script*/
 unsigned long user_page_start;
 extern unsigned int pm_daemon;
@@ -39,27 +40,7 @@ void kernel_process(){
 	} 
 
 }
-void A(unsigned long def,int on_off){
-	asm volatile(
-	    "put32_t: str w1,[x0]\n"
-	    "ret\n"
-	    "delay_t: subs x0, x0, #1\n"
-	    "bne delay_t\n"
-	    "ret"
-	);
 
-}
-
-
-void set_gpio_t(unsigned long gpio,int on_off){
-
-        put32_t(GPPUD,on_off);
-        delay_t(150);
-        put32_t(GPPUDCLK0,(1<<gpio));
-        delay_t(150);
-        put32_t(GPPUDCLK0,0);
-	
-}
 
 void mod_process(unsigned long* start,unsigned long size){
 	printf("\r\nUser process start to set. EL %d\r\n", get_el());
@@ -79,6 +60,8 @@ void mod_process(unsigned long* start,unsigned long size){
 	//printf("free:%x %x\n\r",start, num);
 }
 int sd_exist = 0;
+extern struct hard_struct hardware_table[40];
+
 void kernel_main()
 {	
 	
@@ -87,9 +70,11 @@ void kernel_main()
 	irq_vector_init(); 
 	
 	
+	
 	enable_cache();
 	_thread_mutex_init(&mm_lock,(void *)0);/*for memory access*/
 	_thread_mutex_init(&fs_lock,(void *)0);/*for file read and write*/
+	memzero(&hardware_table[0], 40*sizeof(hardware_table[0]));
 	//sdInitCard (&printf, &printf, true);
 	if(sdInitCard (&printf, &printf, true) == SD_OK) {
 		sd_exist =1;
