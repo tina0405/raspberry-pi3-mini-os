@@ -28,6 +28,7 @@ void pm_daemon(void)
 		/*pop*/
 		while(pm_mail[index_pop].letter_type){	
 			switch(pm_mail[index_pop].letter_type){
+/*
 				case Rendezvous:
 					tmp_pcb = task[pm_mail[index_pop].dst_task];
 					tmp_pcb->Rdv = pm_mail[index_pop];
@@ -41,7 +42,7 @@ void pm_daemon(void)
 					pm_mail[index_pop++].letter_type = 0;
 					if(index_pop== mail_size){index_pop=0;}
 					break;
-				
+				*/
 				case END_Thread:	
 					tmp_pcb = pm_mail[index_pop].from;
 						

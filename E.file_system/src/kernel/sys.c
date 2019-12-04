@@ -193,12 +193,18 @@ void kservice_mount(void){
 	mount();
 }
 
-int kservice_execom(char* name){
-	return 0;
+int kservice_execom(char* name,void* para){
+	return exe_com(name,para);
 }
 
 int kservice_config_compt(int* para){
 	return config_compt(para);
+}
+
+
+
+int kservice_region_request(unsigned long address){
+	return hardware_request(address);
 }
 
 struct mm_info kservice_allocate_kpage(int count){
@@ -254,10 +260,6 @@ void kservice_dir_interface(unsigned int* addr){
 }
 
 
-unsigned int kservice_set_hard(unsigned int addr){
-	return &_start_ + addr;
-}
-
 void kservice_put32( unsigned long a, unsigned int b){
 	put32((volatile unsigned int*)(MMIO_BASE+a),b);
 }
@@ -296,14 +298,14 @@ kservice_fclose,/*30*/
 kservice_fflush,/*31*/
 kservice_mount,/*32*/
 kservice_execom,/*33*/
-kservice_config_compt,/*34*/
 /*below for symbol table*/
-kservice_allocate_kpage, /*32*/
-kservice_schedule, /*33*/
-kservice_reg_compt, /*34*/
-kservice_unreg_compt, /*35*/
-kservice_dev_read, /*36*/
-kservice_dir_interface, /*37*/
-kservice_set_hard, /*38*/
-kservice_put32 /*39*/
+kservice_config_compt,/*34*/
+kservice_region_request,/*35*/
+kservice_allocate_kpage, /*36*/
+kservice_schedule, /*37*/
+kservice_reg_compt, /*38*/
+kservice_unreg_compt, /*39*/
+kservice_dev_read, /*40*/
+kservice_dir_interface, /*41*/
+kservice_put32 /*43*/
 }; 

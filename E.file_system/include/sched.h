@@ -134,12 +134,8 @@ struct pcb_struct {
 	struct pcb_struct *main_thread;
 	struct pcb_struct *thread_p;/*prev thread*/
 	struct pcb_struct *thread_n;/*next thread*/	
-	/*mailbox*/
-	struct mailbox Box[8];
-	/*Rendezvous*/
-	struct mailbox Rdv;
-	int reply;
 	/* thread_set */
+	int * hardware;
 	/* thread_id */
 };
 

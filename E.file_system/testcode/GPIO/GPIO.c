@@ -32,9 +32,10 @@ struct para_config drv_config =
 
 void init_compt(void){ /*initial*/
 	kservice_uart_write("Initial GPIO component!\n\r");
-	kservice_reg_compt("set_gpio");
-	int a = kservice_config_compt(&drv_config);
-	kservice_uart_write("%x\n\r", a);
+	if(!kservice_reg_compt("set_gpio")){
+		 kservice_config_compt(&drv_config);
+	}
+
 }
 
 

@@ -137,7 +137,7 @@ void kernel_main()
 	enable_interrupt_controller();
 	enable_irq();
 
-	set_gpio_t(21,2);
+	//set_gpio_t(21,2);
 	while (1){
 		
 		//printf("kernel\n\r");

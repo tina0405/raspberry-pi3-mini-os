@@ -6,6 +6,7 @@
 #include "pm.h"
 #include "mm.h"
 #include "sched.h"
+#include "thread.h"
 #include "utils.h"
 #include "fat16.h"
 #include "fat32.h"
@@ -16,10 +17,11 @@ int rmcom_addr = 0;
 char* comp_start=0;
 extern int cd_rem;
 extern unsigned char _start_;
-int current_symbol = -1;
+
 struct symbol_struct{
 	unsigned char sym_name[32];
 	unsigned long sym_addr;
+        /*hardware*/
 	void* config_para;
 };
  
@@ -30,16 +32,22 @@ struct text_func{
 
 struct com_file{
 	char filename[32];
-	int ksym_index;
+	struct symbol_struct* sym;
 	unsigned long rmcom;
 };
 
+struct hard_struct{
+	int app_count;
+	unsigned long* app_page;
+};
 
 struct text_func text_function[16];
 extern unsigned char _end;
 extern void * const sys_call_table[];
-struct com_file cfile[32];/*Component Table*/
+struct com_file cfile[64];/*Component Table*/
 struct symbol_struct ksym[128];/*Kernel Table*/
+struct hard_struct hardware_table[40];
+
 
 int com_index=0;
 
@@ -61,7 +69,7 @@ int compt_file(char* file_name){/*incom*/
 
 			printf("\n\r");
 			com_index = 0;
-			while(com_index<32){
+			while(com_index<64){
 				if(cfile[com_index].filename[0]=='\0')
 				{
 					memcpy(file_name, &cfile[com_index].filename[0],8);
@@ -73,7 +81,6 @@ int compt_file(char* file_name){/*incom*/
 				com_index++;
 				if(com_index==32){
 					printf("\n\rComponent Table is Full!");
-					current_symbol = -1;
 					return 0;
 				}
 			}
@@ -85,7 +92,6 @@ int compt_file(char* file_name){/*incom*/
 				base = (unsigned long)basefile->log_addr;
 			}else{
 				printf("Not support %x type in File system",partition[cd_rem].type);
-				current_symbol = -1;
 				return 0;
 			}
 
@@ -101,7 +107,7 @@ int compt_file(char* file_name){/*incom*/
 			unsigned long name_index;
 			
 			int check = check_file_format(base ,&section_table_start,&section_num,&section_size,&name_index);
-			if(!check){printf("\n\rNot ELF format!"); current_symbol = -1; return 0;} 
+			if(!check){printf("\n\rNot ELF format!"); return 0;} 
 			for(int num_sec = 0 ; num_sec < section_num ; num_sec++){
                         	find_sec_addr(section_table_start + base + num_sec * section_size);
 			}
@@ -127,8 +133,9 @@ int compt_file(char* file_name){/*incom*/
 				int init_addr = use_compt_func(base,(char *)(base + move_sec[5].addr),move_sec[5].size,"init_compt");/*find initial*/
 				opera_addr = use_compt_func(base,(char *)(base + move_sec[5].addr),move_sec[5].size,"oprt_compt");
 				rmcom_addr = use_compt_func(base,(char *)(base + move_sec[5].addr),move_sec[5].size,"exit_compt");
+				/*clear component table*/
 				cfile[com_index].rmcom = rmcom_addr + comp_start;
-								
+				cfile[com_index].sym = NULL;			
 				if(init_addr<0){
 					printf("Without init_comp function!");
 				}else if(rmcom_addr<0){
@@ -146,10 +153,8 @@ int compt_file(char* file_name){/*incom*/
 		}
 		else{
 			printf("\n\rNot file");
-			current_symbol = -1;
 			return 0;		
 		}
-                current_symbol = -1;
 		return 1;
 	   }
 	   
@@ -174,17 +179,6 @@ int compt_sched_file(char* file_name){/*incom*/
 		if(clust){
 
 			printf("\n\r");
-			com_index = 0;
-			while(com_index<32){
-				if(cfile[com_index].filename[0]=='\0')
-				{
-					memcpy(file_name, &cfile[com_index].filename[0],8);
-					break;
-				}
-				
-				/*full not solve*/
-				com_index++;
-			}
 			return_fs = fs_type_support(partition[cd_rem].type);
                         dev_param = &partition[cd_rem];
                		if(return_fs){
@@ -264,7 +258,7 @@ int rm_compt_file(char* file_name){
 	
 	 
 	   
-		for(int num = 0; num<32; num++){
+		for(int num = 0; num<64; num++){
 			if(!memcmp(cfile[num].filename,file_name,8)){ 
 					printf("\n\r----------------------Component exit----------------------\n\r");
 					bl_init(cfile[num].rmcom,0); 
@@ -278,8 +272,8 @@ int rm_compt_file(char* file_name){
 					}
 					memzero(cfile[num].filename,8);
 					free_page(cfile[num].rmcom,1);
-					memzero(&ksym[cfile[num].ksym_index].sym_name[0],32);
-					free_page(ksym[cfile[num].ksym_index].sym_addr,1);
+					memzero(&(cfile[num].sym->sym_name[0]),32);
+					free_page(cfile[num].sym->sym_addr,1);
 						
 					/*free k*/
 					return 1;
@@ -298,9 +292,9 @@ int rm_compt_file(char* file_name){
 
 int unreg_compt(char* compt_name){/*remove app*/
 	int length = strlength(compt_name);
-	int ksym_i = 9,compt_i=0;
-	for(int num = 26; num<64; num++){
+	for(int num = kapi_count; num<128; num++){
 			if(!memcmp(&ksym[num].sym_name[9],compt_name,length)){
+				ksym[num].sym_name[0] = '\0' ;
 				printf("Succeed to unregister symbol!\n\r");				
 				return 0;/*succeed*/
 			}
@@ -333,13 +327,31 @@ int reg_compt(char* compt_name){/*return num*/
 			ksym[num].sym_addr = comp_start + opera_addr;
 			printf("Register component function: %s\n\r",ksym[num].sym_name);
 			//memcpy(compt_name, &cfile[com_index].filename[0],8);
-			cfile[com_index].ksym_index = num;
-                        current_symbol = num;
+			cfile[com_index].sym = &ksym[num];	
 			return 0; /*succeed*/
 		}
 	}
 	printf("Cannot register! Symbol table is full!");
 	return 1;/**/
+}
+
+
+int hardware_request(unsigned int address){
+	
+
+	if(hardware_table[address].app_count != 0){
+		
+		if(hardware_table[address].app_count == 1 && *(hardware_table[address].app_page) == thread_id_self())
+		{return 0;}
+		printf("GPIO %x is used by applications:",address);
+		for(int i = 0; i<hardware_table[address].app_count; i++){
+			printf("pcb number: %x\n\r",*(hardware_table[address].app_page+i));
+		}
+		return 1;/*fail*/
+	}
+	printf("ID:%x\n\r",thread_id_self());
+        hardware_table[address].app_count++;
+	return 0;/*succeed*/
 }
 
 int get_ndx(Elf64_Sym* sym){
@@ -592,14 +604,15 @@ void get_string(char* addr,unsigned long size){
 }
 
 int config_compt(int* para){
-	if(current_symbol == -1){
+	if(cfile[com_index].sym == NULL){
 		printf("Error: Without registering.Could not config parameter.");
 		return -1;
 	}
 	struct mm_info para_page = allocate_kernel_page(4096);
 	memcpy((int*)para,(int*)para_page.start,4*((*para)+1));
-	ksym[current_symbol].config_para = para_page.start;
-	int* a=ksym[current_symbol].config_para;	
+	cfile[com_index].sym-> config_para = para_page.start;
+
+	int* a = cfile[com_index].sym-> config_para;	
 	return *para;
 }
 
@@ -610,11 +623,18 @@ void ls_compt(void){
 	}
 }
 
-int exe_com(char* name){
-	
-	for(int compt_i=0; compt_i<32 && cfile[compt_i].filename[0]!='\0'; compt_i++){
-		printf("%s\n\r",cfile[compt_i].filename);
+int exe_com(char* compt_name,void* para){
+	int length = strlength(compt_name);
+	for(int num = kapi_count; num<128; num++){
+		if(!memcmp(&ksym[num].sym_name[0],compt_name,length)){
+			ksym[num].sym_name[0] = '\0' ;
+			bl_init( &_start_+ (unsigned int)ksym[num].sym_addr, para);
+			//printf("Succeed to execute component!\n\r");				
+			return 0;/*succeed*/
+		}
 	}
+	printf("Fail to execute component:%s\n\r",compt_name);
+	return 1;
 }
 
 int read_ksymbol(){

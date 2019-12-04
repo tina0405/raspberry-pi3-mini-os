@@ -34,7 +34,8 @@ struct File{
    char* _ptr;/*next pos*/
    char* _base;
    int   _bufsize;
-   int _tmpname; 
+   int _tmpname;
+   int used_counter;/*to be continue*/ 
    arch_rwlock_t rw_lock;
 };
 typedef struct File FILE;
