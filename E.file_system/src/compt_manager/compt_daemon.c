@@ -27,22 +27,37 @@ void compt_daemon(void)
 			switch(compt_mail[index_pop].letter_type){
 				case INCOM:
 					compt_file(compt_mail[index_pop].msg);
+					free_page(compt_mail[index_pop].msg,1);
 					compt_mail[index_pop].letter_type = 0;	
 					index_pop++;			
 					if(index_pop == mail_size){index_pop=0;}
 					break;
 				case RMCOM:
+					rm_compt_file(compt_mail[index_pop].msg);
+					free_page(compt_mail[index_pop].msg,1);
 					compt_mail[index_pop].letter_type = 0;	
 					index_pop++;			
 					if(index_pop == mail_size){index_pop=0;}
 					break;
 				case SWAP:
+					printf("A:%s B:%s\n\r",compt_mail[index_pop].msg, &compt_mail[index_pop].msg[10]);
+					swap_compt(compt_mail[index_pop].msg, &compt_mail[index_pop].msg[10]);
+					free_page(compt_mail[index_pop].msg,1);
+					compt_mail[index_pop].letter_type = 0;	
+					index_pop++;			
+					if(index_pop == mail_size){index_pop=0;}
+					break;	
+				case OPERATION:
+					exe_com(compt_mail[index_pop].msg, &compt_mail[index_pop].msg[32]);
+					free_page(compt_mail[index_pop].msg,1);
+					((char*)compt_mail[index_pop].msg)[128]='Y';		
 					compt_mail[index_pop].letter_type = 0;	
 					index_pop++;			
 					if(index_pop == mail_size){index_pop=0;}
 					break;	
 				case Change_Sched:
 					compt_sched_file(compt_mail[index_pop].msg);
+					free_page(compt_mail[index_pop].msg,1);
 					compt_mail[index_pop].letter_type = 0;	
 					index_pop++;			
 					if(index_pop == mail_size){index_pop=0;}

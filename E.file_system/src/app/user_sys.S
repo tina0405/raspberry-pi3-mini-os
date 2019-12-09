@@ -34,6 +34,7 @@
 .set SYS_FFLUSH_NUMBER, 31
 .set SYS_MOUNT_NUMBER, 32
 .set SYS_EXECOM_NUMBER, 33
+.set SYS_SWAP_NUMBER, 34
 
 
 .globl user_delay
@@ -238,6 +239,12 @@ call_sys_mount:
 .globl call_sys_execom
 call_sys_execom:
 	mov w8, #SYS_EXECOM_NUMBER
+	svc #0
+	ret
+
+.globl call_sys_swap
+call_sys_swap:
+	mov w8, #SYS_SWAP_NUMBER
 	svc #0
 	ret
 

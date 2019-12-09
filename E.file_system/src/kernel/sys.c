@@ -19,6 +19,7 @@ int add_thread(thread_t *thread, const struct thread_attr_t *attr,void * (*start
 thread_t thread_id_self(void);
 int _thread_join (thread_t thread, void **status);
 void signal(thread_t thread);
+extern unsigned char _end;
 extern unsigned char _start_;
 
 extern unsigned long user_page_start;
@@ -112,7 +113,9 @@ void  kservice_mutex_unlock(struct thread_mutex *mutex){
 }
 
 void  kservice_com_file(char* file_name){
-	send_msg(INCOM,thread_id_self(), 2, file_name, 4096,0);/*CM*/
+	struct mm_info msg_mm = allocate_kernel_page(4096);	
+	memcpy(file_name, msg_mm.start, 11);
+	send_msg(INCOM,thread_id_self(), 2, msg_mm.start, 4096);/*CM*/
 }
 
 unsigned long  kservice_allocate_upage(){
@@ -125,7 +128,9 @@ void kservice_free_page(struct mm_info p){
 
 
 void  kservice_rm_compt(char* compt_name){
-	rm_compt_file(compt_name);
+	struct mm_info msg_mm = allocate_kernel_page(4096);	
+	memcpy(compt_name, msg_mm.start, 32);
+	send_msg(RMCOM,thread_id_self(), COMPONENT_MANAGER, msg_mm.start, 4096);/*CM*/
 }
 
 void kservice_ls_dev(void){
@@ -138,7 +143,7 @@ void kservice_ls_compt(void){
 
 
 void  kservice_change_sched(char* file_name){
-	send_msg(Change_Sched,thread_id_self(), COMPONENT_MANAGER, file_name, 4096, 0);/*CM*/
+	send_msg(Change_Sched,thread_id_self(), COMPONENT_MANAGER, file_name, 4096);/*CM*/
 }
 
 struct File* kservice_fopen(char* filename, char* type){
@@ -148,7 +153,7 @@ struct File* kservice_fopen(char* filename, char* type){
 	memcpy(filename, &(((char*)msg_mm.start)[2]),11);
 
 	((char*)msg_mm.start)[14]='N';
-	send_msg(FOPEN,thread_id_self(), FILESYS_MANAGER, msg_mm.start, 4096,0);/*FM*/
+	send_msg(FOPEN,thread_id_self(), FILESYS_MANAGER, msg_mm.start, 4096);/*FM*/
 	
 	while(((char*)msg_mm.start)[14] =='N'){
 		schedule();
@@ -169,7 +174,7 @@ int kservice_fclose(FILE *stream){
 	struct mm_info msg_mm = allocate_kernel_page(4096);	
 	((unsigned long*)msg_mm.start)[0]=(unsigned long)stream;
 	((char*)msg_mm.start)[9]='N';
-	send_msg(FCLOSE,thread_id_self(), FILESYS_MANAGER, msg_mm.start, 4096,0);/*FM*/
+	send_msg(FCLOSE,thread_id_self(), FILESYS_MANAGER, msg_mm.start, 4096);/*FM*/
 	
 	while(((char*)msg_mm.start)[9] =='N'){
 		schedule();
@@ -181,7 +186,7 @@ int kservice_fflush(FILE *stream){
 	struct mm_info msg_mm = allocate_kernel_page(4096);	
 	((unsigned long*)msg_mm.start)[0]=(unsigned long)stream;
 	((char*)msg_mm.start)[9]='N';
-	send_msg(FFLUSH,thread_id_self(), FILESYS_MANAGER, msg_mm.start, 4096,0);/*FM*/
+	send_msg(FFLUSH,thread_id_self(), FILESYS_MANAGER, msg_mm.start, 4096);/*FM*/
 	
 	while(((char*)msg_mm.start)[9] =='N'){
 		schedule();
@@ -192,9 +197,22 @@ int kservice_fflush(FILE *stream){
 void kservice_mount(void){
 	mount();
 }
+/*cm memory*/
+void kservice_execom(char* name,void* para){
+	struct mm_info msg_mm = allocate_kernel_page(4096);	
+	memcpy(name, msg_mm.start, 32);
+	memcpy(para,(char*)msg_mm.start+32,32 + (int)*((int*)para+1)+1);
+	((char*)msg_mm.start)[128]='N';
+	send_msg(OPERATION,thread_id_self(), COMPONENT_MANAGER, msg_mm.start, 4096);/*CM*/
+	schedule();
+	//return exe_com(name,para);
+}
 
-int kservice_execom(char* name,void* para){
-	return exe_com(name,para);
+int kservice_swap(char* name){
+	struct mm_info msg_mm = allocate_kernel_page(4096);	
+	memcpy(name, msg_mm.start, 40);
+	send_msg(SWAP,thread_id_self(), COMPONENT_MANAGER, msg_mm.start, 4096);/*CM*/
+	return 0;
 }
 
 int kservice_config_compt(int* para){
@@ -265,6 +283,17 @@ void kservice_put32( unsigned long a, unsigned int b){
 	put32((volatile unsigned int*)(MMIO_BASE+a),b);
 }
 
+char* kservice_kstart(unsigned long a){
+	
+	return &_start_ + a;
+}
+
+char* kservice_kend(unsigned long a){
+	//struct mm_info msg_mm = allocate_kernel_page(4096);	
+	//memcpy();
+	return &_end + a;
+}
+
 void * const sys_call_table[] = {kservice_uart_write, /*0*/
 kservice_fork, /*1*/
 kservice_exit, /*2*/
@@ -299,14 +328,17 @@ kservice_fclose,/*30*/
 kservice_fflush,/*31*/
 kservice_mount,/*32*/
 kservice_execom,/*33*/
+kservice_swap,/*34*/
 /*below for symbol table*/
-kservice_config_compt,/*34*/
-kservice_region_request,/*35*/
-kservice_allocate_kpage, /*36*/
-kservice_schedule, /*37*/
-kservice_reg_compt, /*38*/
-kservice_unreg_compt, /*39*/
-kservice_dev_read, /*40*/
-kservice_dir_interface, /*41*/
-kservice_put32 /*43*/
+kservice_config_compt,/*35*/
+kservice_region_request,/*36*/
+kservice_allocate_kpage, /*37*/
+kservice_schedule, /*38*/
+kservice_reg_compt, /*39*/
+kservice_unreg_compt, /*40*/
+kservice_dev_read, /*41*/
+kservice_dir_interface, /*42*/
+kservice_put32, /*43*/
+kservice_kstart,/*44*/
+kservice_kend/*45*/
 }; 

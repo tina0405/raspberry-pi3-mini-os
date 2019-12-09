@@ -14,10 +14,10 @@ void shell_user_process()
 {	
 	call_sys_write("Shell start\n\r");
 	static int index = 0;
-	char output[15] = {""};	
+	char output[40] = {""};	
 	char command[2] = {""};
 	
-	char file_name[12] = {""};	
+	char file_name[40] = {""};	
 	call_sys_write("tkernel@user_name:");
 	call_sys_write("%s",directory);
 	call_sys_write("$");
@@ -133,6 +133,36 @@ void shell_user_process()
 				}
 
 			}
+			else if(output[0]=='s'&& output[1]=='w' && output[2]=='a' && output[3]=='p'){/*swap*/
+				/*to_do_list*/			
+				if(output[4]=='\r'){
+					call_sys_write("\n\rWithout input file!");
+					call_sys_write("\n\rtkernel@user_name:");
+					call_sys_write(directory);
+					call_sys_write("$");
+					
+				}
+				else if(output[4]==' '){
+					for(int f = 5,n=0;f < 44 ;f++,n++){
+					   if(output[f]=='\r'){
+						break;
+					   }
+					   file_name[n] = output[f];
+					   
+		                           
+					}
+		    			
+					call_sys_swap(file_name);
+					call_sys_write("\n\rtkernel@user_name:");
+					call_sys_write(directory);
+					call_sys_write("$");
+				}
+				else
+				{
+					invalid();
+				}
+
+			}
 			else if(output[0]=='l'&& output[1]=='s' && output[2]=='c' && output[3]=='o' && output[4]=='m'){ 
 				if(output[5]=='\r'){
 					call_sys_lscom();
@@ -187,7 +217,7 @@ void shell_user_process()
 					
 				}
 				else if(output[5]==' '){
-					for(int f = 6,n=0;f < 20;f++,n++){
+					for(int f = 6,n=0;f < 45;f++,n++){
 					   if(output[f]=='\r'){
 						break;
 					   }

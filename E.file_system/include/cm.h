@@ -5,10 +5,16 @@
 #define RMCOM 2
 #define SWAP 3
 #define Change_Sched 4
-#define kapi_count 43
+#define OPERATION 5
+#define kapi_count 46
 struct symbol_struct{
-	unsigned char sym_name[32];
+	unsigned char ksym_name[32];
 	unsigned long sym_addr;
+	unsigned long rm_addr;
+	struct com_file* file;
+	void* component_page;
+	void* app_page;
+	void* hardware;
         /*hardware*/
 	void* config_para;
 };
@@ -16,7 +22,7 @@ struct symbol_struct{
 struct com_file{
 	char filename[32];
 	struct symbol_struct* sym;
-	unsigned long rmcom;
+	//unsigned long rmcom;
 };
 
 struct hard_struct{

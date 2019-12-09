@@ -87,8 +87,14 @@ void kernel_main()
        } 
         //printf("&_end:%x\n\r",&_end);
 	sched_type = &round_robin;
+	int res = copy_process(SERVER_THREAD, (unsigned long)&fs_daemon, 0, 0);
 	
-	int res = copy_process(SERVER_THREAD, (unsigned long)&compt_daemon, 0, 0);
+	if (res < 0) {
+		printf("error while starting process manager \n\r");
+		return;
+	}
+
+	res = copy_process(SERVER_THREAD, (unsigned long)&compt_daemon, 0, 0);
 	
 	if (res < 0) {
 		printf("error while starting kernel process\n\r");
@@ -103,12 +109,7 @@ void kernel_main()
 		return;
 	}
 
-	res = copy_process(SERVER_THREAD, (unsigned long)&fs_daemon, 0, 0);
 	
-	if (res < 0) {
-		printf("error while starting process manager \n\r");
-		return;
-	}
 	
         res = copy_process(EXTRA_SERVER_THREAD, (unsigned long)&kernel_process, 0, 0);
 	

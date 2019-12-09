@@ -9,16 +9,19 @@ void DELAY(unsigned long def){
 	);
 
 }
+struct para_config{
+    int para_num;
+};
+struct para_config drv_config ={
+    para_num: 2,
+};
 
 int application(void) { 
 	call_sys_write("EXECUTE COMPONENT!");	
-	call_sys_execom("kservice_pullup_21");	
-	for(int a; a<5000 ;a++){	
-		call_sys_write("+");
-	}	
+	while(1){
+		call_sys_execom("kservice_pullup_20",&drv_config);			
+	}
 	return 0; 
 }
-
-
 
 

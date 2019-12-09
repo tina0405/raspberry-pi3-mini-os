@@ -13,7 +13,7 @@ extern struct mailbox pm_mail[mail_size];
 extern struct mailbox fs_mail[mail_size];
 extern struct mailbox compt_mail[mail_size];
 
-int send_msg(unsigned int type, int tid, int addr, void* msg,int size,void* msg2){/*without size*/
+int send_msg(unsigned int type, int tid, int addr, void* msg,int size){/*without size*/
 	/*push*/
 	if(addr == PROCESS_MANAGER){/*process manager*/	
 		if(pm_mail[pm_index_push].letter_type != 0){
@@ -48,7 +48,6 @@ int send_msg(unsigned int type, int tid, int addr, void* msg,int size,void* msg2
 			if(size){
 				//struct mm_info msg_mm = allocate_kernel_page(size);	
 				fs_mail[fs_index_push].msg = msg;
-				fs_mail[fs_index_push].msg2 = msg2;
 				//memcpy(msg, msg_mm.start,13);
 			}else{
 				fs_mail[fs_index_push].msg = NULL;
@@ -69,9 +68,9 @@ int send_msg(unsigned int type, int tid, int addr, void* msg,int size,void* msg2
 			compt_mail[compt_index_push].dst_task = tid;/*exit_thread*/
 			compt_mail[compt_index_push].from = current;
 			if(size){
-				struct mm_info msg_mm = allocate_kernel_page(size);	
-				compt_mail[compt_index_push].msg = msg_mm.start;
-				memcpy(msg, msg_mm.start,11);
+				//struct mm_info msg_mm = allocate_kernel_page(size);	
+				compt_mail[compt_index_push].msg = msg;
+				//memcpy(msg, msg_mm.start,40);
 			}else{
 				compt_mail[compt_index_push].msg = NULL;
 			}		
