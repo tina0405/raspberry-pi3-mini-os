@@ -464,16 +464,39 @@ int relocate(char* comp_start,unsigned long section_table_start,unsigned long se
 				if(!memcmp(&ksym[ksym_i] , &str_name[0] ,i-1)){
 					//printf("%d %d %s\n\r",ksym_i,kapi_count,ksym[ksym_i]);
 					if(ksym_i>=kapi_count){
-						if(ksym[ksym_i].component_page==NULL){
+						/*used component is used by inserted component*/
+						if(ksym[ksym_i].used_compt_page==NULL){
 							com_page = allocate_kernel_page(4096);
 							((unsigned long*)com_page.start)[0] = 1; 
 							((unsigned long*)com_page.start)[1] = (unsigned long)current_file;
+							
+							
 						}else{
 							//printf("B:%s\n\r",ksym[ksym_i]);
 							unsigned long com_dep = ((unsigned long*)com_page.start)[0];
 							((unsigned long*)com_page.start)[com_dep + 2] = (unsigned long)current_file;
 							((unsigned long*)com_page.start)[0] = com_dep+1;
 						}
+						/*insert component use who*/
+						if(ksym[ksym_i].use_compt_page!=NULL){
+	
+							struct mm_info com_p;
+							unsigned long dep_count = ((unsigned long*)ksym[ksym_i].use_compt_page)[0];
+							com_p = allocate_kernel_page(4096);/*NOT SURE FOR EMPTY*/
+							//tmp_counter = dep_count;
+/*
+							while(tmp_counter){
+								((unsigned long*)current_file->sym->use_compt_page)[tmp_counter] = ((unsigned long*)ksym[ksym_i].use_compt_page)[tmp_counter];
+							}
+							current_file->sym->use_compt_page = com_p.start;
+							((unsigned long*)current_file->sym->use_compt_page)[0] = dep_count+1;
+							((unsigned long*)current_file->sym->use_compt_page)[dep_count+1] = ksym[ksym_i].file;  
+*/
+							
+						}
+				
+						
+						
 					}
 					flag = 1; 
 					break;

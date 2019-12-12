@@ -34,14 +34,14 @@ int fwrite(void *ptr, size_t size, size_t nobj, FILE *stream){
 	int tmp = (size*nobj)/buf;
 	
 	if(!tmp){
-		memcpy(ptr, (char*)(real_addr->_base), size*nobj);
-		real_addr->_ptr= (char*)(real_addr->_base + size*nobj);
+		memcpy(ptr, (char*)(real_addr->_ptr), size*nobj);
+		real_addr->_ptr= (char*)(real_addr->_ptr + size*nobj);
 		arch_write_unlock(&real_addr->rw_lock);
 		return nobj;
 	}else{
 
-		memcpy(ptr, (char*)(real_addr->_base) , ((int)(buf/size))*size);
-		real_addr->_ptr= (char*)(real_addr->_base + size*nobj);
+		memcpy(ptr, (char*)(real_addr->_ptr) , ((int)(buf/size))*size);
+		real_addr->_ptr= (char*)(real_addr->_ptr + ((int)(buf/size))*size);
 		arch_write_unlock(&real_addr->rw_lock);
 		return  (int)(buf/size);
 	}

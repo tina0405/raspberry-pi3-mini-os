@@ -5,6 +5,11 @@
 #define FOPEN 1
 #define FCLOSE 2
 #define FFLUSH 3
+#define FSEEK 4
+
+#define SEEK_SET 1
+#define SEEK_CUR 2
+#define SEEK_END 3
 void list(void);
 void build_kernel_directory(void);
 void build_root(void);
@@ -34,8 +39,8 @@ struct File{
    char* _ptr;/*next pos*/
    char* _base;
    int   _bufsize;
-   int _tmpname;
-   int used_counter;/*to be continue*/ 
+   int _fsize; 
+   int _tmpname; 
    arch_rwlock_t rw_lock;
 };
 typedef struct File FILE;
@@ -67,6 +72,7 @@ typedef struct {
     struct file* file_info;
     unsigned int open;//open:phy unopen:0 dev:-1
     char tmp_name[32];
+   // int used_counter;/*to be continue*/
 } symbolic_node;
 
 // the BIOS Parameter Block (in Volume Boot Record)

@@ -34,8 +34,29 @@ struct File* fopen(char* file_name, char* type){
 			}
 		}
 		unsigned int clust = ((unsigned int)symbolic_fs_array[num].file_info->dir_record.ch)<<16|(unsigned int)symbolic_fs_array[num].file_info->dir_record.cl;
+		/*if opened*/
+		if(symbolic_fs_array[num].open>0){
+			struct fs_unit* return_fs = fs_type_support(partition[cd_rem].type);
+               		if(return_fs){
+				struct mm_info tmp_page = allocate_kernel_page(4096);		
+				struct File *fp = (struct File *)tmp_page.start;
+				bpb_t *bpb=(bpb_t*)(&_end+partition[cd_rem].dbr);
 
-		if(clust){
+
+				fp->_base = symbolic_fs_array[num].open;
+				fp->_ptr = symbolic_fs_array[num].open;
+				fp->_fsize = symbolic_fs_array[num].file_info->dir_record.size;
+				fp->_bufsize = bpb->spc*(bpb->bps0 + (bpb->bps1 << 8));
+				fp->_tmpname = num;
+				fp->rw_lock.lock = 0;
+				//symbolic_fs_array[num].open = real_addr->log_addr;/*soft symbolic*/ 
+				//symbolic_fs_array[num].file_info->directory = ((unsigned long*)real_addr->phy_addr)[0];/*phy
+			}else{
+				printf("Not support %x type in File system",partition[cd_rem].type);
+				return NULL;
+			}
+
+		}else if(clust){
 			struct fs_unit* return_fs = fs_type_support(partition[cd_rem].type);
                		if(return_fs){
 				struct mm_info tmp_page = allocate_kernel_page(4096);		
@@ -45,6 +66,7 @@ struct File* fopen(char* file_name, char* type){
 				openfile* real_addr = (&_start_ + (unsigned int)tmp_addr);		
 				fp->_base = real_addr->log_addr;
 				fp->_ptr = real_addr->log_addr;
+				fp->_fsize = symbolic_fs_array[num].file_info->dir_record.size;
 				fp->_bufsize = bpb->spc*(bpb->bps0 + (bpb->bps1 << 8));
 				fp->_tmpname = num;
 				fp->rw_lock.lock = 0;

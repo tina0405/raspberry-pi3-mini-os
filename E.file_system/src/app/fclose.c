@@ -21,9 +21,9 @@ int fclose(FILE *stream){
 		phy_block = real_addr->_bufsize/512;
 	}	
 
-	
+	printf("%d %d\n\r",real_addr->_bufsize,phy_block);
 	/*send to file system*/
-	sdTransferBlocks ((char*)symbolic_fs_array[real_addr->_tmpname].file_info->directory, phy_block, (unsigned long)real_addr->_base , 1);
+	//sdTransferBlocks ((char*)symbolic_fs_array[real_addr->_tmpname].file_info->directory, phy_block, (unsigned long)real_addr->_base , 1);
 	fatdir_t* tmp = symbolic_fs_array[real_addr->_tmpname].file_info->addr.log_addr + symbolic_fs_array[real_addr->_tmpname].file_info->num_fatdir*32;
 		
 	tmp->size = (real_addr->_ptr - real_addr->_base);
@@ -34,7 +34,7 @@ int fclose(FILE *stream){
 	user_dir((char*)current_page);
 	//printf("block:%d,%x\n\r",block,((unsigned long*)symbolic_fs_array[real_addr->_tmpname].file_info->addr.phy_addr)[block]);
 	/*device*/
-	sdTransferBlocks (((unsigned long*)symbolic_fs_array[real_addr->_tmpname].file_info->addr.phy_addr)[block], phy_block, (char*)symbolic_fs_array[real_addr->_tmpname].file_info->addr.log_addr , 1);
+	//sdTransferBlocks (((unsigned long*)symbolic_fs_array[real_addr->_tmpname].file_info->addr.phy_addr)[block], phy_block, (char*)symbolic_fs_array[real_addr->_tmpname].file_info->addr.log_addr , 1);
 		
 	
 	

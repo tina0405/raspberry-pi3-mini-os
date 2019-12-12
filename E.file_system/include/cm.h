@@ -6,13 +6,14 @@
 #define SWAP 3
 #define Change_Sched 4
 #define OPERATION 5
-#define kapi_count 46
+#define kapi_count 48
 struct symbol_struct{
 	unsigned char ksym_name[32];
 	unsigned long sym_addr;
 	unsigned long rm_addr;
 	struct com_file* file;
-	void* component_page;
+	void* use_compt_page;
+	void* used_compt_page;
 	void* app_page;
 	void* hardware;
         /*hardware*/

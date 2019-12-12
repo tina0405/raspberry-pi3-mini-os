@@ -22,14 +22,10 @@
  * DEALINGS IN THE SOFTWARE.
  *
  */
-#ifdef FAT16
-#include "sd.h"
-#include "strcmp.h"
-#include "mini_uart.h"
-#include "printf.h"
 #include "fs.h"
-#include "fat.h" 
-#include "mm.h" 
+#include "kservice.h"
+#include <stddef.h>
+#define oper_compt main
 #define fs_type 1
 #define R_FILE 1
 #define R_DIR 2
@@ -40,15 +36,73 @@
  * Find a file in root directory entries
  */
 
+
+/*read file*/
+struct para_rf{
+    int cluster;
+    struct dev* sd_num;
+};
+
+struct para_config{
+    char name[32];
+    int para_num;
+    int para_1;
+    int para_2;
+};
+struct para_rf input;
+struct para_config config_readfile ={
+    name:"fat16_readfile",
+    para_num: 2,
+    para_1: sizeof(input.cluster),
+    para_2: sizeof(input.sd_num),
+};
+
+/*read dir*/
+struct para_dir{
+    struct dev* sd_num;
+};
+
+struct para_config_dir{
+    char name[32];
+    int para_num;
+    int para_1;
+
+};
+struct para_dir input_1;
+struct para_config_dir config_readdir ={
+    name:"fat16_directory",
+    para_num: 1,
+    para_1: sizeof(input_1.sd_num),
+};
+
+/*read cluster*/
+struct para_cluster{
+    char *fn;
+    struct dev* sd_num;
+};
+
+struct para_config_cluster{
+    char name[32];
+    int para_num;
+    int para_1;
+    int para_2;
+};
+struct para_cluster input_2;
+struct para_config_cluster config_cluster ={
+    name:"fat16_getcluster",
+    para_num: 2,
+    para_1: sizeof(input_2.fn),
+    para_1: sizeof(input_2.sd_num),
+};
+
 void init_compt(void){ /*initial*/
 	kservice_uart_write("Initial FAT16 component!\n\r");
 	if(!kservice_reg_compt("FAT16",fs_type)){
-		kservice_config_compt(R_FILE,&drv_config);
-		kservice_config_compt(R_DIR,&drv_config);
-		kservice_config_compt(R_CLUSTER,&drv_config);
+		kservice_config_compt(R_FILE,&config_readfile);
+		kservice_config_compt(R_DIR,&config_readdir);
+		kservice_config_compt(R_CLUSTER,&config_cluster);
 	}
 
-	
 }
 
 unsigned int fat16_getcluster(void* nope,char *fn,struct dev* sd_num)
@@ -109,8 +163,8 @@ openfile* fat16_readfile(void* nope, int cluster,struct dev* sd_num)
 
     //s = kservice_dev_read(1, sd_num->partitionlba+1,(unsigned char*)(&_end+2048),(bpb->spf16)+bpb->rsc);  
     // end of FAT in memory
-    struct mm_info page = allocate_kernel_page(4096);/*improve*//*buff*/
-    struct mm_info phy_page = allocate_kernel_page(4096);
+    struct mm_info page = kservice_allocate_kpage(4096);/*improve*//*buff*/
+    struct mm_info phy_page = kservice_allocate_kpage(4096);
     data = ptr = (unsigned char *)page.start;
     //data = ptr = (unsigned char*)(&_end+2048);
     // iterate on cluster chain
@@ -120,7 +174,7 @@ openfile* fat16_readfile(void* nope, int cluster,struct dev* sd_num)
 	// load all sectors in a cluster
 	((unsigned long *)phy_page.start)[iterate++] = (unsigned long)(cluster-2)*bpb->spc+data_sec;
 	if(!kservice_dev_read(1, (cluster-2)*bpb -> spc + data_sec, ptr ,bpb->spc)){
-		printf("Unable to read SD card!");
+		kservice_uart_write("Unable to read SD card!");
 		return NULL;
 	}
 	// move pointer, sector per cluster * bytes per sector
@@ -147,10 +201,10 @@ openfile* fat16_read_directory(void* nope, struct dev* sd_num)
     root_sec+=sd_num->partitionlba;
     // load the root directory
     struct mm_info dir_page;
-    dir_page =  allocate_kernel_page(4096);
-    struct mm_info phy_page =  allocate_kernel_page(4096);
+    dir_page =  kservice_allocate_kpage(4096);
+    struct mm_info phy_page =  kservice_allocate_kpage(4096);
     if(!kservice_dev_read(1, root_sec,(unsigned char*)(dir_page.start),s/512+1)){
-		printf("Unable to read SD card!");
+		kservice_uart_write("Unable to read SD card!");
 		return NULL;
     }
     //sd_num->directory = dir_page.start;
@@ -161,4 +215,9 @@ openfile* fat16_read_directory(void* nope, struct dev* sd_num)
     ret->phy_addr= (unsigned char *)phy_page.start;
     return ret;/*buffer*/
 }
-#endif
+
+void exit_compt(void){ /*exit*/
+	kservice_unreg_compt("FAT16");
+	kservice_uart_write("Clean up FAT16 component!\n\r");
+}
+

@@ -30,7 +30,7 @@ void fs_daemon(void)
  	fs_support[1].addr_readfile = &fat16_readfile;
 	//support_type[0] = 1;
 #endif
-	
+
         build_kernel_directory();//root directory
     
 	printf("\n\rFile System Starts running....\n\r");
@@ -61,6 +61,15 @@ void fs_daemon(void)
 					if(index_pop == mail_size){index_pop=0;}
 					break;
 				case FFLUSH:
+					num = fflush((unsigned long)(((unsigned long*)fs_mail[index_pop].msg)[0]));
+					((int*)fs_mail[index_pop].msg)[0]=(unsigned long)num;					
+					((char*)fs_mail[index_pop].msg)[9]='Y';					
+					fs_mail[index_pop].letter_type = 0;	
+					index_pop++;			
+					if(index_pop == mail_size){index_pop=0;}
+					break;
+					break;
+				case FSEEK:
 					break;
 				
 				default:

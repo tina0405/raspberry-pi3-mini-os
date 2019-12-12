@@ -14,16 +14,6 @@ struct para_config drv_config ={
     para_num: 0,
 };
 
-typedef struct {
-    char            name[8];
-    char            ext[3];
-    char            attr[9];
-    unsigned short  ch;
-    unsigned int    attr2;
-    unsigned short  cl;
-    unsigned int    size;
-} __attribute__((packed)) fatdir_t;
-
 
 void init_compt(void){ /*initial*/
 	kservice_uart_write("Initial pullup_20 component!\n\r");

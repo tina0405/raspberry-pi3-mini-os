@@ -194,6 +194,15 @@ int kservice_fflush(FILE *stream){
 	return (int)(((int*)msg_mm.start)[0]);
 }
 
+int kservice_fseek(FILE *stream, long int offset, int whence){
+	return fseek(stream, offset, whence);
+}
+
+int kservice_ftell(FILE *stream){
+	return ftell(stream);
+}
+
+
 void kservice_mount(void){
 	mount();
 }
@@ -326,19 +335,22 @@ kservice_fread,/*28*/
 kservice_fwrite,/*29*/
 kservice_fclose,/*30*/
 kservice_fflush,/*31*/
-kservice_mount,/*32*/
-kservice_execom,/*33*/
-kservice_swap,/*34*/
+kservice_fseek,/*32*/
+kservice_ftell,/*33*/
+
+kservice_mount,/*34*/
+kservice_execom,/*35*/
+kservice_swap,/*36*/
 /*below for symbol table*/
-kservice_config_compt,/*35*/
-kservice_region_request,/*36*/
-kservice_allocate_kpage, /*37*/
-kservice_schedule, /*38*/
-kservice_reg_compt, /*39*/
-kservice_unreg_compt, /*40*/
-kservice_dev_read, /*41*/
-kservice_dir_interface, /*42*/
-kservice_put32, /*43*/
-kservice_kstart,/*44*/
-kservice_kend/*45*/
+kservice_config_compt,/*37*/
+kservice_region_request,/*38*/
+kservice_allocate_kpage, /*39*/
+kservice_schedule, /*40*/
+kservice_reg_compt, /*41*/
+kservice_unreg_compt, /*42*/
+kservice_dev_read, /*43*/
+kservice_dir_interface, /*44*/
+kservice_put32, /*45*/
+kservice_kstart,/*46*/
+kservice_kend/*47*/
 }; 

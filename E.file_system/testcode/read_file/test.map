@@ -7,74 +7,80 @@ Name             Origin             Length             Attributes
 Linker script and memory map
 
 
-.text           0x0000000000000000      0x13c
+.text           0x0000000000000000      0x1fc
  *(.text)
  .text          0x0000000000000000       0x24 sys_need.o
                 0x0000000000000000                sys_need
- .text          0x0000000000000024      0x118 readfile.o
+ .text          0x0000000000000024      0x1d8 readfile.o
                 0x0000000000000024                application
- .text          0x000000000000013c        0x0 user_sys.o
+ .text          0x00000000000001fc        0x0 user_sys.o
 
-.iplt           0x000000000000013c        0x0
- .iplt          0x000000000000013c        0x0 sys_need.o
+.iplt           0x00000000000001fc        0x0
+ .iplt          0x00000000000001fc        0x0 sys_need.o
 
-.text.user      0x000000000000013c      0x194
- .text.user     0x000000000000013c      0x194 user_sys.o
-                0x000000000000013c                user_delay
-                0x0000000000000148                call_sys_write
-                0x0000000000000154                call_sys_exit
-                0x0000000000000160                call_sys_fork
-                0x000000000000016c                call_sys_led
-                0x0000000000000178                call_sys_read
-                0x0000000000000184                thread_create
-                0x0000000000000190                thread_self
-                0x000000000000019c                thread_join
-                0x00000000000001a8                thread_cond_signal
-                0x00000000000001b4                call_sys_list
-                0x00000000000001c0                call_sys_cd
-                0x00000000000001cc                call_sys_dump
-                0x00000000000001d8                call_sys_root
-                0x00000000000001e4                call_sys_run
-                0x00000000000001f0                call_sys_com
-                0x00000000000001fc                call_sys_send
-                0x0000000000000208                call_sys_recv
-                0x0000000000000214                thread_mutex_trylock
-                0x0000000000000220                thread_mutex_lock
-                0x000000000000022c                thread_mutex_unlock
-                0x0000000000000238                call_sys_allocate_page
-                0x0000000000000244                call_sys_free_page
-                0x0000000000000250                call_sys_rmcom
-                0x000000000000025c                call_sys_lsdev
-                0x0000000000000268                call_sys_lscom
-                0x0000000000000274                call_sys_sched
-                0x0000000000000280                call_sys_fopen
-                0x000000000000028c                call_sys_fread
-                0x0000000000000298                call_sys_fwrite
-                0x00000000000002a4                call_sys_fclose
-                0x00000000000002b0                thread_equal
-                0x00000000000002c8                sp_info
+.text.user      0x00000000000001fc      0x1dc
+ .text.user     0x00000000000001fc      0x1dc user_sys.o
+                0x00000000000001fc                user_delay
+                0x0000000000000208                call_sys_write
+                0x0000000000000214                call_sys_exit
+                0x0000000000000220                call_sys_fork
+                0x000000000000022c                call_sys_led
+                0x0000000000000238                call_sys_read
+                0x0000000000000244                thread_create
+                0x0000000000000250                thread_self
+                0x000000000000025c                thread_join
+                0x0000000000000268                thread_cond_signal
+                0x0000000000000274                call_sys_list
+                0x0000000000000280                call_sys_cd
+                0x000000000000028c                call_sys_dump
+                0x0000000000000298                call_sys_root
+                0x00000000000002a4                call_sys_run
+                0x00000000000002b0                call_sys_com
+                0x00000000000002bc                call_sys_send
+                0x00000000000002c8                call_sys_recv
+                0x00000000000002d4                thread_mutex_trylock
+                0x00000000000002e0                thread_mutex_lock
+                0x00000000000002ec                thread_mutex_unlock
+                0x00000000000002f8                call_sys_allocate_page
+                0x0000000000000304                call_sys_free_page
+                0x0000000000000310                call_sys_rmcom
+                0x000000000000031c                call_sys_lsdev
+                0x0000000000000328                call_sys_lscom
+                0x0000000000000334                call_sys_sched
+                0x0000000000000340                call_sys_fopen
+                0x000000000000034c                call_sys_fread
+                0x0000000000000358                call_sys_fclose
+                0x0000000000000364                call_sys_fwrite
+                0x0000000000000370                call_sys_fflush
+                0x000000000000037c                call_sys_fseek
+                0x0000000000000388                call_sys_ftell
+                0x0000000000000394                call_sys_mount
+                0x00000000000003a0                call_sys_execom
+                0x00000000000003ac                call_sys_swap
+                0x00000000000003b8                thread_equal
+                0x00000000000003d0                sp_info
 
-.rodata         0x00000000000002d0       0xb8
+.rodata         0x00000000000003d8       0xb8
  *(.rodata)
- .rodata        0x00000000000002d0       0xb8 readfile.o
+ .rodata        0x00000000000003d8       0xb8 readfile.o
 
-.rela.dyn       0x0000000000000388        0x0
- .rela.iplt     0x0000000000000388        0x0 sys_need.o
+.rela.dyn       0x0000000000000490        0x0
+ .rela.iplt     0x0000000000000490        0x0 sys_need.o
 
-.data           0x0000000000000388        0x0
+.data           0x0000000000000490        0x0
  *(.data)
- .data          0x0000000000000388        0x0 sys_need.o
- .data          0x0000000000000388        0x0 readfile.o
- .data          0x0000000000000388        0x0 user_sys.o
+ .data          0x0000000000000490        0x0 sys_need.o
+ .data          0x0000000000000490        0x0 readfile.o
+ .data          0x0000000000000490        0x0 user_sys.o
 
-.igot.plt       0x0000000000000388        0x0
- .igot.plt      0x0000000000000388        0x0 sys_need.o
+.igot.plt       0x0000000000000490        0x0
+ .igot.plt      0x0000000000000490        0x0 sys_need.o
 
-.bss            0x0000000000000388        0x0
+.bss            0x0000000000000490        0x0
  *(.bss*)
- .bss           0x0000000000000388        0x0 sys_need.o
- .bss           0x0000000000000388        0x0 readfile.o
- .bss           0x0000000000000388        0x0 user_sys.o
+ .bss           0x0000000000000490        0x0 sys_need.o
+ .bss           0x0000000000000490        0x0 readfile.o
+ .bss           0x0000000000000490        0x0 user_sys.o
 LOAD sys_need.o
 LOAD readfile.o
 LOAD user_sys.o

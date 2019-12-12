@@ -39,7 +39,7 @@ void build_kernel_directory(void){
     memzero(&(sd_p[0][0]),44);
     memzero(&(symbolic_fs_array[0]),128*sizeof(symbolic_node));
     for(int pnum=0; pnum<4; pnum++){
-	
+
 	 return_fs = fs_type_support(partition[pnum].type);
 	 if(return_fs){
 		
@@ -76,7 +76,7 @@ void build_kernel_directory(void){
 				break;
 #endif	
 		}
-		
+
                 partition[pnum].fat_table_start = memory.start;
 		/*here*/
 		openfile* addr = bl_init( &_start_+(return_fs->addr_directory-(unsigned int)&_start_),dev_param);
@@ -84,7 +84,7 @@ void build_kernel_directory(void){
 		partition[pnum].directory_addr.log_addr = addr->log_addr;
 		partition[pnum].directory_addr.phy_addr = addr->phy_addr;		
 		//build_root();
-		
+
    	 	pa_name =  _search_file(&partition[pnum].directory_addr,partition[pnum].op_dir,partition[pnum]); /*here*/
 		pa_in = 0;
 		/*scanf empty cluster*/
@@ -127,6 +127,7 @@ void build_root(void){
 }
 extern int sect;
 char* _search_file(openfile* addr, char* page, struct dev dev_num){
+
         int index = 0;
 	int parse_i = 4,file_i =0;
 	static int sym_index = 0;

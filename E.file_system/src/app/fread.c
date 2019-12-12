@@ -45,14 +45,24 @@ int fread(void *ptr, size_t size, size_t nobj, FILE *stream){
 	arch_read_lock(&real_addr->rw_lock);
 
 	int buf =(real_addr->_bufsize);
+	//printf("%d\n\r",buf);
 	int tmp = (size*nobj)/buf;
 	if(!tmp){
-		memcpy((char*)(real_addr->_base), ptr , size*nobj);
+		memcpy((char*)(real_addr->_ptr), ptr , size*nobj);
+		real_addr->_ptr= (char*)real_addr->_ptr + size*nobj;
+		/*over file size*/
+		if(((int)real_addr->_ptr - (int)real_addr->_base) > real_addr->_fsize){
+			real_addr->_ptr = (int)real_addr->_base + real_addr->_fsize;
+		}
 		arch_read_unlock(&real_addr->rw_lock);
 		return nobj;
 	}else{
 
-		memcpy((char*)(real_addr->_base), ptr , ((int)(buf/size))*size);
+		memcpy((char*)(real_addr->_ptr), ptr , ((int)(buf/size))*size);
+		real_addr->_ptr= (char*)real_addr->_ptr + ((int)(buf/size))*size;
+		if(((int)real_addr->_ptr - (int)real_addr->_base) > real_addr->_fsize){
+			real_addr->_ptr = (int)real_addr->_base + real_addr->_fsize;
+		}
 		arch_read_unlock(&real_addr->rw_lock);
 		return  (int)(buf/size);
 	}
