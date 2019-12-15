@@ -57,7 +57,7 @@ int fread(void *ptr, size_t size, size_t nobj, FILE *stream){
 	}else{
 		memcpy((char*)(real_addr->_ptr), ptr , size*nobj);
 		/*over file size*/
-		if(((int)real_addr->_ptr - (int)real_addr->_base) + real_addr->_cnt*buf > real_addr->_fsize){
+		if(((int)real_addr->_ptr - (int)real_addr->_base) + real_addr->_cnt*buf >= real_addr->_fsize){
 			ret_obj = (real_addr->_base + (real_addr->_fsize - real_addr->_cnt*buf) - real_addr->_ptr)/size;
 			real_addr->_ptr = real_addr->_base + (real_addr->_fsize - real_addr->_cnt*buf);
 			
@@ -65,6 +65,7 @@ int fread(void *ptr, size_t size, size_t nobj, FILE *stream){
 			real_addr-> _ptr = real_addr-> _ptr +size*nobj;
 			ret_obj = nobj;
 		}
+		
 
 	}
 	/*Load next*/	
@@ -74,9 +75,8 @@ int fread(void *ptr, size_t size, size_t nobj, FILE *stream){
 		while(real_addr->_cnt != next){schedule();}
 		memcpy((char*)(real_addr->_ptr), ptr , rest);
 		/*over file size*/
-		if(((int)real_addr->_ptr - (int)real_addr->_base) + real_addr->_cnt*buf > real_addr->_fsize){
+		if(((int)real_addr->_ptr - (int)real_addr->_base) + real_addr->_cnt*buf >= real_addr->_fsize){
 			ret_obj = (real_addr->_base + (real_addr->_fsize - real_addr->_cnt*buf) - real_addr->_ptr)/size;
-			real_addr->_ptr = real_addr->_base + (real_addr->_fsize - real_addr->_cnt*buf);
 		}else{
 			real_addr-> _ptr = real_addr-> _ptr +rest;
 			ret_obj = rest/size;

@@ -62,7 +62,7 @@ struct File* fopen(char* file_name, char* type){
 				struct mm_info tmp_page = allocate_kernel_page(4096);		
 				struct File *fp = (struct File *)tmp_page.start;
 				bpb_t *bpb=(bpb_t*)(&_end+partition[cd_rem].dbr);
-				openfile* tmp_addr = bl_init( &_start_+ (unsigned int)return_fs->addr_readbuf, clust, &partition[cd_rem], OPEN);
+				openfile* tmp_addr = bl_init( &_start_+ (unsigned int)return_fs->addr_readbuf, clust, &partition[cd_rem], NULL);
 				openfile* real_addr = (&_start_ + (unsigned int)tmp_addr);		
 				fp->_base = real_addr->log_addr;
 				fp->_ptr = real_addr->log_addr;
@@ -71,9 +71,9 @@ struct File* fopen(char* file_name, char* type){
 				fp->_bufsize = bpb->spc*(bpb->bps0 + (bpb->bps1 << 8));
 				fp->_tmpname = num;
 				fp->rw_lock.lock = 0;
-				symbolic_fs_array[num].open = real_addr->log_addr;/*soft symbolic*/ 
-				
-				symbolic_fs_array[num].file_info->directory = ((unsigned long*)real_addr->phy_addr)[0];/*phy addr*/				
+				symbolic_fs_array[num].open = real_addr->log_addr;/*soft symbolic*/ 	
+				symbolic_fs_array[num].file_info->director = real_addr->phy_addr;/*phy addr*/
+							
 				return fp;
 			}else{
 				printf("Not support %x type in File system",partition[cd_rem].type);

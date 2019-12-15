@@ -1,6 +1,7 @@
 #include<fs.h>
 #include<printf.h>
 #include <stddef.h>
+#include <utils.h>
 extern unsigned char _start_;
 extern int cd_rem;
 int fclose(FILE *stream){
@@ -55,7 +56,12 @@ int fclose(FILE *stream){
 	
 	struct fs_unit* return_fs = fs_type_support(partition[cd_rem].type);
         if(return_fs){
-		int result = bl_init(&_start_+ (unsigned int)return_fs->addr_writefile, &partition[cd_rem], (char*)symbolic_fs_array[real_addr->_tmpname].file_info->directory, write_size, (unsigned long)real_addr->_base, ((unsigned long*)symbolic_fs_array[real_addr->_tmpname].file_info->addr.phy_addr)[block], (char*)symbolic_fs_array[real_addr->_tmpname].file_info->addr.log_addr);
+		unsigned long* clu = (unsigned long*)symbolic_fs_array[real_addr->_tmpname].file_info->director;
+		char* phy = (char*)clu[real_addr->_cnt];
+		char* log = (char*)real_addr->_base;
+		int* result = bl_init(&_start_+ (unsigned int)return_fs->addr_writebuf, &partition[cd_rem],phy, write_size, log);
+
+		result = bl_init(&_start_+ (unsigned int)return_fs->addr_writedir, ((unsigned long*)symbolic_fs_array[real_addr->_tmpname].file_info->addr.phy_addr)[block], (char*)symbolic_fs_array[real_addr->_tmpname].file_info->addr.log_addr);
 	}else{
 		printf("Not support %x type in File system",partition[cd_rem].type);
 		return NULL;
@@ -65,7 +71,7 @@ int fclose(FILE *stream){
 	
 	free_page(real_addr->_base,num);
 	symbolic_fs_array[real_addr->_tmpname].open = 0;/*soft symbolic*/ 
-	symbolic_fs_array[real_addr->_tmpname].file_info->directory = NULL;
+	symbolic_fs_array[real_addr->_tmpname].file_info->director = NULL;
 	stream = NULL;	
 	return 0;
 }

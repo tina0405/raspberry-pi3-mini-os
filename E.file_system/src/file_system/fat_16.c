@@ -129,7 +129,7 @@ openfile* fat16_readfile(void* nope, int cluster,struct dev* sd_num)
     return ret;
 }
 
-openfile* fat16_readbuf(void* nope, int cluster,struct dev* sd_num, int blk)
+openfile* fat16_readbuf(void* nope, int cluster,struct dev* sd_num, void* blk)
 {
     openfile *ret;
     openfile tmp;
@@ -152,12 +152,13 @@ openfile* fat16_readbuf(void* nope, int cluster,struct dev* sd_num, int blk)
     data_sec+= sd_num->partitionlba;
 
 
-    struct mm_info page; 
-    if(blk == OPEN){
-	    page = allocate_kernel_page((bpb->spc*(bpb->bps0 + (bpb->bps1 << 8))));/*improve*//*buff*/
+    if(blk == NULL){
+
+	    struct mm_info page = allocate_kernel_page((bpb->spc*(bpb->bps0 + (bpb->bps1 << 8))));/*improve*//*buff*/
             data = ptr = (unsigned char *)page.start;
 	    struct mm_info phy_page = allocate_kernel_page(4096);
 	    int iterate = 0;
+
 	    if(cluster>1 && cluster<0xFFF8) {
 		// load all sectors in a cluster
 
@@ -173,24 +174,25 @@ openfile* fat16_readbuf(void* nope, int cluster,struct dev* sd_num, int blk)
 		printf("Cluster is dirty.\n\r");
 		return NULL;
 	    }
-	   
+
 	    while(cluster>1 && cluster<0xFFF8) {
 		// load all sectors in a cluster
 		((unsigned long *)phy_page.start)[iterate++] = (unsigned long)(cluster-2)*bpb->spc+data_sec;
 		// get the next cluster in chain
 		cluster=fat16[cluster];
 	    }
+	    
 	    ret->phy_addr = (unsigned char *)phy_page.start;
 	    ret->log_addr = data;
     }else{
-	    page = allocate_kernel_page((bpb->spc*(bpb->bps0 + (bpb->bps1 << 8))));/*improve*//*buff*/
-    	    data = ptr = (unsigned char *)page.start;
+
+    	    data = ptr = (unsigned char *)blk;
 	    if(!kservice_dev_read(1, cluster, ptr ,bpb->spc)){
 			printf("Unable to read SD card!");
 			return NULL;
 	    }
 	    ret->phy_addr = NULL;
-	    ret->log_addr = data;
+	    ret->log_addr = NULL;
     }
     return ret;
 }
@@ -229,7 +231,7 @@ openfile* fat16_read_directory(void* nope, struct dev* sd_num)
 
 
 /*succeed=0 or fail=1*/
-int fat16_writefile(void* nope, struct dev* sd_num,char* phy,int filesize, unsigned long log,char* phy_dir,char* log_dir)
+int* fat16_writebuf(void* nope, struct dev* sd_num,char* phy,int filesize, unsigned long log)
 { 
     bpb_t *bpb=(bpb_t*)(&_end+sd_num->dbr);
     unsigned short *fat16=(unsigned int*)(&_start_ + sd_num-> fat_table_start - 512 + bpb->rsc*512);
@@ -243,7 +245,13 @@ int fat16_writefile(void* nope, struct dev* sd_num,char* phy,int filesize, unsig
     }
     
     /*writedirectory*/
+    //sdTransferBlocks (phy_dir, 1, log_dir , 1);
+    return NULL;   
+}
+
+int* fat16_writedir(void* nope, char* phy_dir,char* log_dir)
+{ 
     sdTransferBlocks (phy_dir, 1, log_dir , 1);
-    return 0;   
+    return NULL;   
 }
 #endif

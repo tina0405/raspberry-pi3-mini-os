@@ -90,7 +90,7 @@ int find_folder(char* page,char* file_name){
 		// decode attributes
 		if(!memcmp(file->dir_record.name,file_name,8)){
 			if(file->dir_record.attr[0]&16){
-				current_page = file->directory;
+				current_page = file->director;
 				user_dir((char*)current_page);
 				return 1;
 			}else{

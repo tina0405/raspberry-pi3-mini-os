@@ -176,7 +176,7 @@ char* _search_file(openfile* addr, char* page, struct dev dev_num){
 			
 					struct mm_info dir_page =  allocate_kernel_page(4096);					
 					(file+index)->num_fatdir= offset;/*offset*/
-					(file+index)->directory = dir_page.start;/*next page*/
+					(file+index)->director = dir_page.start;/*next page*/
 					(file+index)->addr.phy_addr = addr->phy_addr;/*phy dir start*/
 					(file+index)->addr.log_addr = addr->log_addr;/*log dir start*/	
 					
@@ -223,7 +223,7 @@ char* _search_file(openfile* addr, char* page, struct dev dev_num){
 					// read into memory
 					
 					(file+index)->num_fatdir= offset;/*offset*/
-					(file+index)->directory = NULL;
+					(file+index)->director = NULL;
 					(file+index)->addr.phy_addr = addr->phy_addr;/*phy dir start*/
 					(file+index)->addr.log_addr = addr->log_addr;/*log dir start*/
 										

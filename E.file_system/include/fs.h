@@ -8,8 +8,6 @@
 #define FSEEK 4
 #define LOAD_BUF 5
 
-#define OPEN -1
-
 #define SEEK_SET 1
 #define SEEK_CUR 2
 #define SEEK_END 3
@@ -68,7 +66,7 @@ struct file{/*save struct*/
     fatdir_t dir_record;
     openfile addr;/*dir in sd Card*/
     unsigned int num_fatdir;/*offset*/ 
-    unsigned int directory;/*file: record buff*/
+    void* director;/*file: record buff*/
     int dev;
 };
 
@@ -137,7 +135,8 @@ struct fs_unit{
     unsigned int addr_getcluster;
     unsigned int addr_readfile;
     unsigned int addr_readbuf;
-    unsigned int addr_writefile;
+    unsigned int addr_writebuf;
+    unsigned int addr_writedir;
 }; 
 struct dev partition[4];
 struct user_fs file_dir[20];

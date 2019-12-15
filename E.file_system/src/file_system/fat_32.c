@@ -120,7 +120,7 @@ openfile* fat32_readfile(void* nope, int cluster,struct dev* sd_num)
     return ret;
 }
 
-openfile* fat32_readbuf(void* nope, int cluster,struct dev* sd_num, int blk)
+openfile* fat32_readbuf(void* nope, int cluster,struct dev* sd_num, void* blk)
 {
     openfile *ret;
     openfile tmp;
@@ -138,14 +138,14 @@ openfile* fat32_readbuf(void* nope, int cluster,struct dev* sd_num, int blk)
     // add partition LBA
     data_sec+= sd_num->partitionlba;
     
-    struct mm_info page = allocate_kernel_page((bpb->spc*(bpb->bps0 + (bpb->bps1 << 8))));/*improve*//*buff*/
-    data = ptr = (unsigned char *)page.start;
-    if(blk == OPEN){
-	    
+    if(blk == NULL){
+	    struct mm_info page = allocate_kernel_page((bpb->spc*(bpb->bps0 + (bpb->bps1 << 8))));/*improve*//*buff*/
+            data = ptr = (unsigned char *)page.start;
 	    struct mm_info phy_page = allocate_kernel_page(4096);
 	    
 
 	    int iterate = 0;
+
 	    if(cluster>1 && cluster<0xFFF8) {
 		// load all sectors in a cluster
 
@@ -161,7 +161,7 @@ openfile* fat32_readbuf(void* nope, int cluster,struct dev* sd_num, int blk)
 		printf("Cluster is dirty.\n\r");
 		return NULL;
 	    }
-	   
+
 	    while(cluster>1 && cluster<0xFFF8) {
 		// load all sectors in a cluster
 		((unsigned long *)phy_page.start)[iterate++] = (unsigned long)(cluster-2)*bpb->spc+data_sec;
@@ -171,7 +171,7 @@ openfile* fat32_readbuf(void* nope, int cluster,struct dev* sd_num, int blk)
 	    ret->phy_addr = (unsigned char *)phy_page.start;
 	    ret->log_addr = data;
     }else{
-	    
+	    data = ptr = (unsigned char *)blk;
 	    if(!kservice_dev_read(1, cluster, ptr ,bpb->spc)){
 			printf("Unable to read SD card!");
 			return NULL;
@@ -195,7 +195,7 @@ openfile* fat32_read_directory(void* nope, struct dev* sd_num)
 }
 
 /*succeed=0 or fail=1*/
-int fat32_writefile(void* nope, struct dev* sd_num,char* phy,int filesize, unsigned long log,char* phy_dir,char* log_dir)
+int* fat32_writebuf(void* nope, struct dev* sd_num,char* phy,int filesize, unsigned long log)
 { 
     bpb_t *bpb=(bpb_t*)(&_end+sd_num->dbr);
     int clustersize = bpb->spc*(bpb->bps0 + (bpb->bps1 << 8));
@@ -206,7 +206,15 @@ int fat32_writefile(void* nope, struct dev* sd_num,char* phy,int filesize, unsig
     	sdTransferBlocks (phy, filesize, log , 1);
     }
     
+
+    return NULL;   
+}
+
+/*succeed=0 or fail=1*/
+int* fat32_writedir(void* nope, char* phy_dir,char* log_dir)
+{ 
+   
     /*writedirectory*/
     sdTransferBlocks (phy_dir, 1, log_dir , 1);
-    return 0;   
+    return NULL;   
 }
