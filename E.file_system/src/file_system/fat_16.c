@@ -120,7 +120,6 @@ openfile* fat16_readfile(void* nope, int cluster,struct dev* sd_num)
 	}
 	// move pointer, sector per cluster * bytes per sector
         ptr+=bpb->spc*(bpb->bps0 + (bpb->bps1 << 8));
-	printf("FAT16: bpb->spc:%d",bpb->spc);
         // get the next cluster in chain
         cluster=fat16[cluster];
     }
@@ -130,7 +129,7 @@ openfile* fat16_readfile(void* nope, int cluster,struct dev* sd_num)
     return ret;
 }
 
-openfile* fat16_readbuf(void* nope, int cluster,struct dev* sd_num)
+openfile* fat16_readbuf(void* nope, int cluster,struct dev* sd_num, int blk)
 {
     openfile *ret;
     openfile tmp;
@@ -153,26 +152,46 @@ openfile* fat16_readbuf(void* nope, int cluster,struct dev* sd_num)
     data_sec+= sd_num->partitionlba;
 
 
-    struct mm_info page = allocate_kernel_page((bpb->spc*(bpb->bps0 + (bpb->bps1 << 8))));/*improve*//*buff*/
-    struct mm_info phy_page = allocate_kernel_page(4096);
-    data = ptr = (unsigned char *)page.start;
+    struct mm_info page; 
+    if(blk == OPEN){
+	    page = allocate_kernel_page((bpb->spc*(bpb->bps0 + (bpb->bps1 << 8))));/*improve*//*buff*/
+            data = ptr = (unsigned char *)page.start;
+	    struct mm_info phy_page = allocate_kernel_page(4096);
+	    int iterate = 0;
+	    if(cluster>1 && cluster<0xFFF8) {
+		// load all sectors in a cluster
 
-    if(cluster>1 && cluster<0xFFF8) {
-	// load all sectors in a cluster
+		((unsigned long *)phy_page.start)[iterate++] = (unsigned long)(cluster-2)*bpb->spc+data_sec;
 
-	((unsigned long *)phy_page.start)[0] = (unsigned long)(cluster-2)*bpb->spc+data_sec;
-
-	if(!kservice_dev_read(1, (cluster-2)*bpb -> spc + data_sec, ptr ,bpb->spc)){
-		printf("Unable to read SD card!");
+		if(!kservice_dev_read(1, (cluster-2)*bpb -> spc + data_sec, ptr ,bpb->spc)){
+			printf("Unable to read SD card!");
+			return NULL;
+		}
+		// get the next cluster in chain
+		cluster=fat16[cluster];       
+	    }else{
+		printf("Cluster is dirty.\n\r");
 		return NULL;
-	}       
+	    }
+	   
+	    while(cluster>1 && cluster<0xFFF8) {
+		// load all sectors in a cluster
+		((unsigned long *)phy_page.start)[iterate++] = (unsigned long)(cluster-2)*bpb->spc+data_sec;
+		// get the next cluster in chain
+		cluster=fat16[cluster];
+	    }
+	    ret->phy_addr = (unsigned char *)phy_page.start;
+	    ret->log_addr = data;
     }else{
-	printf("Cluster is dirty.\n\r");
-	return NULL;
+	    page = allocate_kernel_page((bpb->spc*(bpb->bps0 + (bpb->bps1 << 8))));/*improve*//*buff*/
+    	    data = ptr = (unsigned char *)page.start;
+	    if(!kservice_dev_read(1, cluster, ptr ,bpb->spc)){
+			printf("Unable to read SD card!");
+			return NULL;
+	    }
+	    ret->phy_addr = NULL;
+	    ret->log_addr = data;
     }
-   
-    ret->phy_addr = (unsigned char *)phy_page.start;
-    ret->log_addr = data;
     return ret;
 }
 

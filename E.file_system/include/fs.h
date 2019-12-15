@@ -6,6 +6,9 @@
 #define FCLOSE 2
 #define FFLUSH 3
 #define FSEEK 4
+#define LOAD_BUF 5
+
+#define OPEN -1
 
 #define SEEK_SET 1
 #define SEEK_CUR 2

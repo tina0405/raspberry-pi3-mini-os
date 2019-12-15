@@ -1,6 +1,7 @@
 #include "printf.h"
 #include "fs.h"
 #include "sched.h"
+#include "ipc.h"
 typedef int size_t;
 extern unsigned char _start_;
 //extern unsigned char schedule;
@@ -68,9 +69,10 @@ int fread(void *ptr, size_t size, size_t nobj, FILE *stream){
 	}
 	/*Load next*/	
 	if(rest){
-		//send_msg(LOAD_NBUF,thread_id_self(), FILESYS_MANAGER, msg_mm.start, 4096);/*FM*/
-		//while(((char*)msg_mm.start)[9] =='N'){schedule();}
-		//memcpy((char*)(real_addr->_ptr), ptr , rest);
+		int next = real_addr->_cnt+1;
+		send_msg(LOAD_BUF,thread_id_self(), FILESYS_MANAGER, real_addr, 4096);/*FM*/
+		while(real_addr->_cnt != next){schedule();}
+		memcpy((char*)(real_addr->_ptr), ptr , rest);
 		/*over file size*/
 		if(((int)real_addr->_ptr - (int)real_addr->_base) + real_addr->_cnt*buf > real_addr->_fsize){
 			ret_obj = (real_addr->_base + (real_addr->_fsize - real_addr->_cnt*buf) - real_addr->_ptr)/size;
