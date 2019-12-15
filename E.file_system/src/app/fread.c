@@ -1,8 +1,9 @@
 #include "printf.h"
 #include "fs.h"
+#include "sched.h"
 typedef int size_t;
 extern unsigned char _start_;
-extern unsigned char schedule;
+//extern unsigned char schedule;
 
 void yield_cpu(void){
     asm volatile(
@@ -45,28 +46,45 @@ int fread(void *ptr, size_t size, size_t nobj, FILE *stream){
 	arch_read_lock(&real_addr->rw_lock);
 
 	int buf =(real_addr->_bufsize);
-	//printf("%d\n\r",buf);
-	int tmp = (size*nobj)/buf;
-	if(!tmp){
-		memcpy((char*)(real_addr->_ptr), ptr , size*nobj);
-		real_addr->_ptr= (char*)real_addr->_ptr + size*nobj;
-		/*over file size*/
-		if(((int)real_addr->_ptr - (int)real_addr->_base) > real_addr->_fsize){
-			real_addr->_ptr = (int)real_addr->_base + real_addr->_fsize;
-		}
-		arch_read_unlock(&real_addr->rw_lock);
-		return nobj;
+	int rest =0, cur =0, ret_obj;
+	if(real_addr-> _ptr + size*nobj - real_addr-> _base > buf){/*over buff*/
+		cur = (real_addr-> _base + buf - real_addr-> _ptr);
+		memcpy((char*)(real_addr->_ptr), ptr, cur); 
+		rest = real_addr-> _ptr + size*nobj - real_addr-> _base - buf;
+		real_addr-> _ptr = real_addr-> _ptr + cur;
+		ret_obj = cur/size;
 	}else{
-
-		memcpy((char*)(real_addr->_ptr), ptr , ((int)(buf/size))*size);
-		real_addr->_ptr= (char*)real_addr->_ptr + ((int)(buf/size))*size;
-		if(((int)real_addr->_ptr - (int)real_addr->_base) > real_addr->_fsize){
-			real_addr->_ptr = (int)real_addr->_base + real_addr->_fsize;
+		memcpy((char*)(real_addr->_ptr), ptr , size*nobj);
+		/*over file size*/
+		if(((int)real_addr->_ptr - (int)real_addr->_base) + real_addr->_cnt*buf > real_addr->_fsize){
+			ret_obj = (real_addr->_base + (real_addr->_fsize - real_addr->_cnt*buf) - real_addr->_ptr)/size;
+			real_addr->_ptr = real_addr->_base + (real_addr->_fsize - real_addr->_cnt*buf);
+			
+		}else{
+			real_addr-> _ptr = real_addr-> _ptr +size*nobj;
+			ret_obj = nobj;
 		}
-		arch_read_unlock(&real_addr->rw_lock);
-		return  (int)(buf/size);
-	}
 
+	}
+	/*Load next*/	
+	if(rest){
+		//send_msg(LOAD_NBUF,thread_id_self(), FILESYS_MANAGER, msg_mm.start, 4096);/*FM*/
+		//while(((char*)msg_mm.start)[9] =='N'){schedule();}
+		//memcpy((char*)(real_addr->_ptr), ptr , rest);
+		/*over file size*/
+		if(((int)real_addr->_ptr - (int)real_addr->_base) + real_addr->_cnt*buf > real_addr->_fsize){
+			ret_obj = (real_addr->_base + (real_addr->_fsize - real_addr->_cnt*buf) - real_addr->_ptr)/size;
+			real_addr->_ptr = real_addr->_base + (real_addr->_fsize - real_addr->_cnt*buf);
+		}else{
+			real_addr-> _ptr = real_addr-> _ptr +rest;
+			ret_obj = rest/size;
+		}
+		
+	}
+	
+	arch_read_unlock(&real_addr->rw_lock);
+	return ret_obj;
+	
 	
 }
 

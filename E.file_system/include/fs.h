@@ -38,6 +38,7 @@ struct pos{
 struct File{
    char* _ptr;/*next pos*/
    char* _base;
+   int  _cnt;
    int   _bufsize;
    int _fsize; 
    int _tmpname; 
@@ -132,6 +133,8 @@ struct fs_unit{
     unsigned int addr_directory;
     unsigned int addr_getcluster;
     unsigned int addr_readfile;
+    unsigned int addr_readbuf;
+    unsigned int addr_writefile;
 }; 
 struct dev partition[4];
 struct user_fs file_dir[20];

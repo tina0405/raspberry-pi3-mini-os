@@ -17,19 +17,21 @@ void fs_daemon(void)
 	//send_msg(Rendezvous, 2, 3);
 
 	
-	//register fat32
 	fs_support[0].type = 0x0c;
 	fs_support[0].addr_directory = &fat32_read_directory;
  	fs_support[0].addr_getcluster = &fat32_getcluster;
  	fs_support[0].addr_readfile = &fat32_readfile;
+	fs_support[0].addr_readbuf = &fat32_readbuf;
+	fs_support[0].addr_writefile = &fat32_writefile;
 #ifdef FAT16
 	//register fat16
 	fs_support[1].type = 0x0e;
 	fs_support[1].addr_directory = &fat16_read_directory;
  	fs_support[1].addr_getcluster = &fat16_getcluster;
- 	fs_support[1].addr_readfile = &fat16_readfile;
-	//support_type[0] = 1;
+ 	fs_support[1].addr_readbuf = &fat16_readbuf;
+	fs_support[1].addr_writefile = &fat16_writefile;
 #endif
+
 
         build_kernel_directory();//root directory
     

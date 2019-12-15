@@ -88,7 +88,15 @@ openfile* fat32_readfile(void* nope, int cluster,struct dev* sd_num)
     data_sec+= sd_num->partitionlba;
 
     // end of FAT in memory
-    struct mm_info page = allocate_kernel_page(4096);/*improve*//*buff*/
+
+    //test file size
+    int test_size = 0;
+    int tmp_cluster = cluster;
+    while(tmp_cluster>1 && tmp_cluster<0xFFF8) {
+	test_size++;
+	tmp_cluster=fat32[tmp_cluster];
+    }	
+    struct mm_info page = allocate_kernel_page(test_size*(bpb->spc*(bpb->bps0 + (bpb->bps1 << 8))));/*improve*//*buff*/
     struct mm_info phy_page = allocate_kernel_page(4096);
     data = ptr = (unsigned char *)page.start;
     // iterate on cluster chain
@@ -100,6 +108,7 @@ openfile* fat32_readfile(void* nope, int cluster,struct dev* sd_num)
 		printf("Unable to read SD card!");
 		return NULL;
 	}
+	printf("FAT32: bpb->spc:%d",bpb->spc);
 	// move pointer, sector per cluster * bytes per sector
         ptr+=bpb->spc*(bpb->bps0 + (bpb->bps1 << 8));
         // get the next cluster in chain
@@ -110,6 +119,46 @@ openfile* fat32_readfile(void* nope, int cluster,struct dev* sd_num)
     ret->log_addr = data;
     return ret;
 }
+
+openfile* fat32_readbuf(void* nope, int cluster,struct dev* sd_num)
+{
+    openfile *ret;
+    openfile tmp;
+    ret = &tmp;
+    // BIOS Parameter Block
+    bpb_t *bpb=(bpb_t*)(&_end+sd_num->dbr);
+    // File allocation tables. We choose between FAT16 and FAT32 dynamically
+    unsigned int *fat32=(unsigned int*)(&_start_ + sd_num-> fat_table_start - 512 + bpb->rsc*512);/*reserved: bpb->rsc*/
+    // Data pointers
+    unsigned int data_sec, s;
+    unsigned char *data, *ptr;
+    // find the LBA of the first data sector
+    data_sec = ((bpb->spf32)*bpb->nf)+bpb->rsc;
+    //s = (bpb->nr0 + (bpb->nr1 << 8)) * sizeof(fatdir_t);
+    // add partition LBA
+    data_sec+= sd_num->partitionlba;
+    
+    struct mm_info page = allocate_kernel_page((bpb->spc*(bpb->bps0 + (bpb->bps1 << 8))));/*improve*//*buff*/
+    struct mm_info phy_page = allocate_kernel_page(4096);
+    data = ptr = (unsigned char *)page.start;
+    // iterate on cluster chain
+    if(cluster>1 && cluster<0xFFF8) {
+	((unsigned long *)phy_page.start)[0] = (unsigned long)(cluster-2)*bpb->spc+data_sec;
+	// load all sectors in a cluster
+	if(!kservice_dev_read(1, (cluster-2)*bpb -> spc + data_sec, ptr ,bpb->spc)){
+		printf("Unable to read SD card!\n\r");
+		return NULL;
+	}
+    }else{
+	printf("Cluster is dirty.\n\r");
+	return NULL;
+    }
+
+    ret->phy_addr = (unsigned char *)phy_page.start;
+    ret->log_addr = data;
+    return ret;
+}
+
 
 openfile* fat32_read_directory(void* nope, struct dev* sd_num)
 {
@@ -122,3 +171,19 @@ openfile* fat32_read_directory(void* nope, struct dev* sd_num)
     return ret;
 }
 
+/*succeed=0 or fail=1*/
+int fat32_writefile(void* nope, struct dev* sd_num,char* phy,int filesize, unsigned long log,char* phy_dir,char* log_dir)
+{ 
+    bpb_t *bpb=(bpb_t*)(&_end+sd_num->dbr);
+    int clustersize = bpb->spc*(bpb->bps0 + (bpb->bps1 << 8));
+    if(filesize*512 > clustersize){
+	
+    }else{
+	/*writefile*/
+    	sdTransferBlocks (phy, filesize, log , 1);
+    }
+    
+    /*writedirectory*/
+    sdTransferBlocks (phy_dir, 1, log_dir , 1);
+    return 0;   
+}
