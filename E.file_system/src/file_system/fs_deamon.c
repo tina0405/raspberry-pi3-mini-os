@@ -74,12 +74,35 @@ void fs_daemon(void)
 					index_pop++;			
 					if(index_pop == mail_size){index_pop=0;}
 					break;
-				case LOAD_BUF:
+				case LOAD_RBUF:
 					if(fs_mail[index_pop].msg!=NULL){
 						struct File* next_buff = (struct File*) fs_mail[index_pop].msg;
 						
 						struct fs_unit* return_fs = fs_type_support(partition[cd_rem].type);
 						int index = next_buff->_cnt+1;
+						openfile* tmp_addr = bl_init( &_start_+ (unsigned int)return_fs->addr_readbuf, ((unsigned long*)symbolic_fs_array[next_buff->_tmpname].file_info->director)[index], &partition[cd_rem], next_buff->_base);
+						
+						//openfile* real_addr = (&_start_ + (unsigned int)tmp_addr);		
+						next_buff->_ptr = next_buff->_base;
+						next_buff->_cnt = index;
+					}
+					else{
+						printf("Load buf without message");
+					}
+					fs_mail[index_pop].letter_type = 0;	
+					index_pop++;			
+					if(index_pop == mail_size){index_pop=0;}					
+					break;
+
+				case LOAD_WBUF:
+					if(fs_mail[index_pop].msg!=NULL){
+						struct File* next_buff = (struct File*) fs_mail[index_pop].msg;
+						
+						struct fs_unit* return_fs = fs_type_support(partition[cd_rem].type);
+						int index = next_buff->_cnt+1;
+						if(!((unsigned long*)symbolic_fs_array[next_buff->_tmpname].file_info->director)[index]){
+							/*assigned new page*/
+						}
 						openfile* tmp_addr = bl_init( &_start_+ (unsigned int)return_fs->addr_readbuf, ((unsigned long*)symbolic_fs_array[next_buff->_tmpname].file_info->director)[index], &partition[cd_rem], next_buff->_base);
 						
 						//openfile* real_addr = (&_start_ + (unsigned int)tmp_addr);		

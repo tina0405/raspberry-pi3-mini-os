@@ -30,13 +30,13 @@ int fclose(FILE *stream){
 	
 	fatdir_t* tmp = symbolic_fs_array[real_addr->_tmpname].file_info->addr.log_addr + symbolic_fs_array[real_addr->_tmpname].file_info->num_fatdir*32;
 		
-	tmp->size = (real_addr->_ptr - real_addr->_base);
+	tmp->size =real_addr->_bufsize*real_addr->_cnt +(real_addr->_ptr - real_addr->_base);
 	
 	int write_size = 0;
-	if(tmp->size%512){
-		write_size = (tmp->size/512)+1;	
+	if((real_addr->_ptr - real_addr->_base)%512){
+		write_size = ((real_addr->_ptr - real_addr->_base)/512)+1;	
 	}else{
-		write_size = tmp->size/512;
+		write_size = (real_addr->_ptr - real_addr->_base)/512;
 	}	
 
 	
@@ -45,8 +45,8 @@ int fclose(FILE *stream){
 
 	//printf("fclose:%d %d %d %x\n\r",real_addr->_bufsize,phy_block,write_size,symbolic_fs_array[real_addr->_tmpname].file_info->directory);
 	
-	block = (tmp-> size)/(512*phy_block);
-                
+	//block = (real_addr->_ptr - real_addr->_base)/(512*phy_block);
+        block = (symbolic_fs_array[real_addr->_tmpname].file_info->num_fatdir*32)/(512*phy_block);        
 	/*user page reset*/
 	symbolic_fs_array[real_addr->_tmpname].file_info->dir_record.size =tmp->size;		
 	user_dir((char*)current_page);
@@ -60,7 +60,9 @@ int fclose(FILE *stream){
 		char* phy = (char*)clu[real_addr->_cnt];
 		char* log = (char*)real_addr->_base;
 		int* result = bl_init(&_start_+ (unsigned int)return_fs->addr_writebuf, &partition[cd_rem],phy, write_size, log);
-
+		
+		/*block*/
+		printf("offset block:%x %x %x\n\r",symbolic_fs_array[real_addr->_tmpname].file_info->num_fatdir,block,((unsigned long*)symbolic_fs_array[real_addr->_tmpname].file_info->addr.phy_addr)[block]);
 		result = bl_init(&_start_+ (unsigned int)return_fs->addr_writedir, ((unsigned long*)symbolic_fs_array[real_addr->_tmpname].file_info->addr.phy_addr)[block], (char*)symbolic_fs_array[real_addr->_tmpname].file_info->addr.log_addr);
 	}else{
 		printf("Not support %x type in File system",partition[cd_rem].type);

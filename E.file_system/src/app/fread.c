@@ -55,13 +55,16 @@ int fread(void *ptr, size_t size, size_t nobj, FILE *stream){
 		real_addr-> _ptr = real_addr-> _ptr + cur;
 		ret_obj = cur/size;
 	}else{
-		memcpy((char*)(real_addr->_ptr), ptr , size*nobj);
+		
 		/*over file size*/
 		if(((int)real_addr->_ptr - (int)real_addr->_base) + real_addr->_cnt*buf >= real_addr->_fsize){
 			ret_obj = (real_addr->_base + (real_addr->_fsize - real_addr->_cnt*buf) - real_addr->_ptr)/size;
+			//memcpy((char*)(real_addr->_ptr), ptr , size*ret_obj);
 			real_addr->_ptr = real_addr->_base + (real_addr->_fsize - real_addr->_cnt*buf);
+			printf("OVER FILE");
 			
 		}else{
+			memcpy((char*)(real_addr->_ptr), ptr , size*nobj);
 			real_addr-> _ptr = real_addr-> _ptr +size*nobj;
 			ret_obj = nobj;
 		}
@@ -71,13 +74,17 @@ int fread(void *ptr, size_t size, size_t nobj, FILE *stream){
 	/*Load next*/	
 	if(rest){
 		int next = real_addr->_cnt+1;
-		send_msg(LOAD_BUF,thread_id_self(), FILESYS_MANAGER, real_addr, 4096);/*FM*/
+		send_msg(LOAD_RBUF,thread_id_self(), FILESYS_MANAGER, real_addr, 4096);/*FM*/
 		while(real_addr->_cnt != next){schedule();}
-		memcpy((char*)(real_addr->_ptr), ptr , rest);
-		/*over file size*/
-		if(((int)real_addr->_ptr - (int)real_addr->_base) + real_addr->_cnt*buf >= real_addr->_fsize){
-			ret_obj = (real_addr->_base + (real_addr->_fsize - real_addr->_cnt*buf) - real_addr->_ptr)/size;
+		
+		
+		if(((int)real_addr->_ptr - (int)real_addr->_base) + real_addr->_cnt*buf >= real_addr->_fsize){/*over file size*/
+			ret_obj = (ret_obj +(real_addr->_base + (real_addr->_fsize - real_addr->_cnt*buf) - real_addr->_ptr))/size;
+			real_addr-> _ptr =(int)real_addr->_base +  (real_addr->_fsize - real_addr->_cnt*buf);
+			//memcpy((char*)(real_addr->_ptr), ptr , ret_obj*size);
+			printf("OVER LOAD");
 		}else{
+			memcpy((char*)(real_addr->_ptr), ptr , rest);
 			real_addr-> _ptr = real_addr-> _ptr +rest;
 			ret_obj = rest/size;
 		}

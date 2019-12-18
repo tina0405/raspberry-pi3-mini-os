@@ -56,6 +56,7 @@ void build_kernel_directory(void){
 				for(int i = 0, k = 0; i < (bpb->spf32 - bpb->rsc + 1)*(512/32) ;i++){
 					if(fat32[i]==0){
 						partition[pnum].empty[k++] = i;
+						printf("FAT32:%x",i);
 						if(k == 16){break;}	
 					}
 				}
@@ -68,6 +69,7 @@ void build_kernel_directory(void){
 				unsigned short *fat16 = (unsigned short*)(memory.start - 512 + bpb->rsc*512);
 				for(int a = 0, b = 0; a < (bpb->spf16 - bpb->rsc + 1)*(512/16);a++){
 					if(fat16[a]==0){
+						printf("FAT16:%x",a);
 						partition[pnum].empty[b++] = a;
 						if(b==16){break;}	
 					}
