@@ -2,6 +2,26 @@
 #include<gpio.h>
 #include<sched.h>
 #define oper_compt main
+struct para{
+	unsigned long gpio;
+	int on_off;
+	int on;
+};
+struct para input;
+int a;
+struct para_config drv_config ={
+    name: "oprt_compt",
+    pnum: 2,
+    para_1: sizeof(input.gpio),
+    para_2: sizeof(input.on_off),
+};
+
+struct para_config drv_config1 ={
+    name: "oprt_compt",
+    pnum: 2,
+    para_1: sizeof(input.gpio),
+    para_2: sizeof(input.on_off),
+};
 
 void DELAY(unsigned long def){
 	asm volatile(
@@ -11,31 +31,15 @@ void DELAY(unsigned long def){
 	);
 
 }
-struct para{
-	unsigned long gpio;
-	int on_off;
-};
 
-struct para_config{
-    int para_num;
-    int para_1;
-    int para_2;
- };
-
-struct para input;
-struct para_config drv_config =
- {
-    para_num: 2,
-    para_1: sizeof(input.gpio),
-    para_2: sizeof(input.on_off),
- };
 
 void init_compt(void){ /*initial*/
+
 	kservice_uart_write("Initial GPIO component!\n\r");
-	if(!kservice_reg_compt("set_gpio")){
+	if(!kservice_reg_compt("set_gpio", DRV_COM ,(unsigned long)&drv_config,3)){
 		 kservice_config_compt(&drv_config);
 	}
-
+	
 }
 
 

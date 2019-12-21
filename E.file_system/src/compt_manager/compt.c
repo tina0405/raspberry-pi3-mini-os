@@ -429,7 +429,9 @@ int relocate(char* comp_start,unsigned long section_table_start,unsigned long se
 
 	for(int init=0; init < size/24 ;init++){
 
-		if((unsigned int)(rela+init)->r_info==0x113){}
+		if((unsigned int)(rela+init)->r_info==0x113){
+	
+		}
 		else if((unsigned int)(rela+init)->r_info == 0x115){
 		  
 		  int ndx = get_ndx(base + move_sec[5].addr + 24*((rela+init)->r_info >> 32));
@@ -437,11 +439,12 @@ int relocate(char* comp_start,unsigned long section_table_start,unsigned long se
 		  unsigned int* ch_test = (comp_start + (rela+init)->r_offset);
 		
 		  if(rel_num == 1){ /*rodata*/
-			 *ch_test = (((move_sec[0].size + (rela+init)->r_addend)*4)<<8) + (0x91000000);
+			 *ch_test = (((move_sec[0].size + (rela+init)->r_addend)*4)<<8) + (*ch_test);
 		  }else if(rel_num==2){ /*data*/
-			 *ch_test = (((move_sec[0].size + move_sec[1].size + (rela+init)->r_addend)*4)<<8)+(0x91000000);
+			 *ch_test = (((move_sec[0].size + move_sec[1].size + (rela+init)->r_addend)*4)<<8)+(*ch_test);
+			 
 		  }else if(rel_num==3){ /*bss*/
-			 *ch_test = (((move_sec[0].size + move_sec[1].size + move_sec[2].size + (rela+init)->r_addend)*4)<<8)+(0x91000000);
+			 *ch_test = (((move_sec[0].size + move_sec[1].size + move_sec[2].size + (rela+init)->r_addend)*4)<<8)+(*ch_test);
                   }else{
 			  printf("Not data section!");
 		  }
