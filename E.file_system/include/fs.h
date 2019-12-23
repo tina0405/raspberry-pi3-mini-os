@@ -17,7 +17,7 @@ void build_kernel_directory(void);
 void build_root(void);
 void ls_dev(void);
 int unreg_compt(char* compt_name);
-int reg_compt(char* compt_name);
+int reg_compt(char* compt_name, int type, void* para);
 int rm_compt_file(char* file_name);
 int compt_file(char* file_name);
 int run_file(char* file_name);

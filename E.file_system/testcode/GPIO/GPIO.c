@@ -5,23 +5,29 @@
 struct para{
 	unsigned long gpio;
 	int on_off;
-	int on;
-};
-struct para input;
-int a;
-struct para_config drv_config ={
-    name: "oprt_compt",
-    pnum: 2,
-    para_1: sizeof(input.gpio),
-    para_2: sizeof(input.on_off),
 };
 
-struct para_config drv_config1 ={
-    name: "oprt_compt",
+struct para2{
+	unsigned long gpio;
+};
+struct para input;
+struct para2 input2;
+struct para_config drv_config ={
+    op_func: 2,
+    /*1 operation*/
+    name: "on_off",
+    interface: USER_DEF,
     pnum: 2,
     para_1: sizeof(input.gpio),
     para_2: sizeof(input.on_off),
+    /*2 operation*/
+    name2: "reset",
+    interface2: USER_DEF,
+    pnum2: 1,
+    para2_1: sizeof(input2.gpio),
+ 
 };
+
 
 void DELAY(unsigned long def){
 	asm volatile(
@@ -36,14 +42,14 @@ void DELAY(unsigned long def){
 void init_compt(void){ /*initial*/
 
 	kservice_uart_write("Initial GPIO component!\n\r");
-	if(!kservice_reg_compt("set_gpio", DRV_COM ,(unsigned long)&drv_config,3)){
-		 kservice_config_compt(&drv_config);
+	if(!kservice_reg_compt("setgpio", DRV_COM ,&drv_config)){
+		kservice_uart_write("Register is successful!");
 	}
 	
 }
 
 
-void oprt_compt(struct para parameter){ /*operation*/
+void on_off(struct para parameter){ /*operation*/
 	kservice_uart_write("GPIO Operation!\n\r");  	
 	kservice_put32(GPPUD,parameter.on_off);
         delay(150);
@@ -52,9 +58,18 @@ void oprt_compt(struct para parameter){ /*operation*/
         kservice_put32(GPPUDCLK0,0);      
 }
 
+void reset(struct para parameter){ /*operation*/
+	kservice_uart_write("GPIO Operation!\n\r");  	
+	kservice_put32(GPPUD,0);
+        delay(150);
+        kservice_put32(GPPUDCLK0,(1<<parameter.gpio));
+        delay(150);
+        kservice_put32(GPPUDCLK0,0);      
+}
+
 
 void exit_compt(void){ /*exit*/
-	kservice_unreg_compt("set_gpio");
+	kservice_unreg_compt("setgpio");
 	kservice_uart_write("Clean up GPIO component!\n\r");
 }
 

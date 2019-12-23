@@ -17,8 +17,8 @@ struct para_config drv_config ={
 
 void init_compt(void){ /*initial*/
 	kservice_uart_write("Initial pullup_20 component!\n\r");
-	if(!kservice_reg_compt("pullup_20")){
-		kservice_config_compt(&drv_config);
+	if(!kservice_reg_compt("pullup_20", DRV_COM, &drv_config)){
+		printf("Register is successful!");
 	}
 
 	

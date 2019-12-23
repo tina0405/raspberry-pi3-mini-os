@@ -226,7 +226,6 @@ int kservice_swap(char* name){
 
 int kservice_config_compt(int* para){
 	char* string = para; 	
-	printf("%s ",string);
 	return config_compt(para);
 }
 
@@ -245,10 +244,8 @@ void  kservice_schedule(){
 }
 
 
-int  kservice_reg_compt(char* compt_name,int type,int* para){
-	char* string = para; 	
-	printf("%d %s %s",type,string, compt_name);
-	return reg_compt(compt_name);
+int  kservice_reg_compt(char* compt_name,int type,void* para){
+	return reg_compt(compt_name, type, para);
 }
 
 int kservice_unreg_compt(char* compt_name){
