@@ -96,3 +96,10 @@ bl_sched_wrap:
 	mov     x30, x8
 	ret
 
+.globl bl_compt
+bl_compt:
+	mov     x8, x30	
+	blr	x1
+	mov     x30, x8
+	ret
+

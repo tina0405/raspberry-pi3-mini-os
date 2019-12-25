@@ -33,7 +33,7 @@ struct symbol_struct{
         /*hardware*/
 	void* config_para;
 };
-
+extern struct symbol_struct ksym[128];/*Kernel Table*/
 struct com_file{
 	char filename[32];
 	struct symbol_struct* sym;

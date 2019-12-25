@@ -10,3 +10,9 @@ int strcmp(char* a,char* b){
 	return 0;
 }
 
+int strlength(char* string){
+	int length =0;
+	while(*(string + length) !='\0'){length++;}
+	return length;
+}
+

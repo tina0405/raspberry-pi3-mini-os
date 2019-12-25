@@ -11,6 +11,7 @@
 #include "utils.h"
 #include "fat16.h"
 #include "fat32.h"
+#include "str.h"
 #include "mini_uart.h"
 
 int opera_addr = 0;
@@ -28,7 +29,6 @@ struct text_func{
 
 struct text_func text_function[16];
 extern unsigned char _end;
-extern void * const sys_call_table[];
 struct com_file cfile[64];/*Component Table*/
 struct symbol_struct ksym[128];/*Kernel Table*/
 struct hard_struct hardware_table[40];
@@ -111,9 +111,10 @@ int compt_file(char* file_name){/*incom*/
 			memzero((char *)section,move_sec[3].size);/*.bss*/
 			section = section + move_sec[3].size;
 			unsigned long load_size = move_sec[0].size + move_sec[1].size + move_sec[2].size + move_sec[3].size;
-			
+
 			/*relocate*/
 			int rela_err = relocate(comp_start,section_table_start,section_size,(char *)base,(char *)(base + move_sec[4].addr),move_sec[4].size);
+
 			if(!rela_err){
 				int init_addr = use_compt_func(base,(char *)(base + move_sec[5].addr),move_sec[5].size,"init_compt");/*find initial*/
 				//opera_addr = use_compt_func(base,(char *)(base + move_sec[5].addr),move_sec[5].size,"oprt_compt");
@@ -126,6 +127,7 @@ int compt_file(char* file_name){/*incom*/
 				}else if(rmcom_addr<0){
 					printf("Without exit_comp function!");
 				}else{
+					printf("%x\n\r",comp_start+init_addr);
 					bl_init(comp_start+init_addr,0);
 					/*without*/
 				}
@@ -281,11 +283,7 @@ int unreg_compt(char* compt_name){/*remove app*/
 
 }
 
-int strlength(char* string){
-	int length =0;
-	while(*(string + length) !='\0'){length++;}
-	return length;
-}
+
 
 int config_compt(int* para){
 	if(current_file->sym == NULL){
@@ -388,7 +386,7 @@ int reg_compt(char* compt_name, int type, void* para){/*return num*/
 								memcpy((char*)ptr, (char*)page_ptr, 32);
 								printf("OP_F:%s\n\r",(char*)page_ptr);
 								page_ptr=(unsigned long*)page_ptr+4;
-								*((unsigned long*)page_ptr) = use_compt_func(base,(char *)(base + move_sec[5].addr),move_sec[5].size, (char*)ptr);                
+								*((unsigned long*)page_ptr) = comp_start + use_compt_func(base,(char *)(base + move_sec[5].addr),move_sec[5].size, (char*)ptr);                
 								printf("addr:%x\n\r",*((unsigned long*)page_ptr));        
 								ptr = ((char*)ptr)+32;
 
@@ -493,7 +491,7 @@ int use_compt_func(char* base,Elf64_Sym* sym,int size,char* fun_name){
 		
 			text_function[num].size = (sym+init)->st_size;
 			//printf("%s\n\r",&text_function[num].name[0]);
-			if(!memcmp(&text_function[num].name[0],fun_name,10)){
+			if(!memcmp(&text_function[num].name[0],fun_name,strlength(fun_name))){
 				return  initial;
 			}
 			initial =  initial + (sym+init)->st_size;
@@ -542,72 +540,76 @@ int relocate(char* comp_start,unsigned long section_table_start,unsigned long se
 		}else if((unsigned int)(rela+init)->r_info==0x11b){
 		   int ndx = get_ndx(base + move_sec[5].addr + 24*((rela+init)->r_info >> 32));/*hi->symbol name*/
 			/*0.text 1.rodata 2.data 3.bss 4.rela.text 5.symtab 6.strtab*/
+		   
 		   if(ndx==0){
 			int strname = get_strname(base + move_sec[5].addr + 24*((rela+init)->r_info >> 32));
-			char str_name[30]={'\0'};
-			int i = 0,ksym_i = 0,flag =0;
 			
-			
+			int i = 0, ksym_i = 0, flag =0;
+			unsigned long rela_addr = 0;
+		   	char str_name[30]={'\0'};
 			char* chara =base + move_sec[6].addr+ (int)strname;
 			while(*(chara+i)!='\0'){
 				str_name[i] = *(chara+i);
 				i++;
 			}
 			struct mm_info com_page;
+			
 			while(ksym[ksym_i].ksym_name[0]!='\0'&& ksym_i<128){
 				/*bug*/
-
-
-
-				if(!memcmp(&ksym[ksym_i] , &str_name[0] ,i-1)){
-					//printf("%d %d %s\n\r",ksym_i,kapi_count,ksym[ksym_i]);
-					if(ksym_i>=kapi_count){
-						/*used component is used by inserted component*/
-						if(ksym[ksym_i].used_compt_page==NULL){
-							com_page = allocate_kernel_page(4096);
-							((unsigned long*)com_page.start)[0] = 1; 
-							((unsigned long*)com_page.start)[1] = (unsigned long)current_file;
-							
-							
-						}else{
-							//printf("B:%s\n\r",ksym[ksym_i]);
-							unsigned long com_dep = ((unsigned long*)com_page.start)[0];
-							((unsigned long*)com_page.start)[com_dep + 2] = (unsigned long)current_file;
-							((unsigned long*)com_page.start)[0] = com_dep+1;
+				int index_k=0;
+				while(ksym[ksym_i].ksym_name[index_k]!='\0'){
+					index_k++;
+				}
+				if(!memcmp(&ksym[ksym_i], &str_name[0] ,index_k-1)){
+					if(ksym[ksym_i].opera_sym_addr==NULL){
+						/*kapi*/
+						/*successful*/
+						if(index_k == i){
+							rela_addr = ksym[ksym_i].sym_addr;
+							flag = 1; 
+							break;
 						}
-						/*insert component use who*/
-						if(ksym[ksym_i].use_compt_page!=NULL){
-	
-							struct mm_info com_p;
-							unsigned long dep_count = ((unsigned long*)ksym[ksym_i].use_compt_page)[0];
-							com_p = allocate_kernel_page(4096);/*NOT SURE FOR EMPTY*/
-							//tmp_counter = dep_count;
-/*
-							while(tmp_counter){
-								((unsigned long*)current_file->sym->use_compt_page)[tmp_counter] = ((unsigned long*)ksym[ksym_i].use_compt_page)[tmp_counter];
+						
+					}else{
+						/*insert comp*/
+					
+						int f_count = *((int*)ksym[ksym_i].opera_sym_addr);
+						void* ptr = (int*)ksym[ksym_i].opera_sym_addr+1;
+						for(int tmp_count=0; tmp_count<f_count; tmp_count++){
+							printf("%s %s",ptr,&str_name[index_k]);
+							if(str_name[index_k] == '_' && !memcmp(ptr, &str_name[index_k+1] ,i-index_k-1)){								/*dependency*/
+								/*successful*/
+								printf("%s  ",ptr);
+								ptr = (char*)ptr +32;
+								rela_addr = *((unsigned long*)ptr);
+								flag = 1; 
+								break;
+									
 							}
-							current_file->sym->use_compt_page = com_p.start;
-							((unsigned long*)current_file->sym->use_compt_page)[0] = dep_count+1;
-							((unsigned long*)current_file->sym->use_compt_page)[dep_count+1] = ksym[ksym_i].file;  
-*/
-							
+							ptr = (char*)ptr +40;
+							int para_count = *(int*)ptr;
+							ptr = (int*)ptr + (para_count+1);
 						}
-				
+
+
 						
 						
 					}
-					flag = 1; 
-					break;
+
 				}
+				
+					
+					
+				
 				ksym_i++;
 			}
 
 			if(flag==1){
 				unsigned int value = 0;
-				if(((int)comp_start + (rela+init)->r_offset) > (ksym[ksym_i].sym_addr & 0xffffffff)){
-					value = 0x3ffffff -((((int)comp_start + (rela+init)->r_offset) - ksym[ksym_i].sym_addr)/4)+1;
+				if(((int)comp_start + (rela+init)->r_offset) > (rela_addr & 0xffffffff)){
+					value = 0x3ffffff -((((int)comp_start + (rela+init)->r_offset) - rela_addr)/4)+1;
 				}else{
-					value =((ksym[ksym_i].sym_addr - ((int)comp_start + (rela+init)->r_offset))/4);
+					value =((rela_addr - ((int)comp_start + (rela+init)->r_offset))/4);
 				}
 				
 				unsigned int* bl_test = (comp_start + (rela+init)->r_offset);
@@ -899,77 +901,5 @@ int swap_compt(char* new_compt,char* old_compt){
 	return 1;
 }
 
-void ls_compt(void){
-	printf("\n\r***************Components List***************\n\r");
-	for(int compt_i = kapi_count; compt_i<128 && ksym[compt_i].ksym_name[0]!='\0'; compt_i++){
-		int f_count = *((int*)ksym[compt_i].opera_sym_addr);
-		void* ptr = (int*)ksym[compt_i].opera_sym_addr+1;
-		printf("Component name: %s\n\r",ksym[compt_i].ksym_name);
-		for(int tmp_count=0; tmp_count<f_count; tmp_count++){
-			printf("	Operation_function %d:%s",tmp_count+1,ksym[compt_i].ksym_name);
-			printf("_%s  ",ptr);
-			ptr = (char*)ptr + 40;
-			int para_count = *(int*)ptr;
-			printf("\n\r		para_count:%d  ",para_count);
-			for(int a=1; a<para_count+1; a++){
-				printf("p%d:%d bytes  ",a,*((int*)ptr+a));
 
-			}
-			printf("\n\r");
-			ptr = (int*)ptr + (para_count+1);
-		}
-	}
-}
-
-int exe_com(char* compt_name,void* para){
-	int length = strlength(compt_name);
-	for(int num = kapi_count; num<128; num++){
-		if(!memcmp(&ksym[num].ksym_name[0],compt_name,length)){
-			
-			bl_init( &_start_+ (unsigned int)ksym[num].sym_addr, para);
-			//printf("Succeed to execute component!\n\r");				
-			return 0;/*succeed*/
-		}
-	}
-	printf("Fail to execute component:%s\n\r",compt_name);
-	return 1;
-}
-
-int read_ksymbol(){
-	unsigned int clust =0;
-        char* base;
-	for(int k = 0;file_dir[k].name[0]!='\0';k++){
-	   if(!strcmp(file_dir[k].name,"SYMBOL  TXT")){
-	  	clust =((unsigned int)file_dir[k].ch)<<16|file_dir[k].cl;	
-		if(clust){			
-			openfile* base = fat32_readfile(0, clust, &partition[0]);/*Putting ksymbol in first partition is regulation*/
-			/*save kernel symbol*/
-			unsigned int name_word=0,aa=0,base_index=0;
-			char* name_addr =(char*)(&_start_+(unsigned int)base->log_addr);
-			while(*(name_addr + base_index)!= 0x00){	
-				if(*(name_addr + base_index) != 0xA){
-					ksym[name_word].ksym_name[aa++] = *(name_addr + base_index);
-				}else{
-					ksym[name_word].sym_addr = sys_call_table[name_word];
-					//printf("%s %x\n\r", ksym[name_word].ksym_name, ksym[name_word].sym_addr);
-					name_word++;
-					aa = 0;			
-				}
-				base_index++;
-			}
-			
-			return 0;
-			
-		}
-		else{
-			printf("Cannot read kernel symbol.\n\r");
-			return 1;
-	   	}
-	   }
-	   
-	}
-	
-	printf("Cannot find kernel symbol.\n\r");
-
-}
 

@@ -32,8 +32,14 @@
 .set SYS_FWRITE_NUMBER, 29
 .set SYS_FCLOSE_NUMBER, 30
 .set SYS_FFLUSH_NUMBER, 31
-.set SYS_MOUNT_NUMBER, 32
-.set SYS_EXECOM_NUMBER, 33
+
+.set SYS_FSEEK_NUMBER, 32
+.set SYS_FTELL_NUMBER, 33
+
+
+.set SYS_MOUNT_NUMBER, 34
+.set SYS_EXECOM_NUMBER, 35
+.set SYS_SWAP_NUMBER, 36
 
 
 .globl user_delay
@@ -229,6 +235,18 @@ call_sys_fflush:
 	svc #0
 	ret
 
+.globl call_sys_fseek
+call_sys_fseek:
+	mov w8, #SYS_FSEEK_NUMBER
+	svc #0
+	ret
+
+.globl call_sys_ftell
+call_sys_ftell:
+	mov w8, #SYS_FTELL_NUMBER
+	svc #0
+	ret
+
 .globl call_sys_mount
 call_sys_mount:
 	mov w8, #SYS_MOUNT_NUMBER
@@ -238,6 +256,12 @@ call_sys_mount:
 .globl call_sys_execom
 call_sys_execom:
 	mov w8, #SYS_EXECOM_NUMBER
+	svc #0
+	ret
+
+.globl call_sys_swap
+call_sys_swap:
+	mov w8, #SYS_SWAP_NUMBER
 	svc #0
 	ret
 
