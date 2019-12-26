@@ -379,28 +379,31 @@ int reg_compt(char* compt_name, int type, void* para){/*return num*/
 						 };
 
 						*/
+						/*operation table
+						|++++++++++++|	----->  offset
+						|function num|	-----> 	int -> 4 bytes
+						|name	     |	----->	char*32 -> 32 bytes 
+						|addr	     |	----->	unsigned long -> 8 bytes
+						|para num    |	----->	int -> 4 byte
+						|para1...    |	----->	int*para_num -> 4*para_num bytes
+						...						
+						|++++++++++++|
+						*/
 
-						for(int func_check=0;func_check<function_count;func_check++){
-							if(*((int*)ptr)==USER_DEF){/*interface*/
-								ptr = ((int*)ptr)+1;
+						for(int func_check = 0; func_check < function_count; func_check++){
+							if(*((int*)ptr) == USER_DEF){/*interface*/
+								ptr = ((int*)ptr) + 1;
 								memcpy((char*)ptr, (char*)page_ptr, 32);
-								printf("OP_F:%s\n\r",(char*)page_ptr);
-								page_ptr=(unsigned long*)page_ptr+4;
-								*((unsigned long*)page_ptr) = comp_start + use_compt_func(base,(char *)(base + move_sec[5].addr),move_sec[5].size, (char*)ptr);                
-								printf("addr:%x\n\r",*((unsigned long*)page_ptr));        
-								ptr = ((char*)ptr)+32;
-
-								page_ptr = ((char*)page_ptr)+8;
+								page_ptr=(unsigned long*)page_ptr + 4;
+								*((unsigned long*)page_ptr) = comp_start + use_compt_func(base, (char*)(base + move_sec[5].addr), move_sec[5].size, (char*)ptr);                       
+								ptr = ((char*)ptr) + 32;
+								page_ptr = ((char*)page_ptr) + 8;
 								int para_num =*((int*)ptr);
-								printf("ptr:%x\n\r",para_num);
 								memcpy((char*)ptr, (char*)page_ptr, 4*(para_num+1));
-								printf("num:%x\n\r",*((int*)page_ptr));
-								printf("para_1:%x\n\r",*((int*)page_ptr+1));
-								printf("para_2:%x\n\r",*((int*)page_ptr+2));
 								ptr = ((char*)ptr)+4*(para_num+1);
 								page_ptr = ((char*)page_ptr)+4*(para_num+1);
 							}else/**/{
-								printf("Not user difinition");
+								printf("Not user definition");
 							}							
 						}
 						ksym[num].opera_sym_addr = op_page.start;
@@ -572,14 +575,71 @@ int relocate(char* comp_start,unsigned long section_table_start,unsigned long se
 						
 					}else{
 						/*insert comp*/
-					
+						/*use table
+						|------------|
+						|use comp num|unsigned long ->8bytes
+						|ksym pointer|unsigned long -> 8bytes 
+						*/
 						int f_count = *((int*)ksym[ksym_i].opera_sym_addr);
 						void* ptr = (int*)ksym[ksym_i].opera_sym_addr+1;
 						for(int tmp_count=0; tmp_count<f_count; tmp_count++){
 							printf("%s %s",ptr,&str_name[index_k]);
 							if(str_name[index_k] == '_' && !memcmp(ptr, &str_name[index_k+1] ,i-index_k-1)){								/*dependency*/
-								/*successful*/
-								printf("%s  ",ptr);
+								/*successful ksym[ksym_i] -> system's com | str_name -> relocation */
+
+								if(current_file->use_compt_page == NULL){
+									struct mm_info com_p = allocate_kernel_page(4096);
+									printf("C");
+									current_file->use_compt_page = com_p.start;
+									printf("D");
+									((unsigned long*)current_file->use_compt_page)[0] = 0;
+									printf("s");
+								}
+
+
+								unsigned long tmp_k;
+								unsigned long tmp_c = ((unsigned long*)current_file->use_compt_page)[0];
+								if(ksym[ksym_i].file->use_compt_page == NULL){
+									tmp_k = 0;						
+								}else{
+									tmp_k = ((unsigned long*)ksym[ksym_i].file->use_compt_page)[0];
+								}
+								((unsigned long*)current_file->use_compt_page)[0] = tmp_c + tmp_k;
+								
+								for(int t_count = 0; t_count < tmp_k; t_count++){
+									((unsigned long*)current_file->use_compt_page)[tmp_c+1+t_count] = ((unsigned long*)ksym[ksym_i].file->use_compt_page)[t_count+1];
+									struct symbol_struct* tmp_sym = (struct symbol_struct* )((unsigned long*)ksym[ksym_i].file->use_compt_page + t_count+1);
+
+
+									if(tmp_sym->file->used_compt_page==NULL){
+										com_page = allocate_kernel_page(4096);
+										((unsigned long*)com_page.start)[0] = 1; 
+										((unsigned long*)com_page.start)[1] = (unsigned long)current_file->sym;
+										tmp_sym->file->used_compt_page = com_page.start;
+									
+									}else{
+										unsigned long com_dep = ((unsigned long*)tmp_sym->file->used_compt_page)[0];
+										((unsigned long*)tmp_sym->file->used_compt_page)[com_dep + 1] = (unsigned long)current_file->sym;
+										((unsigned long*)tmp_sym->file->used_compt_page)[0] = com_dep+1;
+									}
+
+										/**/
+								}
+
+
+								/*used component is used by inserted component*/
+								if(ksym[ksym_i].file->used_compt_page==NULL){
+									com_page = allocate_kernel_page(4096);
+									((unsigned long*)com_page.start)[0] = 1; 
+									((unsigned long*)com_page.start)[1] = (unsigned long)current_file->sym;
+									ksym[ksym_i].file->used_compt_page = com_page.start;
+									
+								}else{
+									unsigned long com_dep = ((unsigned long*)ksym[ksym_i].file->used_compt_page)[0];
+									((unsigned long*)ksym[ksym_i].file->used_compt_page)[com_dep + 1] = (unsigned long)current_file->sym;
+									((unsigned long*)ksym[ksym_i].file->used_compt_page)[0] = com_dep+1;
+								}			
+
 								ptr = (char*)ptr +32;
 								rela_addr = *((unsigned long*)ptr);
 								flag = 1; 

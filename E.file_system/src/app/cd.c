@@ -1,6 +1,6 @@
 #include <printf.h>
 #include <fs.h>
-#include <strcmp.h>
+#include <str.h>
 #include "utils.h"
 char kdirectory[30] = {"root/"};
 int cd_rem = -1;/*remember where you are*/

@@ -24,7 +24,7 @@
  */
 #ifdef FAT16
 #include "sd.h"
-#include "strcmp.h"
+#include "str.h"
 #include "mini_uart.h"
 #include "printf.h"
 #include "fs.h"
