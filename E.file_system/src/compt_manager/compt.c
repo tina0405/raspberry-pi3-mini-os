@@ -13,7 +13,7 @@
 #include "fat32.h"
 #include "str.h"
 #include "mini_uart.h"
-
+#include "reset_hardware.h"
 int opera_addr = 0;
 int rmcom_addr = 0;
 char* comp_start=0;
@@ -27,7 +27,7 @@ struct text_func{
 };
 
 
-struct text_func text_function[16];
+struct text_func text_function[32];
 extern unsigned char _end;
 struct com_file cfile[64];/*Component Table*/
 struct symbol_struct ksym[128];/*Kernel Table*/
@@ -267,15 +267,43 @@ int check_config = 0;
 int unreg_compt(char* compt_name){/*remove app*/
 	int length = strlength(compt_name);
 	if(check_config){
-		printf("Swap operation: Old component Could not unregister!\n\r");
+		for(int num = kapi_count; num<128; num++){
+			if(!memcmp(&ksym[num].ksym_name[9],compt_name,length)){
+
+				printf("Swap operation:Succeed to unregister!\n\r");				
+				
+				int hard_count = ((int*)ksym[num].file->hardware)[0];
+				printf("h:%d %d %x\n\r",hard_count, ((int*)ksym[num].file->hardware)[1],(int*)ksym[num].file->hardware);
+				for(int i=0;i<hard_count;i++){
+					int addr = ((int*)ksym[num].file->hardware)[1+i*2];
+					printf("htable:%d\n\r",addr);
+					clear_gpio(addr);
+					
+		
+				}
+				return 0;/*succeed*/
+			}
+		}
+		printf("kservice_%s was not in symbol table!",compt_name);
+		return 1;/**/
 	}
 	else{
 		for(int num = kapi_count; num<128; num++){
-				if(!memcmp(&ksym[num].ksym_name[9],compt_name,length)){
-					ksym[num].ksym_name[0] = '\0' ;
-					printf("Succeed to unregister symbol!\n\r");				
-					return 0;/*succeed*/
+			if(!memcmp(&ksym[num].ksym_name[9],compt_name,length)){
+				ksym[num].ksym_name[0] = '\0' ;
+				printf("Succeed to unregister symbol!\n\r");				
+				
+				int hard_count = ((int*)ksym[num].file->hardware)[0];
+				printf("h:%d\n\r",hard_count);
+				for(int i=0;i<hard_count;i++){
+					int addr = ((int*)ksym[num].file->hardware)[1+hard_count*2];
+					printf("htable:%d\n\r",addr);
+					clear_gpio(addr);
+					
+		
 				}
+				return 0;/*succeed*/
+			}
 		}
 		printf("kservice_%s was not in symbol table!",compt_name);
 		return 1;/**/
@@ -286,22 +314,23 @@ int unreg_compt(char* compt_name){/*remove app*/
 
 
 int config_compt(int* para){
+/*
 	if(current_file->sym == NULL){
 		printf("Error: Without registering.Could not config parameter.");
 		return -1;
 	}
-	if(check_config==1){/*swap*/
+	if(check_config==1){
 		int* old_para = current_file -> sym ->config_para;
 		if( *old_para != *para){
 			printf("parameter's count is not compare:old->%d, new->%d",*old_para, *para);
-			check_config = 2;/*not compare*/
+			check_config = 2;
 			return -1;
 		}
 
 		for(int a=0; a<*old_para; a++){
 			if(*(old_para+a) != *(para+a)){
 				printf("parameter's size is not compare");
-				check_config = 2;/*not compare*/
+				check_config = 2;
 				return -1;
 			}
 		}
@@ -315,32 +344,66 @@ int config_compt(int* para){
 		int* a = current_file->sym-> config_para;	
 		
 	}
+*/
 	return *para;
+
 }
 
 int reg_compt(char* compt_name, int type, void* para){/*return num*/
 	int ksym_i = 9,compt_i=0;
-	int length = strlength(compt_name);
+	
 
 	switch(type){
 		case DRV_COM:
 			if(check_config){/*swap*/
-				for(int num = kapi_count; num<128; num++){	
-					if(!memcmp(&ksym[num].ksym_name[9],compt_name,length)){
-						printf("Cannot register! kservice_%s has existed!",compt_name);
-						return 1;/*fail*/
+				printf("swap");
+				if(compt_name != NULL){
+					printf("Without SWAP operation!");
+					return 1;/*fail*/
+				
+				}
+				void* old_para = current_file->config_para;
+				
+				printf("Ope:%x\n\r",current_file ->config_para);
+				printf("Operation function count is compare:old->%d, new->%d",((int*)current_file->config_para)[0], ((int*)para)[0]);
+								
+				if(*((int*)old_para) != *((int*)para)){
+					printf("Operation function count is not compare:old->%d, new->%d",*((int*)old_para), *((int*)para));
+					check_config = 2;/*not compare*/
+					return -1;
+				}
+				printf("Operation function count is compare:old->%d, new->%d",*((int*)old_para), *((int*)para));
+				for(int i=0; i<*((int*)old_para); i++){
+					if(memcmp(((int*)old_para+1), ((int*)para+1) ,32)){
+						printf("Function name do not compare:old->%s, new->%s",((int*)old_para+1) ,((int*)para+1));
+						check_config = 2;
+						return -1;
+					}else{
+						printf("Function name compare:old->%s, new->%s",((int*)old_para+1) ,((int*)para+1));
+						*((int*)old_para+1+8) = comp_start + use_compt_func(base, (char*)(base + move_sec[5].addr), move_sec[5].size, (char*)((int*)old_para+1));                       
+
 					}
+					if(*((int*)old_para+1+8+2) != *((int*)para+1+8+1)){
+						printf("parameter's count is not compare:old->%d, new->%d",*((int*)old_para+1+8+2), *((int*)para+1+8+1));
+						check_config = 2;/*not compare*/
+						return -1;
+					}
+					
+					for(int a=0; a<*((int*)old_para+1+8+2+1); a++){
+						if(*((int*)old_para+1+8+2+1+a) != *((int*)para+1+8+1+1+a)){
+							printf("parameter's size is not compare");
+							check_config = 2;/*not compare*/
+							return -1;
+						}
+					}
+					printf("parameter's size compare");
+					old_para = ((int*)old_para+1+8+2+1+*((int*)old_para+1+8+2+1));
+					para = ((int*)para+1+8+1+1+*((int*)para+1+8+1+1));
 				}
-				printf("Swap operation: New component Could not register!\n\r");
-				//memzero(&(current_file->sym->ksym_name[10]),13);
-				printf("Reg name:%s\n\r",current_file->sym->ksym_name);
-		/*
-				while(*(compt_name + compt_i)!= '\0'){
-					current_file->sym->usym_name[ksym_i++] = *(compt_name + (compt_i++));		
-				}
-		*/
+
 				return 0;
 			}else{
+				int length = strlength(compt_name);
 				for(int num = kapi_count; num<128; num++){
 					if(!memcmp(&ksym[num].ksym_name[9],compt_name,length)){
 						printf("Cannot register! kservice_%s has existed!",compt_name);
@@ -353,13 +416,13 @@ int reg_compt(char* compt_name, int type, void* para){/*return num*/
 						while(*(compt_name + compt_i)!= '\0'){
 							ksym[num].ksym_name[ksym_i++] = *(compt_name + (compt_i++));	
 						}
-						//ksym[num].sym_addr = comp_start + opera_addr;
 						void * ptr = para;
 						int function_count = *((int*)ptr);
 						
 						printf("function count:%d\n\r",function_count);
 						ptr = ((int*)ptr)+1;
 						struct mm_info op_page = allocate_kernel_page(4096);/*operation table*/
+						current_file-> config_para = op_page.start;
 						*((int*)op_page.start) = function_count;	
 						void* page_ptr = (char*)op_page.start+4;				
 						/*
@@ -432,7 +495,7 @@ int reg_compt(char* compt_name, int type, void* para){/*return num*/
 extern struct pcb_struct *thread_id_table[4096];/*tid and pcb map*/
 int hardware_request(unsigned int address){
 	
-
+	/*address exist?*/
 	if(hardware_table[address].app_count != 0){
 		
 		if(hardware_table[address].app_count == 1 && *(hardware_table[address].app_page) == thread_id_self())
@@ -443,16 +506,41 @@ int hardware_request(unsigned int address){
 		}
 		return 1;/*fail*/
 	}
+	/*	component use hardware table
+		|++++++++++++++++|
+		| hardware num   | ---> int 
+		| address        | ---> int
+		| use address num| ---> int
+		...
+
+	*/
+	if(current_file->hardware==NULL){
+		struct mm_info h_page = allocate_kernel_page(4096);
+		current_file->hardware = h_page.start;
+		((int*)current_file->hardware)[0] = 1;
+		((int*)current_file->hardware)[1] = address; 
+		printf("ha:%x %d\n\r",current_file->hardware,((int*)current_file->hardware)[1]);
+		((int*)current_file->hardware)[2] = 1; 	
+	}else{
+		printf("h:%d\n\r",((int*)current_file->hardware)[1]);
+		int tmp_count = ((int*)current_file->hardware)[0];
+		((int*)current_file->hardware)[0] = tmp_count+1;
+		((int*)current_file->hardware)[1+tmp_count*2] = address; 
+		((int*)current_file->hardware)[2+tmp_count*2] = 1; 
+				
+	}
+
 	if(hardware_table[address].app_page==NULL){/*first be used*/	
 		struct mm_info app_page = allocate_kernel_page(4096);	
 		hardware_table[address].app_page = app_page.start;
 	}
 	*(hardware_table[address].app_page + hardware_table[address].app_count) = thread_id_table[thread_id_self()];
-	
+		
         if(thread_id_table[thread_id_self()]-> hardware==NULL){	
 		struct mm_info h_page = allocate_kernel_page(4096);	
 		thread_id_table[thread_id_self()]-> hardware = h_page.start;
 	}
+	
 	*(thread_id_table[thread_id_self()]-> hardware + thread_id_table[thread_id_self()]->h_count) = address;
 	thread_id_table[thread_id_self()]->h_count++;
 	
@@ -493,10 +581,12 @@ int use_compt_func(char* base,Elf64_Sym* sym,int size,char* fun_name){
 			}
 		
 			text_function[num].size = (sym+init)->st_size;
-			//printf("%s\n\r",&text_function[num].name[0]);
+			//printf("%s %s %d\n\r",&text_function[num].name[0],fun_name,strlength(fun_name));
 			if(!memcmp(&text_function[num].name[0],fun_name,strlength(fun_name))){
-				return  initial;
+				memzero(&text_function[num].name[0],text_function[num].size);
+				return initial;
 			}
+			memzero(&text_function[num].name[0],text_function[num].size);
 			initial =  initial + (sym+init)->st_size;
 			num++;
 		}
@@ -907,7 +997,7 @@ int swap_compt(char* new_compt,char* old_compt){
 			int rela_err = relocate(comp_start,section_table_start,section_size,(char *)base,(char *)(base + move_sec[4].addr),move_sec[4].size);
 			if(!rela_err){
 				int init_addr = use_compt_func(base,(char *)(base + move_sec[5].addr),move_sec[5].size,"init_compt");/*find initial*/
-				opera_addr = use_compt_func(base,(char *)(base + move_sec[5].addr),move_sec[5].size,"oprt_compt");
+				//opera_addr = use_compt_func(base,(char *)(base + move_sec[5].addr),move_sec[5].size,"oprt_compt");
 				rmcom_addr = use_compt_func(base,(char *)(base + move_sec[5].addr),move_sec[5].size,"exit_compt");
 				/*clear component table*/
 				//cfile[com_index].rmcom = rmcom_addr + comp_start;
@@ -939,7 +1029,7 @@ int swap_compt(char* new_compt,char* old_compt){
 			free_page(ksym[swap_num].rm_addr,1);
 			//memzero(&(ksym[swap_num].ksym_name[0]),32);
 			free_page(ksym[swap_num].sym_addr,1);
-			current_file->sym->sym_addr = comp_start + opera_addr;/**/
+			//current_file->sym->sym_addr = comp_start + opera_addr;/**/
 		        current_file->sym->rm_addr = comp_start + rmcom_addr;
 			//copy_process(SERVER_THREAD, (char *)comp_start, 0, 0);
 			

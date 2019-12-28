@@ -4,6 +4,7 @@
 #include <sched.h>
 #include <stddef.h>
 #include <gpio.h>
+#include "reset_hardware.h"
 struct mailbox pm_mail[mail_size]={NULL}; /*Mailbox*/
 struct mailbox rendezvous; /*Rendezvous*/
 extern struct pcb_struct *thread_id_table[4096];
@@ -13,15 +14,7 @@ static int index_pop = 0;
 int ipc_index_pop=0;
 extern unsigned char _start_;
 /*FIFO*/
-void clear_gpio(unsigned long gpio){
 
-        put32(GPPUD,0);
-        delay(150);
-        put32(GPPUDCLK0,(1<<gpio));
-        delay(150);
-        put32(GPPUDCLK0,0);
-	
-}
 void pm_daemon(void)
 {
 	

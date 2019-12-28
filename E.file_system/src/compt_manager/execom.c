@@ -32,11 +32,11 @@ int exe_com(char* compt_name,void* para){
 				if(str_name[k_length] == '_' && !memcmp(ptr, &str_name[k_length+1] ,length-k_length-1)){
 					/*dependency*/
 					/*successful*/
-					printf("%s  ",ptr);
+					//printf("%s  ",ptr);
 					ptr = (char*)ptr +32;
 					unsigned long rela_addr = *((unsigned long*)ptr);
 					bl_compt(para, rela_addr);
-					printf("Succeed to execute component!\n\r");				
+					//printf("Succeed to execute component!\n\r");				
 					return 0;/*succeed*/
 									
 				}

@@ -10,7 +10,7 @@
 struct para_config drv_config ={
     op_func: 1,
     /*1 operation*/
-    name: "pullup20",
+    name: "pullup",
     interface: USER_DEF,
     pnum: 0,
 };
@@ -26,7 +26,7 @@ void init_compt(void){ /*initial*/
 	
 }
 
-void pullup20(void){ /*operation*/
+void pullup(void){ /*operation*/
 	struct para gpio20;
 	gpio20.gpio = 20;
 	gpio20.on_off = 2;

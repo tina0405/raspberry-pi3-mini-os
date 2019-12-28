@@ -4,5 +4,5 @@ struct para{
 	unsigned long gpio;
 	int on_off;
 };
-void kservice_set_gpio(struct para parameter);
+void kservice_setgpio_on_off(struct para parameter);
 #endif

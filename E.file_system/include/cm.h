@@ -26,17 +26,20 @@ struct symbol_struct{
 	void* opera_sym_addr;
 	unsigned long rm_addr;
 	struct com_file* file;
-	void* app_page;
-	void* hardware;
+	void* app_page;	
         /*hardware*/
-	void* config_para;
+	
 };
 extern struct symbol_struct ksym[128];/*Kernel Table*/
+extern struct com_file* current_file;
 struct com_file{
 	char filename[32];
 	struct symbol_struct* sym;
+	int type;
 	void* use_compt_page;
 	void* used_compt_page;
+	void* hardware;
+	void* config_para;
 	//unsigned long rmcom;
 };
 
