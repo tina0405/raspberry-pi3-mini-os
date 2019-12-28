@@ -9,14 +9,14 @@ void ls_compt(void){
 		void* ptr = (int*)ksym[compt_i].opera_sym_addr+1;
 		printf("Component name: %s\n\r",ksym[compt_i].ksym_name);
 		
-		struct symbol_struct* tmp_sym = NULL;
+		struct com_file* tmp_sym = NULL;
 		unsigned long u_count = 0;
 		if(ksym[compt_i].file->use_compt_page!=NULL){
 			printf("	*Use component:");
 			u_count = *((unsigned long*)ksym[compt_i].file->use_compt_page);
 			for(int tmp_count=0; tmp_count<u_count; tmp_count++){
 				tmp_sym = ((unsigned long*)ksym[compt_i].file->use_compt_page)[tmp_count+1];
-				printf("D%s ",tmp_sym->ksym_name);
+				printf("%s ",tmp_sym->sym->ksym_name);
 			}
 			printf("\n\r");
 		}
@@ -25,7 +25,7 @@ void ls_compt(void){
 			u_count = *((unsigned long*)ksym[compt_i].file->used_compt_page);
 			for(int tmp_count=0; tmp_count < u_count; tmp_count++){
 				tmp_sym = ((unsigned long*)ksym[compt_i].file->used_compt_page)[tmp_count+1];
-				printf("U%s ",tmp_sym->ksym_name);
+				printf("%s ",tmp_sym->sym->ksym_name);
 			}
 			printf("\n\r");
 		}

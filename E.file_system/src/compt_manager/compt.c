@@ -589,11 +589,9 @@ int relocate(char* comp_start,unsigned long section_table_start,unsigned long se
 
 								if(current_file->use_compt_page == NULL){
 									struct mm_info com_p = allocate_kernel_page(4096);
-									printf("C");
 									current_file->use_compt_page = com_p.start;
-									printf("D");
-									((unsigned long*)current_file->use_compt_page)[0] = 0;
-									printf("s");
+									((unsigned long*)current_file->use_compt_page)[0] = 1;
+									((unsigned long*)current_file->use_compt_page)[1] = (unsigned long)ksym[ksym_i].file;							/*here*/
 								}
 
 
@@ -608,19 +606,19 @@ int relocate(char* comp_start,unsigned long section_table_start,unsigned long se
 								
 								for(int t_count = 0; t_count < tmp_k; t_count++){
 									((unsigned long*)current_file->use_compt_page)[tmp_c+1+t_count] = ((unsigned long*)ksym[ksym_i].file->use_compt_page)[t_count+1];
-									struct symbol_struct* tmp_sym = (struct symbol_struct* )((unsigned long*)ksym[ksym_i].file->use_compt_page + t_count+1);
+									struct com_file* tmp_file = (struct com_file*)((unsigned long*)ksym[ksym_i].file->use_compt_page)[t_count+1];
 
 
-									if(tmp_sym->file->used_compt_page==NULL){
+									if(tmp_file->used_compt_page==NULL){
 										com_page = allocate_kernel_page(4096);
 										((unsigned long*)com_page.start)[0] = 1; 
-										((unsigned long*)com_page.start)[1] = (unsigned long)current_file->sym;
-										tmp_sym->file->used_compt_page = com_page.start;
+										((unsigned long*)com_page.start)[1] = (unsigned long)current_file;
+										tmp_file->used_compt_page = com_page.start;
 									
 									}else{
-										unsigned long com_dep = ((unsigned long*)tmp_sym->file->used_compt_page)[0];
-										((unsigned long*)tmp_sym->file->used_compt_page)[com_dep + 1] = (unsigned long)current_file->sym;
-										((unsigned long*)tmp_sym->file->used_compt_page)[0] = com_dep+1;
+										unsigned long com_dep = ((unsigned long*)tmp_file->used_compt_page)[0];
+										((unsigned long*)tmp_file->used_compt_page)[com_dep + 1] = (unsigned long)current_file;
+										((unsigned long*)tmp_file->used_compt_page)[0] = com_dep+1;
 									}
 
 										/**/
@@ -631,12 +629,13 @@ int relocate(char* comp_start,unsigned long section_table_start,unsigned long se
 								if(ksym[ksym_i].file->used_compt_page==NULL){
 									com_page = allocate_kernel_page(4096);
 									((unsigned long*)com_page.start)[0] = 1; 
-									((unsigned long*)com_page.start)[1] = (unsigned long)current_file->sym;
+									((unsigned long*)com_page.start)[1] = (unsigned long)(current_file);
 									ksym[ksym_i].file->used_compt_page = com_page.start;
+									/*here*/
 									
 								}else{
 									unsigned long com_dep = ((unsigned long*)ksym[ksym_i].file->used_compt_page)[0];
-									((unsigned long*)ksym[ksym_i].file->used_compt_page)[com_dep + 1] = (unsigned long)current_file->sym;
+									((unsigned long*)ksym[ksym_i].file->used_compt_page)[com_dep + 1] = (unsigned long)current_file;
 									((unsigned long*)ksym[ksym_i].file->used_compt_page)[0] = com_dep+1;
 								}			
 
