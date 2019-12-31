@@ -92,12 +92,12 @@ bl_init:
 .globl bl_sched_wrap
 bl_sched_wrap:
 	mov     x8, x30	
-	blr	x2
+	blr	x1
 	mov     x30, x8
 	ret
 
-.globl bl_compt
-bl_compt:
+.globl bl_com
+bl_com:
 	mov     x8, x30	
 	blr	x1
 	mov     x30, x8

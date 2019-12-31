@@ -75,10 +75,10 @@ int service_index = 0;
 int is_running(struct pcb_struct * task){
 	return (*(task->state)== TASK_RUNNING||*(task->state) == THREAD_JOINABLE||*(task->state) == THREAD_DETACHED);
 }
-struct pcb_struct* round_robin(struct pcb_struct * current_task, struct pcb_struct * head){
-	*(current_task->counter) = 1;	
+struct pcb_struct* round_robin(struct sched_interface* sched){
+	*(sched->current_task->counter) = 1;	
 
-	struct pcb_struct * tmp_task = current_task;
+	struct pcb_struct * tmp_task = sched->current_task;
 	while(1){	
 		if(tmp_task->nextp == NULL){	
 			return NULL;			
@@ -94,26 +94,8 @@ struct pcb_struct* round_robin(struct pcb_struct * current_task, struct pcb_stru
 }
 
 
-struct pcb_struct* LIFO(struct pcb_struct * current_task, struct pcb_struct * head){	
-	struct pcb_struct * tmp_task = head;
-	while(1){
-		if(head->nextp == NULL){	
-			return NULL;
-		}else{
-			if(*(head->nextp->counter)==0){
-				*(head->nextp->counter) = 1;
-				return NULL;
-			}
-			if(is_running(tmp_task->nextp)){
-				return tmp_task->nextp;
-			}else{
-				tmp_task = tmp_task->nextp;			
-			}
-		}
-	}	
-}
 
-
+struct sched_interface* sched;
 void _schedule(void)
 {
 	preempt_disable();
@@ -144,8 +126,10 @@ void _schedule(void)
 		
 		}
 		else{
-
-			struct pcb_struct* result = bl_sched_wrap(task_prio_table[2],head[2],&_start_+(sched_type-(unsigned int)&_start_));
+			
+			sched->current_task = task_prio_table[2];
+			sched->head = head[2];
+			struct pcb_struct* result = bl_sched_wrap(sched, &_start_+(sched_type-(unsigned int)&_start_));
 		
 			if(result == NULL){
 				task_prio_table[2] = head[2]; 

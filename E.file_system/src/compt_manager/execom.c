@@ -2,6 +2,8 @@
 #include<cm.h>
 #include<mm.h>
 #include<str.h>
+#include<utils.h>
+
 int exe_com(char* compt_name,void* para){
 	int length = strlength(compt_name);
 	char str_name[32] = {'\0'};
@@ -34,9 +36,8 @@ int exe_com(char* compt_name,void* para){
 					/*successful*/
 					//printf("%s  ",ptr);
 					ptr = (char*)ptr +32;
-					unsigned long rela_addr = *((unsigned long*)ptr);
-					bl_compt(para, rela_addr);
-					//printf("Succeed to execute component!\n\r");				
+					unsigned long rela_addr = *((unsigned long*)ptr);	
+					bl_com(para, rela_addr);			
 					return 0;/*succeed*/
 									
 				}

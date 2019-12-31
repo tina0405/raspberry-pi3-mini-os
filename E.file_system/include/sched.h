@@ -140,8 +140,10 @@ struct pcb_struct {
 	/* thread_id */
 };
 
-
-
+struct sched_interface{
+	struct pcb_struct * current_task;
+	struct pcb_struct * head;
+};
 
 
 
@@ -153,7 +155,7 @@ extern void preempt_enable(void);
 extern void switch_to(struct pcb_struct* next);
 extern void cpu_switch_to(struct task_struct* prev, struct task_struct* next);
 extern void exit_process(void);
-struct pcb_struct * round_robin(struct pcb_struct * current_task, struct pcb_struct * head);
+extern struct pcb_struct* round_robin(struct sched_interface* sched);
 
 #define INIT_TASK \
 /*cpu_context*/ { { 0,0,0,0,0,0,0,0,0,0,0,0,0}, \
