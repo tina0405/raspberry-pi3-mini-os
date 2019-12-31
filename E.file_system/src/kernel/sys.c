@@ -142,10 +142,6 @@ void kservice_ls_compt(void){
 }
 
 
-void  kservice_change_sched(char* file_name){
-	send_msg(Change_Sched,thread_id_self(), COMPONENT_MANAGER, file_name, 4096);/*CM*/
-}
-
 struct File* kservice_fopen(char* filename, char* type){
 
 	struct mm_info msg_mm = allocate_kernel_page(4096);	
@@ -223,13 +219,6 @@ int kservice_swap(char* name){
 	send_msg(SWAP,thread_id_self(), COMPONENT_MANAGER, msg_mm.start, 4096);/*CM*/
 	return 0;
 }
-
-int kservice_config_compt(int* para){
-	char* string = para; 	
-	return config_compt(para);
-}
-
-
 
 int kservice_region_request(unsigned long address){
 	return hardware_request(address);
@@ -330,28 +319,25 @@ kservice_free_page, /*22*/
 kservice_rm_compt, /*23*/
 kservice_ls_dev, /*24*/
 kservice_ls_compt, /*25*/
-kservice_change_sched,/*26*/
-kservice_fopen,/*27*/
-kservice_fread,/*28*/
-kservice_fwrite,/*29*/
-kservice_fclose,/*30*/
-kservice_fflush,/*31*/
-kservice_fseek,/*32*/
-kservice_ftell,/*33*/
-
-kservice_mount,/*34*/
-kservice_execom,/*35*/
-kservice_swap,/*36*/
+kservice_fopen,/*26*/
+kservice_fread,/*27*/
+kservice_fwrite,/*28*/
+kservice_fclose,/*29*/
+kservice_fflush,/*30*/
+kservice_fseek,/*31*/
+kservice_ftell,/*32*/
+kservice_mount,/*33*/
+kservice_execom,/*34*/
+kservice_swap,/*35*/
 /*below for symbol table*/
-kservice_config_compt,/*37*/
-kservice_region_request,/*38*/
-kservice_allocate_kpage, /*39*/
-kservice_schedule, /*40*/
-kservice_reg_compt, /*41*/
-kservice_unreg_compt, /*42*/
-kservice_dev_read, /*43*/
-kservice_dir_interface, /*44*/
-kservice_put32, /*45*/
-kservice_kstart,/*46*/
-kservice_kend/*47*/
+kservice_region_request,/*36*/
+kservice_allocate_kpage, /*37*/
+kservice_schedule, /*38*/
+kservice_reg_compt, /*39*/
+kservice_unreg_compt, /*40*/
+kservice_dev_read, /*41*/
+kservice_dir_interface, /*42*/
+kservice_put32, /*43*/
+kservice_kstart,/*44*/
+kservice_kend/*45*/
 }; 

@@ -197,13 +197,7 @@ void shell_user_process()
 					   }
 					   file_name[n] = output[f];		                           
 					}
-
-
-		    			if(file_name[8]=='S'  && file_name[9]=='C' && file_name[10]=='H'){
-						call_sys_sched(file_name);
-					}else{
-						call_sys_com(file_name);
-					}					
+					call_sys_com(file_name);				
 					call_sys_write("\n\rtkernel@user_name:");
 					call_sys_write(directory);
 					call_sys_write("$");

@@ -4,10 +4,9 @@
 #define INCOM 1
 #define RMCOM 2
 #define SWAP 3
-#define Change_Sched 4
-#define OPERATION 5
+#define OPERATION 4
 
-#define kapi_count 48
+#define kapi_count 46
 /*type*/
 #define FS_COM 1
 #define DRV_COM 2
@@ -31,6 +30,7 @@ struct symbol_struct{
 	
 };
 extern struct symbol_struct ksym[128];/*Kernel Table*/
+extern struct symbol_struct sched_sym;
 extern struct com_file* current_file;
 struct com_file{
 	char filename[32];

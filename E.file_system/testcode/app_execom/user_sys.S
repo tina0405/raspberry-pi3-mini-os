@@ -14,7 +14,7 @@
 .set SYS_CD_NUMBER, 11
 .set SYS_DUMP_NUMBER, 12
 .set SYS_ROOT_NUMBER, 13
-.set SYS_MOD_NUMBER, 14
+.set SYS_RUN_NUMBER, 14
 .set SYS_SEND_NUMBER, 15
 .set SYS_RECV_NUMBER, 16 /*here*/
 .set SYS_TRYLOCK_NUMBER, 17
@@ -26,20 +26,17 @@
 .set SYS_RMCOM_NUMBER, 23
 .set SYS_LSDEV_NUMBER, 24
 .set SYS_LSCOM_NUMBER, 25
-.set SYS_SCHED_NUMBER, 26
-.set SYS_FOPEN_NUMBER, 27
-.set SYS_FREAD_NUMBER, 28
-.set SYS_FWRITE_NUMBER, 29
-.set SYS_FCLOSE_NUMBER, 30
-.set SYS_FFLUSH_NUMBER, 31
 
-.set SYS_FSEEK_NUMBER, 32
-.set SYS_FTELL_NUMBER, 33
-
-
-.set SYS_MOUNT_NUMBER, 34
-.set SYS_EXECOM_NUMBER, 35
-.set SYS_SWAP_NUMBER, 36
+.set SYS_FOPEN_NUMBER, 26
+.set SYS_FREAD_NUMBER, 27
+.set SYS_FWRITE_NUMBER, 28
+.set SYS_FCLOSE_NUMBER, 29
+.set SYS_FFLUSH_NUMBER, 30
+.set SYS_FSEEK_NUMBER, 31
+.set SYS_FTELL_NUMBER, 32
+.set SYS_MOUNT_NUMBER, 33
+.set SYS_EXECOM_NUMBER, 34
+.set SYS_SWAP_NUMBER, 35
 
 
 .globl user_delay
@@ -129,7 +126,7 @@ call_sys_root:
 
 .globl call_sys_run
 call_sys_run:
-	mov w8, #SYS_MOD_NUMBER
+	mov w8, #SYS_RUN_NUMBER
 	svc #0
 	ret
 
@@ -196,12 +193,6 @@ call_sys_lsdev:
 .globl call_sys_lscom
 call_sys_lscom:
 	mov w8, #SYS_LSCOM_NUMBER
-	svc #0
-	ret
-
-.globl call_sys_sched
-call_sys_sched:
-	mov w8, #SYS_SCHED_NUMBER
 	svc #0
 	ret
 

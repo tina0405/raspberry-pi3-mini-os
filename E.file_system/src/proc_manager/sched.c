@@ -126,7 +126,6 @@ void _schedule(void)
 		
 		}
 		else{
-			
 			sched->current_task = task_prio_table[2];
 			sched->head = head[2];
 			struct pcb_struct* result = bl_sched_wrap(sched, &_start_+(sched_type-(unsigned int)&_start_));

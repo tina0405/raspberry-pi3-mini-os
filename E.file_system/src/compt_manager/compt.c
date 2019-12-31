@@ -153,89 +153,6 @@ int compt_file(char* file_name){/*incom*/
 
 }
 
-int compt_sched_file(char* file_name){/*incom*/
-
-	unsigned int clust = 0;
-	openfile* basefile;
-        base = 0;
-        struct dev* dev_param;
-	struct fs_unit* return_fs;
-	for(int k = 0;file_dir[k].name[0]!='\0';k++){
-	   if(!memcmp(file_dir[k].name,file_name,8)){
-		clust =((unsigned int)file_dir[k].ch)<<16|file_dir[k].cl;
-		if(clust){
-
-			printf("\n\r");
-			return_fs = fs_type_support(partition[cd_rem].type);
-                        dev_param = &partition[cd_rem];
-               		if(return_fs){
-				basefile = bl_init( &_start_+(return_fs->addr_readfile -(unsigned int)&_start_), clust, dev_param);
-			}else{
-				printf("Not support %x type in File system",partition[cd_rem].type);
-				return 0;
-			}
-			
-			unsigned long size_u = file_dir[k].size;
-			printf("Component: read file OK!\n\r");
-			printf("----------------------Change Schedule----------------------\n\r");
-			
-			base = basefile->log_addr;
-			unsigned long section_table_start;
-			unsigned long section_num;
-			unsigned long section_size;
-			unsigned long name_index;
-			
-			int check = check_file_format(base ,&section_table_start,&section_num,&section_size,&name_index);
-			if(!check){printf("\n\rNot ELF format!"); return 0;} 
-			
-			for(int num_sec = 0 ; num_sec < section_num ; num_sec++){
-                        	find_sec_addr(section_table_start + base + num_sec * section_size);
-			}
-			
-			struct mm_info section_mm;
-			section_mm = allocate_kernel_page(4096);
-			unsigned long section = section_mm.start;
-			comp_start = section;			
-
-
-			memcpy((char *)(base + move_sec[0].addr),(char *) section,move_sec[0].size);/*.text*/
-			section = section + move_sec[0].size;
-			memcpy((char *)(base + move_sec[1].addr),(char *) section, move_sec[1].size);/*.rodata*/
-			section = section + move_sec[1].size;
-			memcpy((char *)(base + move_sec[2].addr), (char *)section,move_sec[2].size);/*.data*/
-			section = section + move_sec[2].size;
-			memzero((char *)section,move_sec[3].size);/*.bss*/
-			section = section + move_sec[3].size;
-			unsigned long load_size = move_sec[0].size + move_sec[1].size + move_sec[2].size + move_sec[3].size;
-			
-
-			/*relocate*/
-			int rela_err = relocate(comp_start,section_table_start,section_size,(char *)base,(char *)(base + move_sec[4].addr),move_sec[4].size);
-			if(!rela_err){
-				base = use_compt_func(base,(char *)(base + move_sec[5].addr),move_sec[5].size,"sched_policy");
-				if(base<0){
-					printf("Without sched_policy function!");
-					sched_type = &round_robin;
-				}
-				sched_type = comp_start+base;
-			}
-				
-		}
-		else{
-			printf("\n\rNot file");
-			return 0;		
-		}
-		return 1;
-	   }
-	   
-
-        }
-
-	printf("\n\rNot file");
-	return 0;
-
-}
-
 
 int rm_compt_file(char* compt_name){/*improve: component name*/ /*remove*/
 
@@ -312,182 +229,205 @@ int unreg_compt(char* compt_name){/*remove app*/
 }
 
 
-
-int config_compt(int* para){
-/*
-	if(current_file->sym == NULL){
-		printf("Error: Without registering.Could not config parameter.");
-		return -1;
-	}
-	if(check_config==1){
-		int* old_para = current_file -> sym ->config_para;
-		if( *old_para != *para){
-			printf("parameter's count is not compare:old->%d, new->%d",*old_para, *para);
-			check_config = 2;
-			return -1;
-		}
-
-		for(int a=0; a<*old_para; a++){
-			if(*(old_para+a) != *(para+a)){
-				printf("parameter's size is not compare");
-				check_config = 2;
-				return -1;
-			}
-		}
-		
-	}
-	else{
-		struct mm_info para_page = allocate_kernel_page(4096);
-		memcpy((int*)para,(int*)para_page.start,4*((*para)+1));
-		current_file-> sym-> config_para = para_page.start;
-
-		int* a = current_file->sym-> config_para;	
-		
-	}
-*/
-	return *para;
-
-}
-
+struct symbol_struct sched_sym;
 int reg_compt(char* compt_name, int type, void* para){/*return num*/
-	int ksym_i = 9,compt_i=0;
+	int ksym_i = 9,compt_i= 0, fun_type = 0;
+	unsigned long fun_base = 0, tmp_sched = 0;
 	switch(type){
 		case DRV_COM:
-			break;
-		case SCH_COM:
-			break;
-		default:
-			return 1;/*fail*/
-			break;
-
-	}
-
-
-	if(check_config){/*swap*/
-		printf("swap");
-		if(compt_name != NULL){
-			printf("Without SWAP operation!");
-			return 1;/*fail*/
-		}
-		void* old_para = current_file->config_para;
-				
-		printf("Ope:%x\n\r",current_file ->config_para);
-		printf("Operation function count is compare:old->%d, new->%d",((int*)current_file->config_para)[0], ((int*)para)[0]);
-								
-		if(*((int*)old_para) != *((int*)para)){
-			printf("Operation function count is not compare:old->%d, new->%d",*((int*)old_para), *((int*)para));
-			check_config = 2;/*not compare*/
-			return -1;
-		}
-		printf("Operation function count is compare:old->%d, new->%d",*((int*)old_para), *((int*)para));
-		for(int i=0; i<*((int*)old_para); i++){
-			if(memcmp(((int*)old_para+1), ((int*)para+1) ,32)){
-				printf("Function name do not compare:old->%s, new->%s",((int*)old_para+1) ,((int*)para+1));
-				check_config = 2;
-				return -1;
-			}else{
-				printf("Function name compare:old->%s, new->%s",((int*)old_para+1) ,((int*)para+1));
-				*((int*)old_para+1+8) = comp_start + use_compt_func(base, (char*)(base + move_sec[5].addr), move_sec[5].size, (char*)((int*)old_para+1));                       
-			}
-			if(*((int*)old_para+1+8+2) != *((int*)para+1+8+1)){
-				printf("parameter's count is not compare:old->%d, new->%d",*((int*)old_para+1+8+2), *((int*)para+1+8+1));
-				check_config = 2;/*not compare*/
-				return -1;
-			}		
-			for(int a=0; a<*((int*)old_para+1+8+2+1); a++){
-				if(*((int*)old_para+1+8+2+1+a) != *((int*)para+1+8+1+1+a)){
-					printf("parameter's size is not compare");
+			if(check_config){/*swap*/
+				if(compt_name != NULL){
+					printf("Without SWAP Operation!");
 					check_config = 2;/*not compare*/
 					return -1;
 				}
-			}
-			printf("parameter's size compare");
-			old_para = ((int*)old_para+1+8+2+1+*((int*)old_para+1+8+2+1));
-			para = ((int*)para+1+8+1+1+*((int*)para+1+8+1+1));
-		}
-
-		return 0;
-	}else{
-		int length = strlength(compt_name);
-		for(int num = kapi_count; num<128; num++){
-			if(!memcmp(&ksym[num].ksym_name[9],compt_name,length)){
-				printf("Cannot register! kservice_%s has existed!",compt_name);
-				return 1;/*fail*/
-			}			
-		}
-		for(int num = kapi_count; num<128; num++){
-			if(ksym[num].ksym_name[0] == '\0'){
-				memcpy("kservice_",&ksym[num].ksym_name[0],9);
-				while(*(compt_name + compt_i)!= '\0'){
-					ksym[num].ksym_name[ksym_i++] = *(compt_name + (compt_i++));	
+				void* old_para = current_file->config_para;				
+				if(*((int*)old_para) != *((int*)para)){
+					check_config = 2;/*not compare*/
+					return -1;
 				}
-				void * ptr = para;
-				int function_count = *((int*)ptr);
+				for(int i=0; i<*((int*)old_para); i++){
+					if(memcmp(((int*)old_para+1), ((int*)para+1) ,32)){
+						printf("Function name do not compare:old->%s, new->%s",((int*)old_para+1) ,((int*)para+1));
+						check_config = 2;
+						return -1;
+					}else{
+						*((int*)old_para+1+8) = comp_start + use_compt_func(base, (char*)(base + move_sec[5].addr), move_sec[5].size, (char*)((int*)old_para+1));                       
+					}
+					if(*((int*)old_para+1+8+2) != *((int*)para+1+8+1)){
+						printf("parameter's count is not compare:old->%d, new->%d",*((int*)old_para+1+8+2), *((int*)para+1+8+1));
+						check_config = 2;/*not compare*/
+						return -1;
+					}		
+					for(int a=0; a<*((int*)old_para+1+8+2+1); a++){
+						if(*((int*)old_para+1+8+2+1+a) != *((int*)para+1+8+1+1+a)){
+							printf("parameter's size is not compare");
+							check_config = 2;/*not compare*/
+							return -1;
+						}
+					}
+					old_para = ((int*)old_para+1+8+2+1+*((int*)old_para+1+8+2+1));
+					para = ((int*)para+1+8+1+1+*((int*)para+1+8+1+1));
+				}
+
+				return 0;
+			}else{
+				if(!compt_name){
+					printf("Cannot register! Need_name!");
+					return 1;/*fail*/
+				}
+				int length = strlength(compt_name);
+				for(int num = kapi_count; num<128; num++){
+					if(!memcmp(&ksym[num].ksym_name[9],compt_name,length)){
+						printf("Cannot register! kservice_%s has existed!",compt_name);
+						return 1;/*fail*/
+					}			
+				}
+				for(int num = kapi_count; num<128; num++){
+					if(ksym[num].ksym_name[0] == '\0'){
 						
+						void * ptr = para;
+						int function_count = *((int*)ptr);
+						
+						printf("function count:%d\n\r",function_count);
+						ptr = ((int*)ptr)+1;
+						struct mm_info op_page = allocate_kernel_page(4096);/*operation table*/
+						current_file-> config_para = op_page.start;
+						*((int*)op_page.start) = function_count;	
+						void* page_ptr = (char*)op_page.start+4;				
+						/*
+						struct para_config{
+							int op_func;
+							int interface;
+							char name[32];
+							int pnum;
+							int para_1;
+							int para_2;
+
+							int interface2;
+							char name2[32];
+							int pnum2;
+							int para2_1;
+							...
+						};
+
+						*/
+						/*operation table
+						|++++++++++++|	----->  offset
+						|function num|	-----> 	int -> 4 bytes
+						|name	     |	----->	char*32 -> 32 bytes 
+						|addr	     |	----->	unsigned long -> 8 bytes
+						|para num    |	----->	int -> 4 byte
+						|para1...    |	----->	int*para_num -> 4*para_num bytes
+						...						
+						|++++++++++++|
+						*/
+
+						for(int func_check = 0; func_check < function_count; func_check++){
+							fun_type = *((int*)ptr);					
+							ptr = ((int*)ptr) + 1;
+							memcpy((char*)ptr, (char*)page_ptr, 32);
+							page_ptr=(unsigned long*)page_ptr + 4;
+							fun_base = use_compt_func(base, (char*)(base + move_sec[5].addr), move_sec[5].size, (char*)ptr);
+							if(fun_base<=0){
+								free_page(op_page.start,1);
+								return 1;
+							}
+							*((unsigned long*)page_ptr) = comp_start + fun_base;
+							if(fun_type != USER_DEF){					
+								printf("Not user definition");
+								return 1;
+							}
+				
+							ptr = ((char*)ptr) + 32;
+							page_ptr = ((char*)page_ptr) + 8;
+							int para_num =*((int*)ptr);
+							memcpy((char*)ptr, (char*)page_ptr, 4*(para_num+1));
+							ptr = ((char*)ptr)+4*(para_num+1);
+							page_ptr = ((char*)page_ptr)+4*(para_num+1);					
+												
+						}
+						memcpy("kservice_",&ksym[num].ksym_name[0],9);
+						while(*(compt_name + compt_i)!= '\0'){
+							ksym[num].ksym_name[ksym_i++] = *(compt_name + (compt_i++));	
+						}
+						ksym[num].opera_sym_addr = op_page.start;
+						ksym[num].rm_addr = comp_start + use_compt_func(base,(char *)(base + move_sec[5].addr),move_sec[5].size,"exit_compt");
+						printf("Register component function: %s\n\r",ksym[num].ksym_name);
+						current_file->sym = &ksym[num];
+						ksym[num].file = current_file;
+			
+						return 0;
+				
+					}
+
+				}
+				printf("Cannot register! Symbol table is full!");
+				return 1;/**/
+			}
+			break;
+		case SCH_COM:
+			if(check_config){/*swap*/
+				return 0;
+			}else{
+				void * ptr = para;
+				int function_count = *((int*)ptr);	
 				printf("function count:%d\n\r",function_count);
 				ptr = ((int*)ptr)+1;
 				struct mm_info op_page = allocate_kernel_page(4096);/*operation table*/
 				current_file-> config_para = op_page.start;
 				*((int*)op_page.start) = function_count;	
 				void* page_ptr = (char*)op_page.start+4;				
-				/*
-				struct para_config{
-					int op_func;
-					int interface;
-					char name[32];
-					int pnum;
-					int para_1;
-					int para_2;
-
-					int interface2;
-					char name2[32];
-					int pnum2;
-					int para2_1;
-					...
-				};
-
-				*/
-				/*operation table
-				|++++++++++++|	----->  offset
-				|function num|	-----> 	int -> 4 bytes
-				|name	     |	----->	char*32 -> 32 bytes 
-				|addr	     |	----->	unsigned long -> 8 bytes
-				|para num    |	----->	int -> 4 byte
-				|para1...    |	----->	int*para_num -> 4*para_num bytes
-				...						
-				|++++++++++++|
-				*/
-
 				for(int func_check = 0; func_check < function_count; func_check++){
-					if(*((int*)ptr) == USER_DEF){/*interface*/
-						ptr = ((int*)ptr) + 1;
-						memcpy((char*)ptr, (char*)page_ptr, 32);
-						page_ptr=(unsigned long*)page_ptr + 4;
-						*((unsigned long*)page_ptr) = comp_start + use_compt_func(base, (char*)(base + move_sec[5].addr), move_sec[5].size, (char*)ptr);                       
-						ptr = ((char*)ptr) + 32;
-						page_ptr = ((char*)page_ptr) + 8;
-						int para_num =*((int*)ptr);
-						memcpy((char*)ptr, (char*)page_ptr, 4*(para_num+1));
-						ptr = ((char*)ptr)+4*(para_num+1);
-						page_ptr = ((char*)page_ptr)+4*(para_num+1);
-					}else/**/{
-						printf("Not user definition");
-					}							
-				}
-				ksym[num].opera_sym_addr = op_page.start;
-				//opera_addr = use_compt_func(base,(char *)(base + move_sec[5].addr),move_sec[5].size,"oprt_compt");
-				ksym[num].rm_addr = comp_start + use_compt_func(base,(char *)(base + move_sec[5].addr),move_sec[5].size,"exit_compt");
-				printf("Register component function: %s\n\r",ksym[num].ksym_name);
-				//memcpy(compt_name, &cfile[com_index].filename[0],8);
-				current_file->sym = &ksym[num];
-				ksym[num].file = current_file;
-				return 0; /*succeed*/
-			}
+					fun_type = *((int*)ptr);					
+					ptr = ((int*)ptr) + 1;
+					memcpy((char*)ptr, (char*)page_ptr, 32);
+					page_ptr=(unsigned long*)page_ptr + 4;
+					fun_base = use_compt_func(base, (char*)(base + move_sec[5].addr), move_sec[5].size, (char*)ptr);
+					if(fun_base<=0){
+						free_page(op_page.start,1);
+						return 1;
+					}
+					*((unsigned long*)page_ptr) = comp_start + fun_base;
+					if(fun_type == USER_DEF){}
+					else if(fun_type == SCH_DEF){
 
-		}
-		printf("Cannot register! Symbol table is full!");
-		return 1;/**/
+						sched_type =  fun_base + comp_start;
+					}else{
+						free_page(op_page.start,1);
+						return 1;
+					}			
+					ptr = ((char*)ptr) + 32;
+					page_ptr = ((char*)page_ptr) + 8;
+					int para_num =*((int*)ptr);
+					memcpy((char*)ptr, (char*)page_ptr, 4*(para_num+1));
+					ptr = ((char*)ptr)+4*(para_num+1);
+					page_ptr = ((char*)page_ptr)+4*(para_num+1);					
+												
+				}
+				if(sched_sym.opera_sym_addr!=NULL){
+					/*clear sched*/
+				}
+				sched_sym.opera_sym_addr = op_page.start;
+				sched_sym.rm_addr = comp_start + use_compt_func(base,(char *)(base + move_sec[5].addr),move_sec[5].size,"exit_compt");	
+				int index_s = 0;
+				while(*(compt_name + index_s)!= '\0'){
+					sched_sym.ksym_name[index_s] = *(compt_name + (index_s));
+					index_s++;	
+				}
+				sched_sym.ksym_name[index_s] = '\0';
+				printf("Register component function: %s\n\r",sched_sym.ksym_name);
+				current_file->sym = &sched_sym;
+				sched_sym.file = current_file;
+				return 0;
+				
+			}
+			
+			break;
+		default:
+			break;
 	}
+	
 }
 
 extern struct pcb_struct *thread_id_table[4096];/*tid and pcb map*/

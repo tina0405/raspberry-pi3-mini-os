@@ -40,7 +40,7 @@ void compt_daemon(void)
 					if(index_pop == mail_size){index_pop=0;}
 					break;
 				case SWAP:
-					printf("A:%s B:%s\n\r",compt_mail[index_pop].msg, &compt_mail[index_pop].msg[10]);
+					printf("New File:%s |Old component:%s\n\r",compt_mail[index_pop].msg, &compt_mail[index_pop].msg[10]);
 					swap_compt(compt_mail[index_pop].msg, &compt_mail[index_pop].msg[10]);
 					free_page(compt_mail[index_pop].msg,1);
 					compt_mail[index_pop].letter_type = 0;	
@@ -55,13 +55,6 @@ void compt_daemon(void)
 					index_pop++;			
 					if(index_pop == mail_size){index_pop=0;}
 					break;	
-				case Change_Sched:
-					compt_sched_file(compt_mail[index_pop].msg);
-					free_page(compt_mail[index_pop].msg,1);
-					compt_mail[index_pop].letter_type = 0;	
-					index_pop++;			
-					if(index_pop == mail_size){index_pop=0;}
-					break;
 				
 				default:
 					break;

@@ -19,8 +19,8 @@ Linker script and memory map
 .iplt           0x0000000000000178        0x0
  .iplt          0x0000000000000178        0x0 sys_need.o
 
-.text.user      0x0000000000000178      0x138
- .text.user     0x0000000000000178      0x138 user_sys.o
+.text.user      0x0000000000000178      0x1d0
+ .text.user     0x0000000000000178      0x1d0 user_sys.o
                 0x0000000000000178                user_delay
                 0x0000000000000184                call_sys_write
                 0x0000000000000190                call_sys_exit
@@ -45,30 +45,43 @@ Linker script and memory map
                 0x0000000000000274                call_sys_allocate_page
                 0x0000000000000280                call_sys_free_page
                 0x000000000000028c                call_sys_rmcom
-                0x0000000000000298                thread_equal
+                0x0000000000000298                call_sys_lsdev
+                0x00000000000002a4                call_sys_lscom
+                0x00000000000002b0                call_sys_fopen
+                0x00000000000002bc                call_sys_fread
+                0x00000000000002c8                call_sys_fclose
+                0x00000000000002d4                call_sys_fwrite
+                0x00000000000002e0                call_sys_fflush
+                0x00000000000002ec                call_sys_fseek
+                0x00000000000002f8                call_sys_ftell
+                0x0000000000000304                call_sys_mount
+                0x0000000000000310                call_sys_execom
+                0x000000000000031c                call_sys_swap
+                0x0000000000000328                thread_equal
+                0x0000000000000340                sp_info
 
-.rodata         0x00000000000002b0       0x5a
+.rodata         0x0000000000000348       0x5a
  *(.rodata)
- .rodata        0x00000000000002b0       0x5a testfork.o
+ .rodata        0x0000000000000348       0x5a testfork.o
 
-.rela.dyn       0x0000000000000310        0x0
- .rela.iplt     0x0000000000000310        0x0 sys_need.o
+.rela.dyn       0x00000000000003a8        0x0
+ .rela.iplt     0x00000000000003a8        0x0 sys_need.o
 
-.data           0x000000000000030a        0x0
+.data           0x00000000000003a2        0x0
  *(.data)
- .data          0x000000000000030a        0x0 sys_need.o
- .data          0x000000000000030a        0x0 testfork.o
- .data          0x000000000000030a        0x0 user_sys.o
+ .data          0x00000000000003a2        0x0 sys_need.o
+ .data          0x00000000000003a2        0x0 testfork.o
+ .data          0x00000000000003a2        0x0 user_sys.o
 
-.igot.plt       0x0000000000000310        0x0
- .igot.plt      0x0000000000000310        0x0 sys_need.o
+.igot.plt       0x00000000000003a8        0x0
+ .igot.plt      0x00000000000003a8        0x0 sys_need.o
 
-.bss            0x000000000000030c        0x4
+.bss            0x00000000000003a4        0x4
  *(.bss*)
- .bss           0x000000000000030c        0x0 sys_need.o
- .bss           0x000000000000030c        0x4 testfork.o
-                0x000000000000030c                t
- .bss           0x0000000000000310        0x0 user_sys.o
+ .bss           0x00000000000003a4        0x0 sys_need.o
+ .bss           0x00000000000003a4        0x4 testfork.o
+                0x00000000000003a4                t
+ .bss           0x00000000000003a8        0x0 user_sys.o
 LOAD sys_need.o
 LOAD testfork.o
 LOAD user_sys.o

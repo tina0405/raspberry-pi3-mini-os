@@ -14,7 +14,7 @@
 .set SYS_CD_NUMBER, 11
 .set SYS_DUMP_NUMBER, 12
 .set SYS_ROOT_NUMBER, 13
-.set SYS_MOD_NUMBER, 14
+.set SYS_RUN_NUMBER, 14
 .set SYS_SEND_NUMBER, 15
 .set SYS_RECV_NUMBER, 16 /*here*/
 .set SYS_TRYLOCK_NUMBER, 17
@@ -24,6 +24,20 @@
 .set SYS_ALLOCP_NUMBER, 21
 .set SYS_FREEP_NUMBER, 22
 .set SYS_RMCOM_NUMBER, 23
+.set SYS_LSDEV_NUMBER, 24
+.set SYS_LSCOM_NUMBER, 25
+
+.set SYS_FOPEN_NUMBER, 26
+.set SYS_FREAD_NUMBER, 27
+.set SYS_FWRITE_NUMBER, 28
+.set SYS_FCLOSE_NUMBER, 29
+.set SYS_FFLUSH_NUMBER, 30
+.set SYS_FSEEK_NUMBER, 31
+.set SYS_FTELL_NUMBER, 32
+.set SYS_MOUNT_NUMBER, 33
+.set SYS_EXECOM_NUMBER, 34
+.set SYS_SWAP_NUMBER, 35
+
 
 .globl user_delay
 user_delay:
@@ -112,7 +126,7 @@ call_sys_root:
 
 .globl call_sys_run
 call_sys_run:
-	mov w8, #SYS_MOD_NUMBER
+	mov w8, #SYS_RUN_NUMBER
 	svc #0
 	ret
 
@@ -170,6 +184,78 @@ call_sys_rmcom:
 	svc #0
 	ret
 
+.globl call_sys_lsdev
+call_sys_lsdev:
+	mov w8, #SYS_LSDEV_NUMBER
+	svc #0
+	ret
+
+.globl call_sys_lscom
+call_sys_lscom:
+	mov w8, #SYS_LSCOM_NUMBER
+	svc #0
+	ret
+
+.globl call_sys_fopen
+call_sys_fopen:
+	mov w8, #SYS_FOPEN_NUMBER
+	svc #0
+	ret
+
+.globl call_sys_fread
+call_sys_fread:
+	mov w8, #SYS_FREAD_NUMBER
+	svc #0
+	ret
+
+.globl call_sys_fclose
+call_sys_fclose:
+	mov w8, #SYS_FCLOSE_NUMBER
+	svc #0
+	ret
+
+.globl call_sys_fwrite
+call_sys_fwrite:
+	mov w8, #SYS_FWRITE_NUMBER
+	svc #0
+	ret
+
+.globl call_sys_fflush
+call_sys_fflush:
+	mov w8, #SYS_FFLUSH_NUMBER
+	svc #0
+	ret
+
+.globl call_sys_fseek
+call_sys_fseek:
+	mov w8, #SYS_FSEEK_NUMBER
+	svc #0
+	ret
+
+.globl call_sys_ftell
+call_sys_ftell:
+	mov w8, #SYS_FTELL_NUMBER
+	svc #0
+	ret
+
+.globl call_sys_mount
+call_sys_mount:
+	mov w8, #SYS_MOUNT_NUMBER
+	svc #0
+	ret
+
+.globl call_sys_execom
+call_sys_execom:
+	mov w8, #SYS_EXECOM_NUMBER
+	svc #0
+	ret
+
+.globl call_sys_swap
+call_sys_swap:
+	mov w8, #SYS_SWAP_NUMBER
+	svc #0
+	ret
+
 /* Return true if T1 and T2 both name the same thread.  Otherwise, false.  */
 .globl thread_equal
 thread_equal:
@@ -182,4 +268,7 @@ eq:
 neq:	
 	ret
 
-
+.globl sp_info
+sp_info:
+	ldr x0, [sp]
+	ret
