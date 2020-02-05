@@ -14,4 +14,4 @@
 * Document: https://hackmd.io/s/S1Ab0A9pX#
 * Reference:
 1. [Learning operating system development using Linux kernel and Raspberry Pi](https://github.com/s-matyukevich/raspberry-pi-os)
-2. [Driver reference](http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.ddi0500g/BABHBJCI.html)
+2. [Driver reference](https://github.com/bztsrc/raspi3-tutorial)
